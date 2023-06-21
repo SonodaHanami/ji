@@ -17,9 +17,42 @@
         }
 
         #table_main td {
-            background-color: #FFFF00;
+            color: #000;
             border: 1px solid black;
             width: 80px;
+        }
+
+        .cover_0, .cover_1 {
+            background-image: linear-gradient(to bottom right, #A9C9FF, #FFBBEC 25%, #A9C9FF 50%, #FFBBEC 75%, #A9C9FF);
+            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: content-box;
+            -webkit-background-size: 200% 100%;
+        }
+
+        .cover_0 {
+            -webkit-animation: maskedAnimation_0 2s infinite linear;
+        }
+
+        .cover_1 {
+            -webkit-animation: maskedAnimation_1 2s infinite linear;
+        }
+
+        @keyframes maskedAnimation_0 {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 0 -200%;
+            }
+        }
+
+        @keyframes maskedAnimation_1 {
+            0% {
+                background-position: -100% 100%;
+            }
+            100% {
+                background-position: 100% -100%;
+            }
         }
 
         #table_header td {
@@ -74,41 +107,6 @@
         </tr>
     </table>
     <table id="table_main">
-        <tr>
-            <td id="td_11" onclick="func_td('11')"></td>
-            <td id="td_12" onclick="func_td('12')"></td>
-            <td id="td_13" onclick="func_td('13')"></td>
-            <td id="td_14" onclick="func_td('14')"></td>
-            <td id="td_15" onclick="func_td('15')"></td>
-        </tr>
-        <tr>
-            <td id="td_21" onclick="func_td('21')"></td>
-            <td id="td_22" onclick="func_td('22')"></td>
-            <td id="td_23" onclick="func_td('23')"></td>
-            <td id="td_24" onclick="func_td('24')"></td>
-            <td id="td_25" onclick="func_td('25')"></td>
-        </tr>
-        <tr>
-            <td id="td_31" onclick="func_td('31')"></td>
-            <td id="td_32" onclick="func_td('32')"></td>
-            <td id="td_33" onclick="func_td('33')"></td>
-            <td id="td_34" onclick="func_td('34')"></td>
-            <td id="td_35" onclick="func_td('35')"></td>
-        </tr>
-        <tr>
-            <td id="td_41" onclick="func_td('41')"></td>
-            <td id="td_42" onclick="func_td('42')"></td>
-            <td id="td_43" onclick="func_td('43')"></td>
-            <td id="td_44" onclick="func_td('44')"></td>
-            <td id="td_45" onclick="func_td('45')"></td>
-        </tr>
-        <tr>
-            <td id="td_51" onclick="func_td('51')"></td>
-            <td id="td_52" onclick="func_td('52')"></td>
-            <td id="td_53" onclick="func_td('53')"></td>
-            <td id="td_54" onclick="func_td('54')"></td>
-            <td id="td_55" onclick="func_td('55')"></td>
-        </tr>
     </table>
     <script>
         let total_row = 5, total_col = 5;
@@ -118,18 +116,23 @@
                 contents.push(`未知${(i - 1) * total_col + j}`)
             }
         }
-        function func_td(tdid) {
-            let td = `td_${tdid}`;
-            let current_row = Math.floor(tdid / 10);
-            let current_col = Math.floor(tdid % 10);
+
+        function func_td(current_row, current_col) {
+            let td = `td_${current_row}_${current_col}`;
             let temp_content = document.getElementById(td).innerHTML;
             document.getElementById(td).innerHTML = contents[(current_row - 1) * total_col + current_col - 1];
             contents[(current_row - 1) * total_col + current_col - 1] = temp_content;
-            if (document.getElementById(td).style.backgroundColor != 'rgb(255, 255, 255)') {
-                document.getElementById(td).style.backgroundColor = 'rgb(255, 255, 255)';
+            if (document.getElementById(td).classList.contains('cover_0') || document.getElementById(td).classList.contains('cover_1')) {
+                document.getElementById(td).classList.remove('cover_0');
+                document.getElementById(td).classList.remove('cover_1');
             }
             else {
-                document.getElementById(td).style.backgroundColor = 'rgb(255, 255, 0)';
+                if ((current_row, current_col) % 2 == 0) {
+                    document.getElementById(td).classList.add('cover_0');
+                }
+                else {
+                    document.getElementById(td).classList.add('cover_1');
+                }
             }
         }
 
@@ -165,12 +168,14 @@
             for (let i = 1; i <= total_row; i++) {
                 new_main += `<tr>`;
                 for (let j = 1; j <= total_col; j++) {
-                    new_main += `<td id="td_${i}${j}" onclick="func_td('${i}${j}')"></td>`;
+                    cover_type = (i, j) % 2;
+                    new_main += `<td class="cover_${cover_type}" id="td_${i}_${j}" onclick="func_td(${i}, ${j})"></td>`;
                 }
                 new_main += `</tr>`;
             }
             document.getElementById('table_main').innerHTML = new_main;
         }
+        draw_main();
     </script>
 </body>
 </html>
