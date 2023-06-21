@@ -22,6 +22,10 @@
             width: 80px;
         }
 
+        .completed {
+            background-color: #AAAAAA;
+        }
+
         .cover_0, .cover_1 {
             background-image: linear-gradient(to bottom right, #A9C9FF, #FFBBEC 25%, #A9C9FF 50%, #FFBBEC 75%, #A9C9FF);
             -webkit-text-fill-color: transparent;
@@ -117,22 +121,32 @@
             }
         }
 
-        function func_td(current_row, current_col) {
+        function swap_content(current_row, current_col) {
             let td = `td_${current_row}_${current_col}`;
             let temp_content = document.getElementById(td).innerHTML;
             document.getElementById(td).innerHTML = contents[(current_row - 1) * total_col + current_col - 1];
             contents[(current_row - 1) * total_col + current_col - 1] = temp_content;
+        }
+
+        function func_td(current_row, current_col) {
+            let td = `td_${current_row}_${current_col}`;
             if (document.getElementById(td).classList.contains('cover_0') || document.getElementById(td).classList.contains('cover_1')) {
                 document.getElementById(td).classList.remove('cover_0');
                 document.getElementById(td).classList.remove('cover_1');
+                swap_content(current_row, current_col);
             }
-            else {
+            else if (document.getElementById(td).classList.contains('completed')) {
+                document.getElementById(td).classList.remove('completed');
                 if ((current_row, current_col) % 2 == 0) {
                     document.getElementById(td).classList.add('cover_0');
                 }
                 else {
                     document.getElementById(td).classList.add('cover_1');
                 }
+                swap_content(current_row, current_col);
+            }
+            else {
+                document.getElementById(td).classList.add('completed');
             }
         }
 
