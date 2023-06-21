@@ -2,23 +2,77 @@
 <head>
     <title>新建文本文档 (114514).txt</title>
     <style>
+        table {
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+
         #table_main {
             border: 1px solid black;
-
+            text-align: center;
         }
-        
-        tr {
+
+        #table_main tr {
             height: 80px;
         }
 
-        td {
+        #table_main td {
             background-color: #FFFF00;
             border: 1px solid black;
             width: 80px;
         }
+
+        #table_header td {
+            width: 300px;
+        }
+
+        .div_button {
+            background-color: #F0F0F07F;
+            padding: 10px;
+            border-radius: 3px;
+            border-color: #000;
+            border-style: solid;
+            border-width: 1px;
+            text-align: center;
+        }
+
+        textarea {
+            width: 100%;
+            resize: none;
+        }
     </style>
 </head>
 <body>
+    <table id="table_header">
+        <tr>
+            <td>
+                <div class="div_button" id="div_settings" onclick="handle_button_settings();">设置</div>
+            </td>
+        </tr>
+    </table>
+    <table id="table_settings" style="display: none;">
+        <tr>
+            <td>
+                <input type="number" id="input_row" min="1" max="10" value="5">行
+                <input type="number" id="input_col" min="1" max="10" value="5">列
+            </td>
+        </tr>
+        <tr>
+            <td>
+                每行对应一个格子，从上到下从左到右
+            </td>
+        </tr>
+        <tr>
+            <td>
+                空行会变成空的格子，不足的行会自动补充空行，多余的行会被自动忽略
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <textarea id="textarea_contents" rows="10"></textarea>
+            </td>
+        </tr>
+    </table>
     <table id="table_main">
         <tr>
             <td id="td_11" onclick="func_td('11')"></td>
@@ -26,7 +80,6 @@
             <td id="td_13" onclick="func_td('13')"></td>
             <td id="td_14" onclick="func_td('14')"></td>
             <td id="td_15" onclick="func_td('15')"></td>
-            <td id="td_16" onclick="func_td('16')"></td>
         </tr>
         <tr>
             <td id="td_21" onclick="func_td('21')"></td>
@@ -34,7 +87,6 @@
             <td id="td_23" onclick="func_td('23')"></td>
             <td id="td_24" onclick="func_td('24')"></td>
             <td id="td_25" onclick="func_td('25')"></td>
-            <td id="td_26" onclick="func_td('26')"></td>
         </tr>
         <tr>
             <td id="td_31" onclick="func_td('31')"></td>
@@ -42,7 +94,6 @@
             <td id="td_33" onclick="func_td('33')"></td>
             <td id="td_34" onclick="func_td('34')"></td>
             <td id="td_35" onclick="func_td('35')"></td>
-            <td id="td_36" onclick="func_td('36')"></td>
         </tr>
         <tr>
             <td id="td_41" onclick="func_td('41')"></td>
@@ -50,7 +101,6 @@
             <td id="td_43" onclick="func_td('43')"></td>
             <td id="td_44" onclick="func_td('44')"></td>
             <td id="td_45" onclick="func_td('45')"></td>
-            <td id="td_46" onclick="func_td('46')"></td>
         </tr>
         <tr>
             <td id="td_51" onclick="func_td('51')"></td>
@@ -58,67 +108,68 @@
             <td id="td_53" onclick="func_td('53')"></td>
             <td id="td_54" onclick="func_td('54')"></td>
             <td id="td_55" onclick="func_td('55')"></td>
-            <td id="td_56" onclick="func_td('56')"></td>
-        </tr>
-        <tr>
-            <td id="td_61" onclick="func_td('61')"></td>
-            <td id="td_62" onclick="func_td('62')"></td>
-            <td id="td_63" onclick="func_td('63')"></td>
-            <td id="td_64" onclick="func_td('64')"></td>
-            <td id="td_65" onclick="func_td('65')"></td>
-            <td id="td_66" onclick="func_td('66')"></td>
         </tr>
     </table>
     <script>
-        contents = {
-            '11': '内容',
-            '12': '内容',
-            '13': '内容',
-            '14': '内容',
-            '15': '内容',
-            '16': '内容',
-            '21': '内容',
-            '22': '内容',
-            '23': '内容',
-            '24': '内容',
-            '25': '内容',
-            '26': '内容',
-            '31': '内容',
-            '32': '内容',
-            '33': '内容',
-            '34': '内容',
-            '35': '内容',
-            '36': '内容',
-            '41': '内容',
-            '42': '内容',
-            '43': '内容',
-            '44': '内容',
-            '45': '内容',
-            '46': '内容',
-            '51': '内容',
-            '52': '内容',
-            '53': '内容',
-            '54': '内容',
-            '55': '内容',
-            '56': '内容',
-            '61': '内容',
-            '62': '内容',
-            '63': '内容',
-            '64': '内容',
-            '65': '内容',
-            '66': '内容',
+        let total_row = 5, total_col = 5;
+        let contents = [];
+        for (let i = 1; i <= total_row; i++) {
+            for (let j = 1; j <= total_col; j++) {
+                contents.push(`未知${(i - 1) * total_col + j}`)
+            }
         }
         function func_td(tdid) {
             let td = `td_${tdid}`;
+            let current_row = Math.floor(tdid / 10);
+            let current_col = Math.floor(tdid % 10);
             let temp_content = document.getElementById(td).innerHTML;
-            document.getElementById(td).innerHTML = contents[tdid];
-            contents[tdid] = temp_content;
-            if (document.getElementById(td).style.backgroundColor == 'rgb(255, 255, 0)' || document.getElementById(td).style.backgroundColor == '') {
+            document.getElementById(td).innerHTML = contents[(current_row - 1) * total_col + current_col - 1];
+            contents[(current_row - 1) * total_col + current_col - 1] = temp_content;
+            if (document.getElementById(td).style.backgroundColor != 'rgb(255, 255, 255)') {
                 document.getElementById(td).style.backgroundColor = 'rgb(255, 255, 255)';
             }
             else {
                 document.getElementById(td).style.backgroundColor = 'rgb(255, 255, 0)';
             }
+        }
+
+        function handle_button_settings() {
+            if (document.getElementById('table_settings').style.display == 'none') {
+                document.getElementById('table_settings').style.display = '';
+                document.getElementById('div_settings').innerHTML = "保存设置";
+            }
+            else {
+                document.getElementById('table_settings').style.display = 'none';
+                document.getElementById('div_settings').innerHTML = '设置';
+                draw_main();
+            }
+        }
+
+        function draw_main() {
+            total_row = document.getElementById('input_row').value;
+            total_col = document.getElementById('input_col').value;
+            if (!total_row || total_row < 1 || total_row > 10) {
+                total_row = 5;
+            }
+            if (!total_col || total_col < 1 || total_col > 10) {
+                total_col = 5;
+            }
+            document.getElementById('input_row').value = total_row;
+            document.getElementById('input_col').value = total_col;
+            console.log(total_row, total_col);
+            let new_main = '';
+            contents = document.getElementById('textarea_contents').value.split('\n');
+            while (contents.length < total_row * total_col) {
+                contents.push('');
+            }
+            for (let i = 1; i <= total_row; i++) {
+                new_main += `<tr>`;
+                for (let j = 1; j <= total_col; j++) {
+                    new_main += `<td id="td_${i}${j}" onclick="func_td('${i}${j}')"></td>`;
+                }
+                new_main += `</tr>`;
+            }
+            document.getElementById('table_main').innerHTML = new_main;
         }
     </script>
 </body>
