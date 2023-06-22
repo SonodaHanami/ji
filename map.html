@@ -10,6 +10,11 @@
         #table_main {
             border: 1px solid black;
             text-align: center;
+            background-image: linear-gradient(to bottom right, #A9C9FF, #FFBBEC 25%, #A9C9FF 50%, #FFBBEC 75%, #A9C9FF);
+            /* -webkit-text-fill-color: transparent; */
+            -webkit-background-clip: content-box;
+            -webkit-background-size: 200% 100%;
+            -webkit-animation: maskedAnimation_0 2s infinite linear;
         }
 
         #table_main tr {
@@ -17,28 +22,23 @@
         }
 
         #table_main td {
-            color: #000;
+            color: #000000;
             border: 1px solid black;
             width: 80px;
         }
 
+        .div_open {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .open {
+            background-color: #FFFFFF;
+        }
+
+
         .completed {
             background-color: #AAAAAA;
-        }
-
-        .cover_0, .cover_1 {
-            background-image: linear-gradient(to bottom right, #A9C9FF, #FFBBEC 25%, #A9C9FF 50%, #FFBBEC 75%, #A9C9FF);
-            -webkit-text-fill-color: transparent;
-            -webkit-background-clip: content-box;
-            -webkit-background-size: 200% 100%;
-        }
-
-        .cover_0 {
-            -webkit-animation: maskedAnimation_0 2s infinite linear;
-        }
-
-        .cover_1 {
-            -webkit-animation: maskedAnimation_1 2s infinite linear;
         }
 
         @keyframes maskedAnimation_0 {
@@ -47,15 +47,6 @@
             }
             100% {
                 background-position: 0 -200%;
-            }
-        }
-
-        @keyframes maskedAnimation_1 {
-            0% {
-                background-position: -100% 100%;
-            }
-            100% {
-                background-position: 100% -100%;
             }
         }
 
@@ -121,35 +112,6 @@
             }
         }
 
-        function swap_content(current_row, current_col) {
-            let td = `td_${current_row}_${current_col}`;
-            let temp_content = document.getElementById(td).innerHTML;
-            document.getElementById(td).innerHTML = contents[(current_row - 1) * total_col + current_col - 1];
-            contents[(current_row - 1) * total_col + current_col - 1] = temp_content;
-        }
-
-        function func_td(current_row, current_col) {
-            let td = `td_${current_row}_${current_col}`;
-            if (document.getElementById(td).classList.contains('cover_0') || document.getElementById(td).classList.contains('cover_1')) {
-                document.getElementById(td).classList.remove('cover_0');
-                document.getElementById(td).classList.remove('cover_1');
-                swap_content(current_row, current_col);
-            }
-            else if (document.getElementById(td).classList.contains('completed')) {
-                document.getElementById(td).classList.remove('completed');
-                if ((current_row, current_col) % 2 == 0) {
-                    document.getElementById(td).classList.add('cover_0');
-                }
-                else {
-                    document.getElementById(td).classList.add('cover_1');
-                }
-                swap_content(current_row, current_col);
-            }
-            else {
-                document.getElementById(td).classList.add('completed');
-            }
-        }
-
         function handle_button_settings() {
             if (document.getElementById('table_settings').style.display == 'none') {
                 document.getElementById('table_settings').style.display = '';
@@ -161,6 +123,36 @@
                 draw_main();
             }
         }
+
+        function swap_content(current_row, current_col) {
+            let td = `td_${current_row}_${current_col}`;
+            let div = `div_${current_row}_${current_col}`;
+            if (document.getElementById(td).classList.contains('completed')) {
+                contents[(current_row - 1) * total_col + current_col - 1] = document.getElementById(div).innerHTML;
+                document.getElementById(td).innerHTML = '';
+            }
+            else {
+                document.getElementById(td).innerHTML = `<div class="div_open" id="${div}">${contents[(current_row - 1) * total_col + current_col - 1]}</div>`;
+                contents[(current_row - 1) * total_col + current_col - 1] = '';
+            }
+        }
+
+        function func_td(current_row, current_col) {
+            let td = `td_${current_row}_${current_col}`;
+            if (document.getElementById(td).classList.contains('open')) {
+                document.getElementById(td).classList.remove('open');
+                document.getElementById(td).classList.add('completed');
+            }
+            else if (document.getElementById(td).classList.contains('completed')) {
+                swap_content(current_row, current_col);
+                document.getElementById(td).classList.remove('completed');
+            }
+            else {
+                swap_content(current_row, current_col);
+                document.getElementById(td).classList.add('open');
+            }
+        }
+
 
         function draw_main() {
             total_row = document.getElementById('input_row').value;
