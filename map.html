@@ -97,11 +97,6 @@
         </tr>
         <tr>
             <td>
-                点击保存设置或任意格子时会保存，切换透视不会
-            </td>
-        </tr>
-        <tr>
-            <td>
                 <textarea id="textarea_contents" rows="10"></textarea>
             </td>
         </tr>
@@ -118,6 +113,7 @@
         let temp_table_main = '';
 
         function handle_button_settings() {
+            document.getElementById('table_main').style.display = '';
             document.getElementById('table_iseedeadpeople').style.display = 'none';
             document.getElementById('div_iseedeadpeople').innerHTML = '透视！';
             if (document.getElementById('table_settings').style.display == 'none') {
@@ -128,19 +124,27 @@
                 document.getElementById('table_settings').style.display = 'none';
                 document.getElementById('div_settings').innerHTML = '设置';
                 save_data();
-                draw_main();
+                draw_table();
             }
         }
 
         function handle_button_iseedeadpeople() {
+            update_contents();
+            draw_table();
             if (document.getElementById('table_iseedeadpeople').style.display == 'none') {
+                document.getElementById('table_main').style.display = 'none';
                 document.getElementById('table_iseedeadpeople').style.display = '';
                 document.getElementById('div_iseedeadpeople').innerHTML = '关闭透视';
             }
             else {
+                document.getElementById('table_main').style.display = '';
                 document.getElementById('table_iseedeadpeople').style.display = 'none';
                 document.getElementById('div_iseedeadpeople').innerHTML = '透视！';
             }
+        }
+
+        function update_contents() {
+            contents = document.getElementById('textarea_contents').value.split('\n');
         }
 
         function swap_content(current_row, current_col) {
@@ -176,7 +180,7 @@
             save_data();
         }
 
-        function draw_main() {
+        function draw_table() {
             let total_row_old = total_row, total_col_old = total_col;
             total_row = document.getElementById('input_row').value;
             total_col = document.getElementById('input_col').value;
@@ -242,7 +246,7 @@
                     td_list_open = [];
                     td_list_completed = [];
                 }
-                contents = document.getElementById('textarea_contents').value.split('\n');
+                update_contents();
                 while (contents.length < total_row * total_col) {
                     contents.push('');
                 }
@@ -292,7 +296,7 @@
 
         // 页面加载完成时执行
         load_data();
-        draw_main();
+        draw_table();
     </script>
 </body>
 </html>
