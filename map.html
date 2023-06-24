@@ -8,8 +8,6 @@
         }
 
         #table_main {
-            border: 1px solid black;
-            text-align: center;
             background-image: linear-gradient(to bottom right, #A9C9FF, #FFBBEC 25%, #A9C9FF 50%, #FFBBEC 75%, #A9C9FF);
             /* -webkit-text-fill-color: transparent; */
             -webkit-background-clip: content-box;
@@ -17,13 +15,11 @@
             -webkit-animation: maskedAnimation_0 2s infinite linear;
         }
 
-        #table_main tr {
-            height: 80px;
-        }
-
-        #table_main td {
+        #table_main td, #table_iseedeadpeople td {
             color: #000000;
+            text-align: center;
             border: 1px solid black;
+            height: 80px;
             width: 80px;
         }
 
@@ -75,6 +71,11 @@
     <table id="table_settings" style="display: none;">
         <tr>
             <td>
+                <div class="div_button" id="div_iseedeadpeople" onclick="handle_button_iseedeadpeople();">透视！</div>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <input type="number" id="input_row" min="1" max="10" value="5">行
                 <input type="number" id="input_col" min="1" max="10" value="5">列
             </td>
@@ -105,23 +106,40 @@
             </td>
         </tr>
     </table>
+    <table id="table_iseedeadpeople" style="display: none;">
+    </table>
     <table id="table_main">
     </table>
     <script>
         let total_row = 5, total_col = 5;
         let contents = [];
         let td_list_open = [], td_list_completed = [];
+        let iseedeadpeople_enabled = false;
+        let temp_table_main = '';
 
         function handle_button_settings() {
+            document.getElementById('table_iseedeadpeople').style.display = 'none';
+            document.getElementById('div_iseedeadpeople').innerHTML = '透视！';
             if (document.getElementById('table_settings').style.display == 'none') {
                 document.getElementById('table_settings').style.display = '';
-                document.getElementById('div_settings').innerHTML = "保存设置";
+                document.getElementById('div_settings').innerHTML = '保存设置';
             }
             else {
                 document.getElementById('table_settings').style.display = 'none';
                 document.getElementById('div_settings').innerHTML = '设置';
                 save_data();
                 draw_main();
+            }
+        }
+
+        function handle_button_iseedeadpeople() {
+            if (document.getElementById('table_iseedeadpeople').style.display == 'none') {
+                document.getElementById('table_iseedeadpeople').style.display = '';
+                document.getElementById('div_iseedeadpeople').innerHTML = '关闭透视';
+            }
+            else {
+                document.getElementById('table_iseedeadpeople').style.display = 'none';
+                document.getElementById('div_iseedeadpeople').innerHTML = '透视！';
             }
         }
 
@@ -174,12 +192,14 @@
             }
             document.getElementById('input_row').value = total_row;
             document.getElementById('input_col').value = total_col;
-            new_main = '';
+            let new_table_main = '';
+            let new_table_iseedeadpeople = `<tr>`;
             while (contents.length < total_row * total_col) {
                 contents.push('');
             }
             for (let i = 1; i <= total_row; i++) {
-                new_main += `<tr>`;
+                new_table_main += `<tr>`;
+                new_table_iseedeadpeople += `<tr>`;
                 for (let j = 1; j <= total_col; j++) {
                     td_index = (i - 1) * total_col + j - 1;
                     td_class = '';
@@ -192,11 +212,14 @@
                         td_class = 'completed';
                         td_content = contents[td_index];
                     }
-                    new_main += `<td class="${td_class}" id="td_${i}_${j}" onclick="func_td(${i}, ${j})">${td_content}</td>`;
+                    new_table_main += `<td class="${td_class}" id="td_${i}_${j}" onclick="func_td(${i}, ${j})">${td_content}</td>`;
+                    new_table_iseedeadpeople += `<td class="open">${contents[td_index]}</td>`;
                 }
-                new_main += `</tr>`;
+                new_table_main += `</tr>`;
+                new_table_iseedeadpeople += `</tr>`;
             }
-            document.getElementById('table_main').innerHTML = new_main;
+            document.getElementById('table_main').innerHTML = new_table_main;
+            document.getElementById('table_iseedeadpeople').innerHTML = new_table_iseedeadpeople;
         }
 
         function save_data() {
