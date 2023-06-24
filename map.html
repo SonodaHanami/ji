@@ -243,6 +243,9 @@
                     td_list_completed = [];
                 }
                 contents = document.getElementById('textarea_contents').value.split('\n');
+                while (contents.length < total_row * total_col) {
+                    contents.push('');
+                }
                 let data_to_save = {
                     'contents': contents,
                     'td_list_open': td_list_open,
