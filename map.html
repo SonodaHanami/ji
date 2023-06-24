@@ -71,33 +71,41 @@
     <table id="table_settings" style="display: none;">
         <tr>
             <td>
+                <hr>
                 <div class="div_button" id="div_iseedeadpeople" onclick="handle_button_iseedeadpeople();">透视！</div>
+                <br>
             </td>
         </tr>
         <tr>
             <td>
-                <input type="number" id="input_row" min="1" max="10" value="5">行
-                <input type="number" id="input_col" min="1" max="10" value="5">列
+                <input type="number" id="input_row" min="1" max="10" value="5">行 × <input type="number" id="input_col" min="1" max="10" value="5">列
             </td>
         </tr>
         <tr>
             <td>
-                每行对应一个格子，从上到下从左到右
+                每行对应一个格子，从上到下从左到右，空行表示空的格子
             </td>
         </tr>
         <tr>
             <td>
-                空行会变成空的格子，不足的行会自动补充空行，多余的行会被自动忽略
+                不足的行会自动在最后补充空行，多余的行会被自动忽略
             </td>
         </tr>
         <tr>
             <td>
-                点击保存设置后，行数或列数变化时会重新生成所有格子，不变时仅更新格子内容
+                修改后格子内容总是会自动更新
             </td>
         </tr>
         <tr>
             <td>
-                <textarea id="textarea_contents" rows="10"></textarea>
+                点击保存设置后，行数或列数变化时会重新生成所有格子
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <br>
+                <textarea id="textarea_contents" rows="10" onchange="update_contents();draw_table();"></textarea>
+                <hr>
             </td>
         </tr>
     </table>
@@ -129,8 +137,6 @@
         }
 
         function handle_button_iseedeadpeople() {
-            update_contents();
-            draw_table();
             if (document.getElementById('table_iseedeadpeople').style.display == 'none') {
                 document.getElementById('table_main').style.display = 'none';
                 document.getElementById('table_iseedeadpeople').style.display = '';
