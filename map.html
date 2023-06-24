@@ -27,15 +27,9 @@
             width: 80px;
         }
 
-        .div_open {
-            height: 100%;
-            width: 100%;
-        }
-        
         .open {
             background-color: #FFFFFF;
         }
-
 
         .completed {
             background-color: #AAAAAA;
@@ -97,6 +91,16 @@
         </tr>
         <tr>
             <td>
+                点击保存设置后，行数或列数变化时会重新生成所有格子，不变时仅更新格子内容
+            </td>
+        </tr>
+        <tr>
+            <td>
+                点击保存设置或任意格子时会保存，切换透视不会
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <textarea id="textarea_contents" rows="10"></textarea>
             </td>
         </tr>
@@ -106,11 +110,7 @@
     <script>
         let total_row = 5, total_col = 5;
         let contents = [];
-        for (let i = 1; i <= total_row; i++) {
-            for (let j = 1; j <= total_col; j++) {
-                contents.push(`未知${(i - 1) * total_col + j}`)
-            }
-        }
+        let td_list_open = [], td_list_completed = [];
 
         function handle_button_settings() {
             if (document.getElementById('table_settings').style.display == 'none') {
@@ -120,41 +120,46 @@
             else {
                 document.getElementById('table_settings').style.display = 'none';
                 document.getElementById('div_settings').innerHTML = '设置';
+                save_data();
                 draw_main();
             }
         }
 
         function swap_content(current_row, current_col) {
             let td = `td_${current_row}_${current_col}`;
-            let div = `div_${current_row}_${current_col}`;
+            let td_index = (current_row - 1) * total_col + current_col - 1;
             if (document.getElementById(td).classList.contains('completed')) {
-                contents[(current_row - 1) * total_col + current_col - 1] = document.getElementById(div).innerHTML;
                 document.getElementById(td).innerHTML = '';
             }
             else {
-                document.getElementById(td).innerHTML = `<div class="div_open" id="${div}">${contents[(current_row - 1) * total_col + current_col - 1]}</div>`;
-                contents[(current_row - 1) * total_col + current_col - 1] = '';
+                document.getElementById(td).innerHTML = contents[td_index];
             }
         }
 
         function func_td(current_row, current_col) {
             let td = `td_${current_row}_${current_col}`;
+            let td_index = (current_row - 1) * total_col + current_col - 1;
             if (document.getElementById(td).classList.contains('open')) {
                 document.getElementById(td).classList.remove('open');
                 document.getElementById(td).classList.add('completed');
+                td_list_open.splice(td_list_open.indexOf(td_index), 1);
+                td_list_completed.push(td_index);
             }
             else if (document.getElementById(td).classList.contains('completed')) {
                 swap_content(current_row, current_col);
                 document.getElementById(td).classList.remove('completed');
+                td_list_completed.splice(td_list_completed.indexOf(td_index), 1);
             }
             else {
                 swap_content(current_row, current_col);
                 document.getElementById(td).classList.add('open');
+                td_list_open.push(td_index);
             }
+            save_data();
         }
 
-
         function draw_main() {
+            let total_row_old = total_row, total_col_old = total_col;
             total_row = document.getElementById('input_row').value;
             total_col = document.getElementById('input_col').value;
             if (!total_row || total_row < 1 || total_row > 10) {
@@ -163,24 +168,104 @@
             if (!total_col || total_col < 1 || total_col > 10) {
                 total_col = 5;
             }
+            if (total_row_old != total_row || total_col_old != total_col ) {
+                td_list_open = [];
+                td_list_completed = [];
+            }
             document.getElementById('input_row').value = total_row;
             document.getElementById('input_col').value = total_col;
-            console.log(total_row, total_col);
-            let new_main = '';
-            contents = document.getElementById('textarea_contents').value.split('\n');
+            new_main = '';
             while (contents.length < total_row * total_col) {
                 contents.push('');
             }
             for (let i = 1; i <= total_row; i++) {
                 new_main += `<tr>`;
                 for (let j = 1; j <= total_col; j++) {
-                    cover_type = (i, j) % 2;
-                    new_main += `<td class="cover_${cover_type}" id="td_${i}_${j}" onclick="func_td(${i}, ${j})"></td>`;
+                    td_index = (i - 1) * total_col + j - 1;
+                    td_class = '';
+                    td_content = '';
+                    if (td_list_open.indexOf(td_index) != -1) {
+                        td_class = 'open';
+                        td_content = contents[td_index];
+                    }
+                    if (td_list_completed.indexOf(td_index) != -1) {
+                        td_class = 'completed';
+                        td_content = contents[td_index];
+                    }
+                    new_main += `<td class="${td_class}" id="td_${i}_${j}" onclick="func_td(${i}, ${j})">${td_content}</td>`;
                 }
                 new_main += `</tr>`;
             }
             document.getElementById('table_main').innerHTML = new_main;
         }
+
+        function save_data() {
+            if (!window.localStorage) {
+                console.error("浏览器不支持localStorage");
+            }
+            else {
+                console.log("save_data()");
+                let wish, cost, storage = window.localStorage;
+                let total_row_old = total_row, total_col_old = total_col;
+                total_row = document.getElementById('input_row').value;
+                total_col = document.getElementById('input_col').value;
+                if (!total_row || total_row < 1 || total_row > 10) {
+                    total_row = 5;
+                }
+                if (!total_col || total_col < 1 || total_col > 10) {
+                    total_col = 5;
+                }
+                if (total_row_old != total_row || total_col_old != total_col ) {
+                    td_list_open = [];
+                    td_list_completed = [];
+                }
+                contents = document.getElementById('textarea_contents').value.split('\n');
+                let data_to_save = {
+                    'contents': contents,
+                    'td_list_open': td_list_open,
+                    'td_list_completed': td_list_completed,
+                    'total_row': total_row,
+                    'total_col': total_col,
+                };
+                storage['data_ji_map'] = JSON.stringify(data_to_save);
+                return true;
+            }
+        }
+
+        function load_data() {
+            if (!window.localStorage) {
+                console.error("浏览器不支持localStorage");
+            }
+            else {
+                console.log("load_data()");
+                let storage = window.localStorage;
+                if (storage['data_ji_map']) {
+                    const data = JSON.parse(storage['data_ji_map']);
+                    total_row = data['total_row'];
+                    total_col = data['total_row'];
+                    contents = data['contents'];
+                    td_list_open = data['td_list_open'];
+                    td_list_completed = data['td_list_completed'];
+                }
+                else {
+                    // 初始化
+                    total_row = 5;
+                    total_col = 5;
+                    contents = [];
+                    while (contents.length < total_row * total_col) {
+                        contents.push('');
+                    }
+                    td_list_open = [];
+                    td_list_completed = [];
+                }
+                document.getElementById('input_row').value = total_row;
+                document.getElementById('input_col').value = total_col;
+                document.getElementById('textarea_contents').value = contents.join('\n');
+            }
+        }
+
+        // 页面加载完成时执行
+        load_data();
         draw_main();
     </script>
 </body>
