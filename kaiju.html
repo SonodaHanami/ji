@@ -1,0 +1,367 @@
+<html>
+<head>
+    <title>随机肉鸽许愿机</title>
+    <style>
+        body {
+            padding-top: 10px;
+            padding-left: 10px;
+            padding-right: 10px;
+            color: #FFF;
+            text-shadow: -2px -2px #000, -2px -1px #000, -2px 0 #000, -2px 1px #000, -2px 2px #000, -1px -2px #000, -1px -1px #000, -1px 0 #000, -1px 1px #000, -1px 2px #000, 0 -2px #000, 0 -1px #000, 0 0 #000, 0 1px #000, 0 2px #000, 1px -2px #000, 1px -1px #000, 1px 0 #000, 1px 1px #000, 1px 2px #000, 2px -2px #000, 2px -1px #000, 2px 0 #000, 2px 1px #000, 2px 2px #000;
+            text-align: center;
+        }
+
+        #div_overlay_container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3044248;
+            background-color: #000000EE;
+        }
+
+        .div_container {
+            margin-top: 20px;
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+        a:link, a:visited {
+            color: #FFA500;
+        }
+
+        textarea {
+            width: 100%;
+            resize: none;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        .table_text {
+            width: 100%;
+            text-align: left;
+            table-layout: fixed;
+        }
+
+        .table_text tr {
+            height: 75px;
+        }
+
+        .table_text th {
+            font-size: 2em;
+            padding: 10px;
+        }
+
+        .table_text td {
+            height: 75px;
+            width: 50%;
+            font-size: 1.5em;
+        }
+
+        #table_cost {
+            color: #FFF;
+        }
+
+        #tr_warning {
+            color: red;
+        }
+
+        th input {
+            font-size: 1.5em
+        }
+
+        td[id^="td_wish"], td[id^="td_cost"] {
+            border-width: 1px;
+            border-color: #AAAAAA;
+            border-top-style: solid;
+            border-bottom-style: solid;
+            border-left-style: dashed;
+            border-right-style: dashed;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        #td_cost_result {
+            border-width: 0px;
+        }
+
+        td[id^="td_cost"] span {
+            color: #FFA500;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+
+        td[class="td_cost_not_paid"] {
+            background-color: #fedcba;
+        }
+
+        #div_wish_options {
+            position:absolute;
+            margin-top: 15px;
+        }
+
+        .div_button {
+            background-color: #F0F0F07F;
+            padding: 10px;
+            border-radius: 3px;
+            border-color: #000;
+            border-style: solid;
+            border-width: 1px;
+            text-align: center;
+        }
+
+        .wish_option {
+            background-color: #DDDDDD7F;
+            height: 32px;
+            padding: 3px 10px;
+            margin-top: 2px;
+            border-radius: 3px;
+            border-style: solid;
+            border-width: 1px;
+            border-color: #000;
+        }
+
+        .div_button:hover, .wish_option:hover {
+            background-color: #2B666666;
+        }
+
+        #tr_notice {
+            background-color: #ffbf92;
+        }
+
+        #td_notice {
+            width: 80%;
+            padding-left: 10px;
+        }
+
+        #td_notice_button {
+            width: 20%;
+            padding-right: 10px;
+            text-align: right;
+        }
+
+        .div_notice_button {
+            width: 50px;
+            display: inline-block;
+            background-color: #F0F0F07F;
+            padding: 10px;
+            border-radius: 3px;
+            border-color: #000;
+            border-style: solid;
+            border-width: 1px;
+            text-align: center;
+        }
+
+        .div_tag_button, .div_settings_button {
+            width: 150px;
+            display: inline-block;
+            background-color: #F0F0F07F;
+            padding: 10px;
+            border-radius: 3px;
+            border-color: #000;
+            border-style: solid;
+            border-width: 1px;
+            text-align: center;
+        }
+
+        .div_tag_button:hover {
+            outline-color: #00AAFF;
+            outline-style: solid;
+            outline-width: 3px;
+        }
+
+        .div_tag_button_enabled {
+            background-color: #00AAFF;
+        }
+
+        .div_tag_button_enabled_useless {
+            background-color: #bb5a5a;
+        }
+
+        .div_tag_button_disabled {
+            background-color: #ebeb16;
+        }
+
+        .div_tag_button_disabled_useless {
+            background-color: #76cb8b;
+        }
+
+        #td_md5 {
+            text-align: center;
+            opacity: 0;
+        }
+
+        #td_md5:hover {
+            opacity: 1;
+            background-color: #2B666666;
+        }
+    </style>
+    <link rel="icon" href="./favicon.ico">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QGM58QCD7C"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-QGM58QCD7C');
+    </script>
+    <script src="https://cdn.bootcss.com/blueimp-md5/2.12.0/js/md5.min.js"></script>
+</head>
+
+<body>
+    <table class="table_text">
+        <tr>
+            <td>
+                <div class="div_button" id="div_settings" onclick="handle_button_settings();">暂时没有设置</div>
+            </td>
+            <td>
+                <div class="div_button" onclick="location.reload();">清空（刷新）</div>
+            </td>
+        </tr>
+    </table>
+    <table class="table_text" id="table_settings" style="display:none">
+        <tr id="tr_warning" style="display:none"></tr>
+        <tr style="display:none">
+            <td colspan="2">
+                当前设置md5：<span id="span_md5_1">undefined</span>
+            </td>
+        </tr>
+        <tr style="display:none">
+            <td colspan="2">
+                <div class="div_settings_button" onclick="handle_notice(101);">使用默认设置</div>
+                <div class="div_settings_button" onclick="handle_notice(102);">恢复之前设置</div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a href="./old.html">打开标准版本</a>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                测试版本暂时不能修改设置喵，但是可以 <a href="./beta.json">查看愿望和代价</a>
+            </td>
+        </tr>
+        <tr style="display:none">
+            <td colspan="2">
+                愿望：
+                <textarea id="textarea_wish" rows="10"></textarea>
+            </td>
+        </tr>
+        <tr style="display:none">
+            <td colspan="2">
+                代价：
+                <textarea id="textarea_cost" rows="10"></textarea>
+            </td>
+        </tr>
+    </table>
+    <table class="table_text">
+        <tr id="tr_notice" style="display:none">
+            <td id="td_notice"></td>
+            <td id="td_notice_button"></td>
+        </tr>
+    </table>
+    <table class="table_text" id="table_main">
+        <tr style="display:none">
+            <td colspan="2" id="td_md5" onclick="handle_td_md5();">
+                当前设置md5：<span id="span_md5_0">undefined</span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" id="td_notice_2">
+                <span style="color:#ebeb16"></span>
+            </td>
+        </tr>
+        <tr>
+            <th colspan="2">我是 <input type="text" id="user_id"></th>
+        </tr>
+        <tr id="tr_today">
+            <th colspan="2"><div class="div_button" onclick="get_opening_today_4();">今日开局！</div></th>
+        </tr>
+        <tr>
+            <th colspan="2"><div class="div_button" onclick="get_opening_random_4();">随机开局！</div></th>
+        </tr>
+        <tr>
+            <td colspan="2" id="td_output"></td>
+        </tr>
+    </table>
+
+    <script>
+        const GROUPS_4 = [
+            '指挥分队', '集群分队', '后勤分队', '矛头分队',
+            '突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队',
+            '特训分队', '高规格分队',
+            '永恒狩猎分队', '生活至上分队', '科学主义分队'
+        ]
+        const OPERATORS_STAR_6_VANGUARD = ['推进之王', '风笛', '嵯峨', '琴柳', '焰尾', '伺夜', '伊内丝', '缪尔赛思']
+        const OPERATORS_STAR_6_GUARD = ['银灰', '斯卡蒂', '陈', '赫拉格', '煌', '棘刺', '史尔特尔', '山', '帕拉斯', '耀骑士临光', '艾丽妮', '百炼嘉维尔', '玛恩纳', '重岳', '仇白', '圣约送葬人']
+        const OPERATORS_STAR_6_DEFENDER = ['星熊', '塞雷娅', '年', '森蚺', '瑕光', '泥岩', '号角', '斥罪']
+        const OPERATORS_STAR_6_SNIPER = ['能天使', '黑', 'W', '早露', '迷迭香', '空弦', '灰烬', '假日威龙陈', '远牙', '菲亚梅塔', '鸿雪', '提丰']
+        const OPERATORS_STAR_6_CASTER = ['伊芙利特', '艾雅法拉', '莫斯提马', '刻俄柏', '夕', '异客', '卡涅利安', '澄闪', '黑键', '林', '霍尔海雅']
+        const OPERATORS_STAR_6_MEDIC = ['闪灵', '夜莺', '凯尔希', '流明', '焰影苇草', '纯烬艾雅法拉']
+        const OPERATORS_STAR_6_SUPPORTER = ['安洁莉娜', '麦哲伦', '铃兰', '浊心斯卡蒂', '灵知', '令', '白铁', '淬羽赫默']
+        const OPERATORS_STAR_6_SPECIALIST = ['阿', '傀影', '温蒂', '歌蕾蒂娅', '水月', '老鲤', '归溟幽灵鲨', '多萝西', '缄默德克萨斯', '麒麟X夜刀', '琳琅诗怀雅']
+        const OPERATORS_STAR_6 = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD).concat(OPERATORS_STAR_6_DEFENDER).concat(OPERATORS_STAR_6_SNIPER).concat(OPERATORS_STAR_6_CASTER).concat(OPERATORS_STAR_6_MEDIC).concat(OPERATORS_STAR_6_SUPPORTER).concat(OPERATORS_STAR_6_SPECIALIST)
+
+        const OPERATORS_STAR_5_VANGUARD = ['凛冬', '德克萨斯', '格拉尼', '苇草', '极境', '贾维', '野鬃', '夜半', '晓歌', '谜图', '青枳']
+        const OPERATORS_STAR_5_GUARD = ['芙兰卡', '因陀罗', '拉普兰德', '幽灵鲨', '暴行', '诗怀雅', '星极', '炎客', '布洛卡', '柏喙', '铸铁', '断崖', '燧石', '鞭刃', '阿米娅(近卫)',
+            '战车', '赤冬', '龙舌兰', '羽毛笔', '海沫', '达格达', '铎铃', '火龙S黑角', '摩根', '苍苔']
+        const OPERATORS_STAR_5_DEFENDER = ['临光', '雷蛇', '可颂', '火神', '拜松', '吽', '石棉', '闪击', '暴雨', '灰毫', '极光', '暮落', '车尔尼', '火哨', '洋灰']
+        const OPERATORS_STAR_5_SNIPER = ['蓝毒', '白金', '陨星', '普罗旺斯', '守林人', '送葬人', '灰喉', '慑砂', '安哲拉', '四月', '奥斯塔', '熔泉', '寒芒克洛丝', '埃拉托', '承曦格雷伊', '子月', '截云', '玫拉', '隐现']
+        const OPERATORS_STAR_5_CASTER = ['阿米娅', '天火', '夜魔', '惊蛰', '苦艾', '莱恩哈特', '蜜蜡', '特米米', '薄绿', '爱丽丝', '炎狱炎熔', '蚀清', '耶拉', '洛洛', '星源', '至简', '雪绒', '和弦', '寒檀']
+        const OPERATORS_STAR_5_MEDIC = ['白面鸮', '赫默', '华法琳', '锡兰', '微风', '亚叶', '絮雨', '图耶', '桑葚', '蜜莓', '濯尘芙蓉', '明椒']
+        const OPERATORS_STAR_5_SUPPORTER = ['梅尔', '初雪', '真理', '空', '格劳克斯', '巫恋', '月禾', '稀音', '九色鹿', '夏栎', '海蒂', '掠风', '但书', '凛视']
+        const OPERATORS_STAR_5_SPECIALIST = ['红', '崖心', '狮蝎', '食铁兽', '槐琥', '雪雉', '罗宾', '卡夫卡', '乌有', '霜华', '贝娜', '绮良', '见行者', '风丸', '空构']
+        const OPERATORS_STAR_5 = OPERATORS_STAR_5_VANGUARD.concat(OPERATORS_STAR_5_DEFENDER).concat(OPERATORS_STAR_5_SNIPER).concat(OPERATORS_STAR_5_CASTER).concat(OPERATORS_STAR_5_MEDIC).concat(OPERATORS_STAR_5_SUPPORTER).concat(OPERATORS_STAR_5_SPECIALIST)
+
+        function get_opening_random_4() {
+            let opening_group = GROUPS_4[Math.floor(Math.random() * GROUPS_4.length)]
+            if (opening_group == '突击战术分队') {
+                operators = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD).concat(OPERATORS_STAR_6_VANGUARD).concat(OPERATORS_STAR_6_GUARD).concat(OPERATORS_STAR_5_VANGUARD).concat(OPERATORS_STAR_5_GUARD)
+            }
+            else if (opening_group == '堡垒战术分队') {
+                operators = OPERATORS_STAR_6_DEFENDER.concat(OPERATORS_STAR_6_SUPPORTER).concat(OPERATORS_STAR_6_DEFENDER).concat(OPERATORS_STAR_6_SUPPORTER).concat(OPERATORS_STAR_5_DEFENDER).concat(OPERATORS_STAR_5_SUPPORTER)
+            }
+            else if (opening_group == '远程战术分队') {
+                operators = OPERATORS_STAR_6_SNIPER.concat(OPERATORS_STAR_6_MEDIC).concat(OPERATORS_STAR_6_SNIPER).concat(OPERATORS_STAR_6_MEDIC).concat(OPERATORS_STAR_5_SNIPER).concat(OPERATORS_STAR_5_MEDIC)
+            }
+            else if (opening_group == '破坏战术分队') {
+                operators = OPERATORS_STAR_6_CASTER.concat(OPERATORS_STAR_6_SPECIALIST).concat(OPERATORS_STAR_6_CASTER).concat(OPERATORS_STAR_6_SPECIALIST).concat(OPERATORS_STAR_5_CASTER).concat(OPERATORS_STAR_5_SPECIALIST)
+            }
+            else{
+                operators = OPERATORS_STAR_6.concat(OPERATORS_STAR_6).concat(OPERATORS_STAR_5)
+            }
+            let opening_operator = operators[Math.floor(Math.random() * operators.length)]
+            result = `用 ${opening_group} ${opening_operator} 开局吧！`
+            document.getElementById('td_output').innerHTML = result
+        }
+
+        function get_opening_today_4() {
+            let user_id = document.getElementById('user_id').value
+            let now  = (new Date).toLocaleDateString("zh-CN")
+            let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16) % (GROUPS_4.length * OPERATORS_STAR_6.length)
+            opening_group = GROUPS_4[Math.floor(hash_int / OPERATORS_STAR_6.length)]
+            if (opening_group == '突击战术分队') {
+                operators = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD)
+            }
+            else if (opening_group == '堡垒战术分队') {
+                operators = OPERATORS_STAR_6_DEFENDER.concat(OPERATORS_STAR_6_SUPPORTER)
+            }
+            else if (opening_group == '远程战术分队') {
+                operators = OPERATORS_STAR_6_SNIPER.concat(OPERATORS_STAR_6_MEDIC)
+            }
+            else if (opening_group == '破坏战术分队') {
+                operators = OPERATORS_STAR_6_CASTER.concat(OPERATORS_STAR_6_SPECIALIST)
+            }
+            else {
+                operators = OPERATORS_STAR_6
+            }
+            opening_operator = operators[hash_int % operators.length]
+            result = `我掐指一算，今天 ${user_id} 适合用 ${opening_group} ${opening_operator} 开局`
+            document.getElementById('tr_today').innerHTML = `<td>${result}</td>`
+        }
+    </script>
+</body>
+</html>
