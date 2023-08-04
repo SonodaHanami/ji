@@ -275,7 +275,8 @@
             </td>
         </tr>
         <tr>
-            <th colspan="2">我是 <input type="text" id="user_id"></th>
+            <th colspan="1">我是 <input type="text" id="user_id"></th>
+            <th colspan="1"><div class="div_button" onclick="reset_opening_today_4();">重置</div></th>
         </tr>
         <tr id="tr_today">
             <th colspan="2"><div class="div_button" onclick="get_opening_today_4();">今日开局！</div></th>
@@ -361,6 +362,11 @@
             opening_operator = operators[hash_int % operators.length]
             result = `我掐指一算，今天 ${user_id} 适合用 ${opening_group} ${opening_operator} 开局`
             document.getElementById('tr_today').innerHTML = `<td>${result}</td>`
+        }
+
+        function reset_opening_today_4() {
+            document.getElementById('user_id').value = ''
+            document.getElementById('tr_today').innerHTML = `<th colspan="2"><div class="div_button" onclick="get_opening_today_4();">今日开局！</div></th>`
         }
     </script>
 </body>
