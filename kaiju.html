@@ -70,6 +70,7 @@
         }
 
         th input {
+            width: 80%;
             font-size: 1.5em
         }
 
@@ -361,7 +362,7 @@
             }
             opening_operator = operators[hash_int % operators.length]
             result = `我掐指一算，今天 ${user_id} 适合用 ${opening_group} ${opening_operator} 开局`
-            document.getElementById('tr_today').innerHTML = `<td>${result}</td>`
+            document.getElementById('tr_today').innerHTML = `<td colspan="2">${result}</td>`
         }
 
         function reset_opening_today_4() {
