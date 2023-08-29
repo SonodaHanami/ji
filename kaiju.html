@@ -276,7 +276,7 @@
             </td>
         </tr>
         <tr>
-            <th colspan="1">我是 <input type="text" id="user_id"></th>
+            <th colspan="1">我是 <input type="text" id="user_id" onkeypress="handle_input_keypress(event);"></th>
             <th colspan="1"><div class="div_button" onclick="reset_opening_today_4();">重置</div></th>
         </tr>
         <tr id="tr_today">
@@ -318,6 +318,31 @@
         const OPERATORS_STAR_5_SPECIALIST = ['红', '崖心', '狮蝎', '食铁兽', '槐琥', '雪雉', '罗宾', '卡夫卡', '乌有', '霜华', '贝娜', '绮良', '见行者', '风丸', '空构']
         const OPERATORS_STAR_5 = OPERATORS_STAR_5_VANGUARD.concat(OPERATORS_STAR_5_DEFENDER).concat(OPERATORS_STAR_5_SNIPER).concat(OPERATORS_STAR_5_CASTER).concat(OPERATORS_STAR_5_MEDIC).concat(OPERATORS_STAR_5_SUPPORTER).concat(OPERATORS_STAR_5_SPECIALIST)
 
+        function get_opening_today_4() {
+            let user_id = document.getElementById('user_id').value
+            let now = (new Date).toLocaleDateString("zh-CN")
+            let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16) % (GROUPS_4.length * OPERATORS_STAR_6.length)
+            opening_group = GROUPS_4[Math.floor(hash_int / OPERATORS_STAR_6.length)]
+            if (opening_group == '突击战术分队') {
+                operators = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD)
+            }
+            else if (opening_group == '堡垒战术分队') {
+                operators = OPERATORS_STAR_6_DEFENDER.concat(OPERATORS_STAR_6_SUPPORTER)
+            }
+            else if (opening_group == '远程战术分队') {
+                operators = OPERATORS_STAR_6_SNIPER.concat(OPERATORS_STAR_6_MEDIC)
+            }
+            else if (opening_group == '破坏战术分队') {
+                operators = OPERATORS_STAR_6_CASTER.concat(OPERATORS_STAR_6_SPECIALIST)
+            }
+            else {
+                operators = OPERATORS_STAR_6
+            }
+            opening_operator = operators[hash_int % operators.length]
+            result = `我掐指一算，今天 ${user_id} 适合用 ${opening_group} ${opening_operator} 开局`
+            document.getElementById('tr_today').innerHTML = `<td colspan="2">${result}</td>`
+        }
+
         function get_opening_random_4() {
             let opening_group = GROUPS_4[Math.floor(Math.random() * GROUPS_4.length)]
             if (opening_group == '突击战术分队') {
@@ -340,29 +365,17 @@
             document.getElementById('td_output').innerHTML = result
         }
 
-        function get_opening_today_4() {
-            let user_id = document.getElementById('user_id').value
-            let now  = (new Date).toLocaleDateString("zh-CN")
-            let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16) % (GROUPS_4.length * OPERATORS_STAR_6.length)
-            opening_group = GROUPS_4[Math.floor(hash_int / OPERATORS_STAR_6.length)]
-            if (opening_group == '突击战术分队') {
-                operators = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD)
+        function handle_input_keypress(event) {
+            let keyCode;
+            if (event.which) {
+                keyCode = event.which;
             }
-            else if (opening_group == '堡垒战术分队') {
-                operators = OPERATORS_STAR_6_DEFENDER.concat(OPERATORS_STAR_6_SUPPORTER)
+            else if (e.keyCode) {
+                keyCode = event.keyCode;
             }
-            else if (opening_group == '远程战术分队') {
-                operators = OPERATORS_STAR_6_SNIPER.concat(OPERATORS_STAR_6_MEDIC)
+            if (keyCode == 13) {
+                get_opening_today_4();
             }
-            else if (opening_group == '破坏战术分队') {
-                operators = OPERATORS_STAR_6_CASTER.concat(OPERATORS_STAR_6_SPECIALIST)
-            }
-            else {
-                operators = OPERATORS_STAR_6
-            }
-            opening_operator = operators[hash_int % operators.length]
-            result = `我掐指一算，今天 ${user_id} 适合用 ${opening_group} ${opening_operator} 开局`
-            document.getElementById('tr_today').innerHTML = `<td colspan="2">${result}</td>`
         }
 
         function reset_opening_today_4() {
