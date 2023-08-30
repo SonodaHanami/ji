@@ -261,8 +261,9 @@
     <table class="table_text">
         <tr id="tr_notice">
             <td id="td_notice">
-                <p>最近更新：</p>
+                <h3>最近更新：</h3>
                 <p>现在可以在输入框里直接使用回车键了</p>
+                <p>加入了许愿机同款动画效果</p>
             </td>
             <td id="td_notice_button">
                 <div class="div_notice_button" onclick="handle_notice(1);">好的</div>
@@ -284,18 +285,23 @@
             <th colspan="1">我是 <input type="text" id="user_id" onkeypress="handle_input_keypress(event);"></th>
             <th colspan="1"><div class="div_button" onclick="reset_opening_today_4();">重置</div></th>
         </tr>
-        <tr id="tr_today">
+        <tr id="tr_today_button">
             <th colspan="2"><div class="div_button" onclick="get_opening_today_4();">今日开局！</div></th>
+        </tr>
+        <tr id="tr_today_result" style="display: none;">
+            <td colspan="2" id="td_today"></td>
         </tr>
         <tr>
             <th colspan="2"><div class="div_button" onclick="get_opening_random_4();">随机开局！</div></th>
         </tr>
         <tr>
-            <td colspan="2" id="td_output"></td>
+            <td colspan="2" id="td_random"></td>
         </tr>
     </table>
 
     <script>
+        const question_mark = '？';
+        const window_length = 10;
         const GROUPS_4 = [
             '指挥分队', '集群分队', '后勤分队', '矛头分队',
             '突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队',
@@ -324,50 +330,69 @@
         const OPERATORS_STAR_5 = OPERATORS_STAR_5_VANGUARD.concat(OPERATORS_STAR_5_DEFENDER).concat(OPERATORS_STAR_5_SNIPER).concat(OPERATORS_STAR_5_CASTER).concat(OPERATORS_STAR_5_MEDIC).concat(OPERATORS_STAR_5_SUPPORTER).concat(OPERATORS_STAR_5_SPECIALIST)
 
         function get_opening_today_4() {
-            let user_id = document.getElementById('user_id').value
-            let now = (new Date).toLocaleDateString("zh-CN")
-            let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16) % (GROUPS_4.length * OPERATORS_STAR_6.length)
-            opening_group = GROUPS_4[Math.floor(hash_int / OPERATORS_STAR_6.length)]
+            let user_id = document.getElementById('user_id').value;
+            let now = (new Date).toLocaleDateString("zh-CN");
+            let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16) % (GROUPS_4.length * OPERATORS_STAR_6.length);
+            let opening_group = GROUPS_4[Math.floor(hash_int / OPERATORS_STAR_6.length)];
+            let operators;
             if (opening_group == '突击战术分队') {
-                operators = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD)
+                operators = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD);
             }
             else if (opening_group == '堡垒战术分队') {
-                operators = OPERATORS_STAR_6_DEFENDER.concat(OPERATORS_STAR_6_SUPPORTER)
+                operators = OPERATORS_STAR_6_DEFENDER.concat(OPERATORS_STAR_6_SUPPORTER);
             }
             else if (opening_group == '远程战术分队') {
-                operators = OPERATORS_STAR_6_SNIPER.concat(OPERATORS_STAR_6_MEDIC)
+                operators = OPERATORS_STAR_6_SNIPER.concat(OPERATORS_STAR_6_MEDIC);
             }
             else if (opening_group == '破坏战术分队') {
-                operators = OPERATORS_STAR_6_CASTER.concat(OPERATORS_STAR_6_SPECIALIST)
+                operators = OPERATORS_STAR_6_CASTER.concat(OPERATORS_STAR_6_SPECIALIST);
             }
             else {
-                operators = OPERATORS_STAR_6
+                operators = OPERATORS_STAR_6;
             }
-            opening_operator = operators[hash_int % operators.length]
-            result = `我掐指一算，今天 ${user_id} 适合用 ${opening_group} ${opening_operator} 开局`
-            document.getElementById('tr_today').innerHTML = `<td colspan="2">${result}</td>`
+            let opening_operator = operators[hash_int % operators.length];
+            let result = `我掐指一算，今天 ${user_id} 适合用 ${opening_group} ${opening_operator} 开局`;
+            document.getElementById('tr_today_button').style.display = 'none';
+            document.getElementById('tr_today_result').style.display = '';
+            handle_text_animation('td_today', result);
         }
 
         function get_opening_random_4() {
-            let opening_group = GROUPS_4[Math.floor(Math.random() * GROUPS_4.length)]
+            let opening_group = GROUPS_4[Math.floor(Math.random() * GROUPS_4.length)];
+            let operators;
             if (opening_group == '突击战术分队') {
-                operators = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD).concat(OPERATORS_STAR_6_VANGUARD).concat(OPERATORS_STAR_6_GUARD).concat(OPERATORS_STAR_5_VANGUARD).concat(OPERATORS_STAR_5_GUARD)
+                operators = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD).concat(OPERATORS_STAR_6_VANGUARD).concat(OPERATORS_STAR_6_GUARD).concat(OPERATORS_STAR_5_VANGUARD).concat(OPERATORS_STAR_5_GUARD);
             }
             else if (opening_group == '堡垒战术分队') {
-                operators = OPERATORS_STAR_6_DEFENDER.concat(OPERATORS_STAR_6_SUPPORTER).concat(OPERATORS_STAR_6_DEFENDER).concat(OPERATORS_STAR_6_SUPPORTER).concat(OPERATORS_STAR_5_DEFENDER).concat(OPERATORS_STAR_5_SUPPORTER)
+                operators = OPERATORS_STAR_6_DEFENDER.concat(OPERATORS_STAR_6_SUPPORTER).concat(OPERATORS_STAR_6_DEFENDER).concat(OPERATORS_STAR_6_SUPPORTER).concat(OPERATORS_STAR_5_DEFENDER).concat(OPERATORS_STAR_5_SUPPORTER);
             }
             else if (opening_group == '远程战术分队') {
-                operators = OPERATORS_STAR_6_SNIPER.concat(OPERATORS_STAR_6_MEDIC).concat(OPERATORS_STAR_6_SNIPER).concat(OPERATORS_STAR_6_MEDIC).concat(OPERATORS_STAR_5_SNIPER).concat(OPERATORS_STAR_5_MEDIC)
+                operators = OPERATORS_STAR_6_SNIPER.concat(OPERATORS_STAR_6_MEDIC).concat(OPERATORS_STAR_6_SNIPER).concat(OPERATORS_STAR_6_MEDIC).concat(OPERATORS_STAR_5_SNIPER).concat(OPERATORS_STAR_5_MEDIC);
             }
             else if (opening_group == '破坏战术分队') {
-                operators = OPERATORS_STAR_6_CASTER.concat(OPERATORS_STAR_6_SPECIALIST).concat(OPERATORS_STAR_6_CASTER).concat(OPERATORS_STAR_6_SPECIALIST).concat(OPERATORS_STAR_5_CASTER).concat(OPERATORS_STAR_5_SPECIALIST)
+                operators = OPERATORS_STAR_6_CASTER.concat(OPERATORS_STAR_6_SPECIALIST).concat(OPERATORS_STAR_6_CASTER).concat(OPERATORS_STAR_6_SPECIALIST).concat(OPERATORS_STAR_5_CASTER).concat(OPERATORS_STAR_5_SPECIALIST);
             }
             else{
-                operators = OPERATORS_STAR_6.concat(OPERATORS_STAR_6).concat(OPERATORS_STAR_5)
+                operators = OPERATORS_STAR_6.concat(OPERATORS_STAR_6).concat(OPERATORS_STAR_5);
             }
-            let opening_operator = operators[Math.floor(Math.random() * operators.length)]
-            result = `用 ${opening_group} ${opening_operator} 开局吧！`
-            document.getElementById('td_output').innerHTML = result
+            let opening_operator = operators[Math.floor(Math.random() * operators.length)];
+            let result = `用 ${opening_group} ${opening_operator} 开局吧！`;
+            handle_text_animation('td_random', result);
+        }
+
+        function handle_text_animation(element, full_text) {
+            let block_text = question_mark.repeat(window_length);
+            document.getElementById(element).innerHTML = '';
+            for (let k = 1; k <= full_text.length; k++) {
+                setTimeout(() => {
+                    let temp_text = full_text.slice(0, k);
+                    if (k < window_length) {
+                        temp_text = temp_text + block_text;
+                        temp_text = temp_text.slice(0, window_length);
+                    }
+                    document.getElementById(element).innerHTML = temp_text;
+                }, k * 1000 / full_text.length);
+            }
         }
 
         function handle_input_keypress(event) {
@@ -398,7 +423,8 @@
 
         function reset_opening_today_4() {
             document.getElementById('user_id').value = ''
-            document.getElementById('tr_today').innerHTML = `<th colspan="2"><div class="div_button" onclick="get_opening_today_4();">今日开局！</div></th>`
+            document.getElementById('tr_today_button').style.display = '';
+            document.getElementById('tr_today_result').style.display = 'none';
         }
 
         // 页面加载完成时执行
