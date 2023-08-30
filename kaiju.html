@@ -259,9 +259,14 @@
         </tr>
     </table>
     <table class="table_text">
-        <tr id="tr_notice" style="display:none">
-            <td id="td_notice"></td>
-            <td id="td_notice_button"></td>
+        <tr id="tr_notice">
+            <td id="td_notice">
+                <p>最近更新：</p>
+                <p>现在可以在输入框里直接使用回车键了</p>
+            </td>
+            <td id="td_notice_button">
+                <div class="div_notice_button" onclick="handle_notice(1);">好的</div>
+            </td>
         </tr>
     </table>
     <table class="table_text" id="table_main">
@@ -378,10 +383,26 @@
             }
         }
 
+        function handle_notice(code) {
+            let storage = window.localStorage;
+            if (code == 1) {
+                // 保存最近确认过的提示
+                storage['data_ji_kaiju_last_checked_notice'] = document.getElementById('td_notice').innerHTML.trim();
+            }
+            // 比较最近确认过的提示
+            if (storage['data_ji_kaiju_last_checked_notice'] == document.getElementById('td_notice').innerHTML.trim()) {
+                // 一致时隐藏提示
+                document.getElementById('tr_notice').style.display = 'none';
+            }
+        }
+
         function reset_opening_today_4() {
             document.getElementById('user_id').value = ''
             document.getElementById('tr_today').innerHTML = `<th colspan="2"><div class="div_button" onclick="get_opening_today_4();">今日开局！</div></th>`
         }
+
+        // 页面加载完成时执行
+        handle_notice();
     </script>
 </body>
 </html>
