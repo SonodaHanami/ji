@@ -303,6 +303,7 @@
         const GROUPS_2 = [
             '指挥分队', '集群分队', '后勤分队', '矛头分队',
             '突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队',
+            '研究分队', '高规格分队',
         ]
         const GROUPS_3 = [
             '心胜于物分队', '物尽其用分队', '以人为本分队',
@@ -355,16 +356,16 @@
             if (document.getElementById('is_4').checked) {
                 current_is.push('探索者的银凇止境')
             }
-            let opening_is = current_is[hash_int % IS.length];
+            let opening_is = current_is[hash_int % current_is.length];
             let opening_group;
             if (opening_is == '傀影与猩红孤钻') {
-                opening_group = GROUPS_2[Math.floor(hash_int / OPERATORS_STAR_6.length)];
+                opening_group = GROUPS_2[hash_int % GROUPS_2.length];
             }
             if (opening_is == '水月与深蓝之树') {
-                opening_group = GROUPS_3[Math.floor(hash_int / OPERATORS_STAR_6.length)];
+                opening_group = GROUPS_3[hash_int % GROUPS_3.length];
             }
             if (opening_is == '探索者的银凇止境') {
-                opening_group = GROUPS_4[Math.floor(hash_int / OPERATORS_STAR_6.length)];
+                opening_group = GROUPS_4[hash_int % GROUPS_4.length];
             }
 
             let operators;
