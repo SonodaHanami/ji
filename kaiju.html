@@ -262,8 +262,9 @@
         <tr id="tr_notice">
             <td id="td_notice">
                 <h3>最近更新：</h3>
-                <p>现在可以在输入框里直接使用回车键了</p>
-                <p>加入了许愿机同款动画效果</p>
+                <p>优化“随机开局！”六星和五星的权重</p>
+                <p>“今日开局！”加入了傀影和水月</p>
+                <p>设置在写了.jpg</p>
             </td>
             <td id="td_notice_button">
                 <div class="div_notice_button" onclick="handle_notice(1);">好的</div>
@@ -303,6 +304,22 @@
         const question_mark = '？';
         const window_length = 10;
 
+        const IS = [
+            '傀影与猩红孤钻',
+            '水月与深蓝之树',
+            '探索者的银凇止境',
+        ]
+
+        const GROUPS_2 = [
+            '指挥分队', '集群分队', '后勤分队', '矛头分队',
+            '突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队',
+        ]
+        const GROUPS_3 = [
+            '心胜于物分队', '物尽其用分队', '以人为本分队',
+            '指挥分队', '集群分队', '后勤分队', '矛头分队',
+            '突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队',
+            '研究分队', '高规格分队',
+        ]
         const GROUPS_4 = [
             '指挥分队', '集群分队', '后勤分队', '矛头分队',
             '突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队',
@@ -337,7 +354,19 @@
             let user_id = document.getElementById('user_id').value;
             let now = (new Date).toLocaleDateString("zh-CN");
             let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16) % (GROUPS_4.length * OPERATORS_STAR_6.length);
-            let opening_group = GROUPS_4[Math.floor(hash_int / OPERATORS_STAR_6.length)];
+
+            let opening_is = IS[hash_int % IS.length];
+            let opening_group;
+            if (opening_is == '傀影与猩红孤钻') {
+                opening_group = GROUPS_2[Math.floor(hash_int / OPERATORS_STAR_6.length)];
+            }
+            if (opening_is == '水月与深蓝之树') {
+                opening_group = GROUPS_3[Math.floor(hash_int / OPERATORS_STAR_6.length)];
+            }
+            if (opening_is == '探索者的银凇止境') {
+                opening_group = GROUPS_4[Math.floor(hash_int / OPERATORS_STAR_6.length)];
+            }
+
             let operators;
             if (opening_group == '突击战术分队') {
                 operators = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD);
@@ -355,7 +384,7 @@
                 operators = OPERATORS_STAR_6;
             }
             let opening_operator = operators[hash_int % operators.length];
-            let result = `我掐指一算，今天 ${user_id} 适合用 ${opening_group} ${opening_operator} 开局`;
+            let result = `我掐指一算，今天 ${user_id} 适合在 ${opening_is} 用 ${opening_group} ${opening_operator} 开局`;
             document.getElementById('tr_today_button').style.display = 'none';
             document.getElementById('tr_today_result').style.display = '';
             handle_text_animation('td_today', result);
