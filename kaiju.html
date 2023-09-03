@@ -215,7 +215,7 @@
     <table class="table_text">
         <tr>
             <td>
-                <div class="div_button" id="div_settings" onclick="handle_button_settings();">暂时没有设置</div>
+                <div class="div_button" id="div_settings" onclick="handle_button_settings();">设置</div>
             </td>
             <td>
                 <div class="div_button" onclick="location.reload();">清空（刷新）</div>
@@ -237,24 +237,16 @@
         </tr>
         <tr>
             <td>
-                <a href="./old.html">打开标准版本</a>
+                集成战略：
             </td>
-        </tr>
-        <tr>
-            <td colspan="2">
-                测试版本暂时不能修改设置喵，但是可以 <a href="./beta.json">查看愿望和代价</a>
+            <td>
+                <input id="is_4" type="checkbox" checked="checked">探索者的银凇止境
             </td>
-        </tr>
-        <tr style="display:none">
-            <td colspan="2">
-                愿望：
-                <textarea id="textarea_wish" rows="10"></textarea>
+            <td>
+                <input id="is_3" type="checkbox">水月与深蓝之树
             </td>
-        </tr>
-        <tr style="display:none">
-            <td colspan="2">
-                代价：
-                <textarea id="textarea_cost" rows="10"></textarea>
+            <td>
+                <input id="is_2" type="checkbox">傀影与猩红孤钻
             </td>
         </tr>
     </table>
@@ -262,9 +254,7 @@
         <tr id="tr_notice">
             <td id="td_notice">
                 <h3>最近更新：</h3>
-                <p>优化“随机开局！”六星和五星的权重</p>
-                <p>“今日开局！”加入了傀影和水月</p>
-                <p>设置在写了.jpg</p>
+                <p>加入设置，但是还没有保存功能</p>
             </td>
             <td id="td_notice_button">
                 <div class="div_notice_button" onclick="handle_notice(1);">好的</div>
@@ -355,7 +345,17 @@
             let now = (new Date).toLocaleDateString("zh-CN");
             let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16) % (GROUPS_4.length * OPERATORS_STAR_6.length);
 
-            let opening_is = IS[hash_int % IS.length];
+            let current_is = [];
+            if (document.getElementById('is_2').checked) {
+                current_is.push('傀影与猩红孤钻')
+            }
+            if (document.getElementById('is_3').checked) {
+                current_is.push('水月与深蓝之树')
+            }
+            if (document.getElementById('is_4').checked) {
+                current_is.push('探索者的银凇止境')
+            }
+            let opening_is = current_is[hash_int % IS.length];
             let opening_group;
             if (opening_is == '傀影与猩红孤钻') {
                 opening_group = GROUPS_2[Math.floor(hash_int / OPERATORS_STAR_6.length)];
@@ -459,6 +459,20 @@
             if (storage['data_ji_kaiju_last_checked_notice'] == document.getElementById('td_notice').innerHTML.trim()) {
                 // 一致时隐藏提示
                 document.getElementById('tr_notice').style.display = 'none';
+            }
+        }
+
+        function handle_button_settings() {
+            if (document.getElementById('table_settings').style.display == 'none') {
+                document.getElementById('table_settings').style.display = '';
+                document.getElementById('div_settings').innerHTML = "收起设置";
+            }
+            else {
+                // if (save_settings()) {
+                if (true) {
+                    document.getElementById('table_settings').style.display = 'none';
+                    document.getElementById('div_settings').innerHTML = '设置';
+                };
             }
         }
 
