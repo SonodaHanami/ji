@@ -302,6 +302,7 @@
     <script>
         const question_mark = '？';
         const window_length = 10;
+
         const GROUPS_4 = [
             '指挥分队', '集群分队', '后勤分队', '矛头分队',
             '突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队',
@@ -328,6 +329,9 @@
         const OPERATORS_STAR_5_SUPPORTER = ['梅尔', '初雪', '真理', '空', '格劳克斯', '巫恋', '月禾', '稀音', '九色鹿', '夏栎', '海蒂', '掠风', '但书', '凛视']
         const OPERATORS_STAR_5_SPECIALIST = ['红', '崖心', '狮蝎', '食铁兽', '槐琥', '雪雉', '罗宾', '卡夫卡', '乌有', '霜华', '贝娜', '绮良', '见行者', '风丸', '空构']
         const OPERATORS_STAR_5 = OPERATORS_STAR_5_VANGUARD.concat(OPERATORS_STAR_5_DEFENDER).concat(OPERATORS_STAR_5_SNIPER).concat(OPERATORS_STAR_5_CASTER).concat(OPERATORS_STAR_5_MEDIC).concat(OPERATORS_STAR_5_SUPPORTER).concat(OPERATORS_STAR_5_SPECIALIST)
+
+        let weight_star_5 = 1;
+        let weight_star_6 = 2;
 
         function get_opening_today_4() {
             let user_id = document.getElementById('user_id').value;
@@ -358,24 +362,32 @@
         }
 
         function get_opening_random_4() {
+            let operators_star_5 = OPERATORS_STAR_5.slice();
+            let operators_star_6 = OPERATORS_STAR_6.slice();
             let opening_group = GROUPS_4[Math.floor(Math.random() * GROUPS_4.length)];
-            let operators;
             if (opening_group == '突击战术分队') {
-                operators = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD).concat(OPERATORS_STAR_6_VANGUARD).concat(OPERATORS_STAR_6_GUARD).concat(OPERATORS_STAR_5_VANGUARD).concat(OPERATORS_STAR_5_GUARD);
+                operators_star_6 = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD);
+                operators_star_5 = OPERATORS_STAR_5_VANGUARD.concat(OPERATORS_STAR_5_GUARD);
             }
             else if (opening_group == '堡垒战术分队') {
-                operators = OPERATORS_STAR_6_DEFENDER.concat(OPERATORS_STAR_6_SUPPORTER).concat(OPERATORS_STAR_6_DEFENDER).concat(OPERATORS_STAR_6_SUPPORTER).concat(OPERATORS_STAR_5_DEFENDER).concat(OPERATORS_STAR_5_SUPPORTER);
+                operators_star_6 = OPERATORS_STAR_6_DEFENDER.concat(OPERATORS_STAR_6_SUPPORTER);
+                operators_star_5 = OPERATORS_STAR_5_DEFENDER.concat(OPERATORS_STAR_5_SUPPORTER);
             }
             else if (opening_group == '远程战术分队') {
-                operators = OPERATORS_STAR_6_SNIPER.concat(OPERATORS_STAR_6_MEDIC).concat(OPERATORS_STAR_6_SNIPER).concat(OPERATORS_STAR_6_MEDIC).concat(OPERATORS_STAR_5_SNIPER).concat(OPERATORS_STAR_5_MEDIC);
+                operators_star_6 = OPERATORS_STAR_6_SNIPER.concat(OPERATORS_STAR_6_MEDIC);
+                operators_star_5 = OPERATORS_STAR_5_SNIPER.concat(OPERATORS_STAR_5_MEDIC);
             }
             else if (opening_group == '破坏战术分队') {
-                operators = OPERATORS_STAR_6_CASTER.concat(OPERATORS_STAR_6_SPECIALIST).concat(OPERATORS_STAR_6_CASTER).concat(OPERATORS_STAR_6_SPECIALIST).concat(OPERATORS_STAR_5_CASTER).concat(OPERATORS_STAR_5_SPECIALIST);
+                operators_star_6 = OPERATORS_STAR_6_CASTER.concat(OPERATORS_STAR_6_SPECIALIST);
+                operators_star_5 = OPERATORS_STAR_5_CASTER.concat(OPERATORS_STAR_5_SPECIALIST);
             }
-            else{
-                operators = OPERATORS_STAR_6.concat(OPERATORS_STAR_6).concat(OPERATORS_STAR_5);
+            let opening_operator;
+            if (Math.random() * (weight_star_5 + weight_star_6) <= weight_star_6) {
+                opening_operator = operators_star_6[Math.floor(Math.random() * operators_star_6.length)];
             }
-            let opening_operator = operators[Math.floor(Math.random() * operators.length)];
+            else {
+                opening_operator = operators_star_5[Math.floor(Math.random() * operators_star_5.length)];
+            }
             let result = `用 ${opening_group} ${opening_operator} 开局吧！`;
             handle_text_animation('td_random', result);
         }
