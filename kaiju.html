@@ -240,13 +240,13 @@
                 集成战略：
             </td>
             <td>
-                <input id="is_4" type="checkbox" checked="checked">探索者的银凇止境
+                <input class="settings_checkbox" id="is_4" type="checkbox" onchange="saveSettings();">探索者的银凇止境
             </td>
             <td>
-                <input id="is_3" type="checkbox">水月与深蓝之树
+                <input class="settings_checkbox" id="is_3" type="checkbox" onchange="saveSettings();">水月与深蓝之树
             </td>
             <td>
-                <input id="is_2" type="checkbox">傀影与猩红孤钻
+                <input class="settings_checkbox" id="is_2" type="checkbox" onchange="saveSettings();">傀影与猩红孤钻
             </td>
         </tr>
     </table>
@@ -254,7 +254,7 @@
         <tr id="tr_notice">
             <td id="td_notice">
                 <h3>最近更新：</h3>
-                <p>加入设置，但是还没有保存功能</p>
+                <p>加入设置，并且可以保存最新的设置。</p>
             </td>
             <td id="td_notice_button">
                 <div class="div_notice_button" onclick="handle_notice(1);">好的</div>
@@ -337,9 +337,38 @@
         const OPERATORS_STAR_5_SUPPORTER = ['梅尔', '初雪', '真理', '空', '格劳克斯', '巫恋', '月禾', '稀音', '九色鹿', '夏栎', '海蒂', '掠风', '但书', '凛视']
         const OPERATORS_STAR_5_SPECIALIST = ['红', '崖心', '狮蝎', '食铁兽', '槐琥', '雪雉', '罗宾', '卡夫卡', '乌有', '霜华', '贝娜', '绮良', '见行者', '风丸', '空构', '杏仁']
         const OPERATORS_STAR_5 = OPERATORS_STAR_5_VANGUARD.concat(OPERATORS_STAR_5_DEFENDER).concat(OPERATORS_STAR_5_SNIPER).concat(OPERATORS_STAR_5_CASTER).concat(OPERATORS_STAR_5_MEDIC).concat(OPERATORS_STAR_5_SUPPORTER).concat(OPERATORS_STAR_5_SPECIALIST)
+        
+        const SAVED_SETTINGS_KEY = "IS_SETTING_KEY";
 
         let weight_star_5 = 1;
         let weight_star_6 = 2;
+
+        function loadSettings() {
+            const savedSettingsString = localStorage.getItem(SAVED_SETTINGS_KEY) || '';
+            let savedSettings = [];
+
+            if (savedSettingsString) {
+                savedSettings = JSON.parse(savedSettingsString);
+            }
+
+            // 默认银凇止境肉鸽
+            if (!savedSettings.length) {
+                savedSettings = ['is_4']
+            }
+
+            savedSettings.forEach(setting => document.getElementById(setting).checked = true);
+        }
+
+        loadSettings();
+
+        function saveSettings() {
+            const settingsCheckBoxes = document.querySelectorAll(".settings_checkbox");
+            const checkedCheckboxes = Array.from(settingsCheckBoxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.id)
+
+            localStorage.setItem(SAVED_SETTINGS_KEY, JSON.stringify(checkedCheckboxes));
+        }
 
         function get_opening_today_4() {
             let user_id = document.getElementById('user_id').value;
