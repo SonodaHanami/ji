@@ -99,6 +99,11 @@
             background-color: #fedcba;
         }
 
+        td[id^="td_box"] span {
+            display: inline-block;
+            margin-right: 20px;
+        }
+
         #div_wish_options {
             position:absolute;
             margin-top: 15px;
@@ -156,7 +161,7 @@
             text-align: center;
         }
 
-        .div_tag_button, .div_settings_button {
+        .div_button_tag, .div_button_settings {
             width: 150px;
             display: inline-block;
             background-color: #F0F0F07F;
@@ -168,25 +173,25 @@
             text-align: center;
         }
 
-        .div_tag_button:hover {
+        .div_button_tag:hover {
             outline-color: #00AAFF;
             outline-style: solid;
             outline-width: 3px;
         }
 
-        .div_tag_button_enabled {
+        .div_button_tag_enabled {
             background-color: #00AAFF;
         }
 
-        .div_tag_button_enabled_useless {
+        .div_button_tag_enabled_useless {
             background-color: #bb5a5a;
         }
 
-        .div_tag_button_disabled {
+        .div_button_tag_disabled {
             background-color: #ebeb16;
         }
 
-        .div_tag_button_disabled_useless {
+        .div_button_tag_disabled_useless {
             background-color: #76cb8b;
         }
 
@@ -215,24 +220,24 @@
     <table class="table_text">
         <tr>
             <td>
-                <div class="div_button" id="div_settings" onclick="handle_button_settings();">设置</div>
+                <div class="div_button" id="div_button_settings_main" onclick="handle_button_settings();">设置</div>
             </td>
             <td>
                 <div class="div_button" onclick="location.reload();">清空（刷新）</div>
             </td>
         </tr>
     </table>
-    <table class="table_text" id="table_settings" style="display:none">
-        <tr id="tr_warning" style="display:none"></tr>
-        <tr style="display:none">
+    <table class="table_text" id="table_settings" style="display: none;">
+        <tr id="tr_warning" style="display: none;"></tr>
+        <tr style="display: none;">
             <td colspan="2">
                 当前设置md5：<span id="span_md5_1">undefined</span>
             </td>
         </tr>
-        <tr style="display:none">
+        <tr style="display: none;">
             <td colspan="2">
-                <div class="div_settings_button" onclick="handle_notice(101);">使用默认设置</div>
-                <div class="div_settings_button" onclick="handle_notice(102);">恢复之前设置</div>
+                <div class="div_button_settings" onclick="handle_notice(101);">使用默认设置</div>
+                <div class="div_button_settings" onclick="handle_notice(102);">恢复之前设置</div>
             </td>
         </tr>
         <tr>
@@ -249,6 +254,21 @@
                 <input id="is_2" type="checkbox">傀影与猩红孤钻
             </td>
         </tr>
+        <tr>
+            <td>
+                <div class="div_button_settings" id="div_button_settings_box" onclick="handle_box_settings();">自定义box</div>
+            </td>
+        </tr>
+    </table>
+    <table class="table_text" id="table_box" style="display: none; table-layout: auto; border: 1px solid #ccc;">
+        <tr><th style="width: 80px;">先锋</th><td style="width: auto;" id="td_box_operators_star_6_vanguard"></td></tr>
+        <tr><th style="width: 80px;">近卫</th><td style="width: auto;" id="td_box_operators_star_6_guard"></td></tr>
+        <tr><th style="width: 80px;">重装</th><td style="width: auto;" id="td_box_operators_star_6_defender"></td></tr>
+        <tr><th style="width: 80px;">狙击</th><td style="width: auto;" id="td_box_operators_star_6_sniper"></td></tr>
+        <tr><th style="width: 80px;">术师</th><td style="width: auto;" id="td_box_operators_star_6_caster"></td></tr>
+        <tr><th style="width: 80px;">医疗</th><td style="width: auto;" id="td_box_operators_star_6_medic"></td></tr>
+        <tr><th style="width: 80px;">辅助</th><td style="width: auto;" id="td_box_operators_star_6_supporter"></td></tr>
+        <tr><th style="width: 80px;">特种</th><td style="width: auto;" id="td_box_operators_star_6_specialist"></td></tr>
     </table>
     <table class="table_text">
         <tr id="tr_notice">
@@ -262,7 +282,7 @@
         </tr>
     </table>
     <table class="table_text" id="table_main">
-        <tr style="display:none">
+        <tr style="display: none;">
             <td colspan="2" id="td_md5" onclick="handle_td_md5();">
                 当前设置md5：<span id="span_md5_0">undefined</span>
             </td>
@@ -325,7 +345,17 @@
         const OPERATORS_STAR_6_MEDIC = ['闪灵', '夜莺', '凯尔希', '流明', '焰影苇草', '纯烬艾雅法拉']
         const OPERATORS_STAR_6_SUPPORTER = ['安洁莉娜', '麦哲伦', '铃兰', '浊心斯卡蒂', '灵知', '令', '白铁', '淬羽赫默']
         const OPERATORS_STAR_6_SPECIALIST = ['阿', '傀影', '温蒂', '歌蕾蒂娅', '水月', '老鲤', '归溟幽灵鲨', '多萝西', '缄默德克萨斯', '麒麟R夜刀', '琳琅诗怀雅']
-        const OPERATORS_STAR_6 = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD).concat(OPERATORS_STAR_6_DEFENDER).concat(OPERATORS_STAR_6_SNIPER).concat(OPERATORS_STAR_6_CASTER).concat(OPERATORS_STAR_6_MEDIC).concat(OPERATORS_STAR_6_SUPPORTER).concat(OPERATORS_STAR_6_SPECIALIST)
+        const OPERATORS_STAR_6_ALL = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD).concat(OPERATORS_STAR_6_DEFENDER).concat(OPERATORS_STAR_6_SNIPER).concat(OPERATORS_STAR_6_CASTER).concat(OPERATORS_STAR_6_MEDIC).concat(OPERATORS_STAR_6_SUPPORTER).concat(OPERATORS_STAR_6_SPECIALIST)
+        const OPERATORS_STAR_6 = {
+            'vanguard': OPERATORS_STAR_6_VANGUARD,
+            'guard': OPERATORS_STAR_6_GUARD,
+            'defender': OPERATORS_STAR_6_DEFENDER,
+            'sniper': OPERATORS_STAR_6_SNIPER,
+            'caster': OPERATORS_STAR_6_CASTER,
+            'medic': OPERATORS_STAR_6_MEDIC,
+            'supporter': OPERATORS_STAR_6_SUPPORTER,
+            'specialist': OPERATORS_STAR_6_SPECIALIST
+        }
 
         const OPERATORS_STAR_5_VANGUARD = ['凛冬', '德克萨斯', '格拉尼', '苇草', '极境', '贾维', '野鬃', '夜半', '晓歌', '谜图', '青枳']
         const OPERATORS_STAR_5_GUARD = ['芙兰卡', '因陀罗', '拉普兰德', '幽灵鲨', '暴行', '诗怀雅', '星极', '炎客', '布洛卡', '柏喙', '铸铁', '断崖', '燧石', '鞭刃', '阿米娅(近卫)',
@@ -336,15 +366,43 @@
         const OPERATORS_STAR_5_MEDIC = ['白面鸮', '赫默', '华法琳', '锡兰', '微风', '亚叶', '絮雨', '图耶', '桑葚', '蜜莓', '濯尘芙蓉', '明椒']
         const OPERATORS_STAR_5_SUPPORTER = ['梅尔', '初雪', '真理', '空', '格劳克斯', '巫恋', '月禾', '稀音', '九色鹿', '夏栎', '海蒂', '掠风', '但书', '凛视']
         const OPERATORS_STAR_5_SPECIALIST = ['红', '崖心', '狮蝎', '食铁兽', '槐琥', '雪雉', '罗宾', '卡夫卡', '乌有', '霜华', '贝娜', '绮良', '见行者', '风丸', '空构', '杏仁']
-        const OPERATORS_STAR_5 = OPERATORS_STAR_5_VANGUARD.concat(OPERATORS_STAR_5_DEFENDER).concat(OPERATORS_STAR_5_SNIPER).concat(OPERATORS_STAR_5_CASTER).concat(OPERATORS_STAR_5_MEDIC).concat(OPERATORS_STAR_5_SUPPORTER).concat(OPERATORS_STAR_5_SPECIALIST)
+        const OPERATORS_STAR_5_ALL = OPERATORS_STAR_5_VANGUARD.concat(OPERATORS_STAR_5_DEFENDER).concat(OPERATORS_STAR_5_SNIPER).concat(OPERATORS_STAR_5_CASTER).concat(OPERATORS_STAR_5_MEDIC).concat(OPERATORS_STAR_5_SUPPORTER).concat(OPERATORS_STAR_5_SPECIALIST)
 
         let weight_star_5 = 1;
         let weight_star_6 = 2;
 
+        let current_operators_6_all, current_operators_6;
+
+        function init_table_box() {
+            for (let job in OPERATORS_STAR_6) {
+                for (let idx = 0; idx < OPERATORS_STAR_6[job].length; idx++) {
+                    let code_name = OPERATORS_STAR_6[job][idx];
+                    document.getElementById(`td_box_operators_star_6_${job}`).innerHTML += `
+                        <span><input type="checkbox" id="${code_name}" name="${code_name}" checked><label for="${code_name}">${code_name}</label></span>
+                    `
+                }
+            }
+        }
+
+        function update_current_operators() {
+            current_operators_6 = JSON.parse(JSON.stringify(OPERATORS_STAR_6));
+            current_operators_6_all = OPERATORS_STAR_6_ALL.slice();
+            for (let job in OPERATORS_STAR_6) {
+                for (let idx = 0; idx < OPERATORS_STAR_6[job].length; idx++) {
+                    let code_name = OPERATORS_STAR_6[job][idx];
+                    if (document.getElementById(code_name).checked == false) {
+                        current_operators_6_all.splice(current_operators_6_all.indexOf(code_name), 1);
+                        current_operators_6[job].splice(current_operators_6[job].indexOf(code_name), 1);
+                    }
+                }
+            }
+        }
+
         function get_opening_today_4() {
+            update_current_operators();
             let user_id = document.getElementById('user_id').value;
             let now = (new Date).toLocaleDateString("zh-CN");
-            let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16) % (GROUPS_4.length * OPERATORS_STAR_6.length);
+            let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16) % (GROUPS_4.length * current_operators_6_all.length);
 
             let current_is = [];
             if (document.getElementById('is_2').checked) {
@@ -370,19 +428,19 @@
 
             let operators;
             if (opening_group == '突击战术分队') {
-                operators = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD);
+                operators = current_operators_6['vanguard'].concat(current_operators_6['guard']);
             }
             else if (opening_group == '堡垒战术分队') {
-                operators = OPERATORS_STAR_6_DEFENDER.concat(OPERATORS_STAR_6_SUPPORTER);
+                operators = current_operators_6['defender'].concat(current_operators_6['supporter']);
             }
             else if (opening_group == '远程战术分队') {
-                operators = OPERATORS_STAR_6_SNIPER.concat(OPERATORS_STAR_6_MEDIC);
+                operators = current_operators_6['sniper'].concat(current_operators_6['medic']);
             }
             else if (opening_group == '破坏战术分队') {
-                operators = OPERATORS_STAR_6_CASTER.concat(OPERATORS_STAR_6_SPECIALIST);
+                operators = current_operators_6['caster'].concat(current_operators_6['specialist']);
             }
             else {
-                operators = OPERATORS_STAR_6;
+                operators = current_operators_6_all;
             }
             let opening_operator = operators[hash_int % operators.length];
             let result = `我掐指一算，今天 ${user_id} 适合在 ${opening_is} 用 ${opening_group} ${opening_operator} 开局`;
@@ -392,8 +450,8 @@
         }
 
         function get_opening_random_4() {
-            let operators_star_5 = OPERATORS_STAR_5.slice();
-            let operators_star_6 = OPERATORS_STAR_6.slice();
+            let operators_star_5 = OPERATORS_STAR_5_ALL.slice();
+            let operators_star_6 = OPERATORS_STAR_6_ALL.slice();
             let opening_group = GROUPS_4[Math.floor(Math.random() * GROUPS_4.length)];
             if (opening_group == '突击战术分队') {
                 operators_star_6 = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD);
@@ -466,14 +524,27 @@
         function handle_button_settings() {
             if (document.getElementById('table_settings').style.display == 'none') {
                 document.getElementById('table_settings').style.display = '';
-                document.getElementById('div_settings').innerHTML = "收起设置";
+                document.getElementById('div_button_settings_main').innerHTML = "收起设置";
             }
             else {
                 // if (save_settings()) {
                 if (true) {
                     document.getElementById('table_settings').style.display = 'none';
-                    document.getElementById('div_settings').innerHTML = '设置';
+                    document.getElementById('div_button_settings_main').innerHTML = '设置';
+                    document.getElementById('table_box').style.display = 'none';
+                    document.getElementById('div_button_settings_box').innerHTML = '自定义box';
                 };
+            }
+        }
+
+        function handle_box_settings() {
+            if (document.getElementById('table_box').style.display == 'none') {
+                document.getElementById('table_box').style.display = '';
+                document.getElementById('div_button_settings_box').innerHTML = "收起box";
+            }
+            else {
+                document.getElementById('table_box').style.display = 'none';
+                document.getElementById('div_button_settings_box').innerHTML = '自定义box';
             }
         }
 
@@ -483,7 +554,13 @@
             document.getElementById('tr_today_result').style.display = 'none';
         }
 
+        // TODO 在自定义box时保存box
+
+
         // 页面加载完成时执行
+        init_table_box();
+        // TODO 读取保存的box
+        update_current_operators();
         handle_notice();
     </script>
 </body>
