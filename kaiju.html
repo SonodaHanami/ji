@@ -227,7 +227,7 @@
             </td>
         </tr>
     </table>
-    <table class="table_text" id="table_settings" style="display: none;">
+    <table class="table_text" id="table_settings" onclick="save_settings();" style="display: none;">
         <tr id="tr_warning" style="display: none;"></tr>
         <tr style="display: none;">
             <td colspan="2">
@@ -260,7 +260,7 @@
             </td>
         </tr>
     </table>
-    <table class="table_text" id="table_box" style="display: none; table-layout: auto; border: 1px solid #ccc;">
+    <table class="table_text" id="table_box" onclick="save_settings();" style="display: none; table-layout: auto; border: 1px solid #ccc;">
         <tr><th style="width: 80px;">先锋</th><td style="width: auto;" id="td_box_operators_star_6_vanguard"></td></tr>
         <tr><th style="width: 80px;">近卫</th><td style="width: auto;" id="td_box_operators_star_6_guard"></td></tr>
         <tr><th style="width: 80px;">重装</th><td style="width: auto;" id="td_box_operators_star_6_defender"></td></tr>
@@ -372,6 +372,39 @@
         let weight_star_6 = 2;
 
         let current_operators_6_all, current_operators_6;
+
+        function save_settings() {
+            if (!window.localStorage) {
+                console.error("浏览器不支持localStorage");
+            }
+            else {
+                console.log("save_settings()");
+                let storage = window.localStorage;
+                let enabled_is = [];
+                if (document.getElementById('is_2').checked) {
+                    enabled_is.push(2)
+                }
+                if (document.getElementById('is_3').checked) {
+                    enabled_is.push(3)
+                }
+                if (document.getElementById('is_4').checked) {
+                    enabled_is.push(4)
+                }
+                let operators_star_6_to_get = [];
+                for (let idx = 0; idx < OPERATORS_STAR_6_ALL.length; idx++) {
+                    let code_name = OPERATORS_STAR_6_ALL[idx];
+                    if (document.getElementById(code_name).checked == false) {
+                        operators_star_6_to_get.push(code_name);
+                    }
+                }
+                let data_to_save = {
+                    'enabled_is': enabled_is,
+                    'to_get': operators_star_6_to_get,
+                };
+                storage['data_ji_kaiju'] = JSON.stringify(data_to_save);
+                return true;
+            }
+        }
 
         function init_table_box() {
             for (let job in OPERATORS_STAR_6) {
