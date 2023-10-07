@@ -245,13 +245,21 @@
                 集成战略：
             </td>
             <td>
-                <input id="is_4" type="checkbox" checked="checked"><label for="is_4">探索者的银凇止境</label>
+                <input id="is_4" type="checkbox" checked><label for="is_4">探索者的银凇止境</label>
             </td>
             <td>
                 <input id="is_3" type="checkbox"><label for="is_3">水月与深蓝之树</label>
             </td>
             <td>
                 <input id="is_2" type="checkbox"><label for="is_2">傀影与猩红孤钻</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                仅使用职业分队开局
+            </td>
+            <td>
+                <input id="job_group_only" type="checkbox"><label for="job_group_only">开启</label>
             </td>
         </tr>
         <tr>
@@ -338,6 +346,7 @@
             '特训分队', '高规格分队',
             '永恒狩猎分队', '生活至上分队', '科学主义分队'
         ]
+        const GROUPS_JOBS = ['突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队']
         const OPERATORS_STAR_6_VANGUARD = ['推进之王', '风笛', '嵯峨', '琴柳', '焰尾', '伺夜', '伊内丝', '缪尔赛思']
         const OPERATORS_STAR_6_GUARD = ['银灰', '斯卡蒂', '陈', '赫拉格', '煌', '棘刺', '史尔特尔', '山', '帕拉斯', '耀骑士临光', '艾丽妮', '百炼嘉维尔', '玛恩纳', '重岳', '仇白', '圣约送葬人']
         const OPERATORS_STAR_6_DEFENDER = ['星熊', '塞雷娅', '年', '森蚺', '瑕光', '泥岩', '号角', '斥罪', '涤火杰西卡']
@@ -402,6 +411,7 @@
                 }
                 let data_to_save = {
                     'enabled_is': enabled_is,
+                    'job_group_only': document.getElementById('job_group_only').checked,
                     'to_get': operators_star_6_to_get,
                 };
                 storage['data_ji_kaiju'] = JSON.stringify(data_to_save);
@@ -424,6 +434,8 @@
                 document.getElementById('is_2').checked = data['enabled_is'].includes(2);
                 document.getElementById('is_3').checked = data['enabled_is'].includes(3);
                 document.getElementById('is_4').checked = data['enabled_is'].includes(4);
+                // 仅使用职业分队开局
+                document.getElementById('job_group_only').checked = data['job_group_only'];
                 // 不在box中的干员
                 current_operators_6 = JSON.parse(JSON.stringify(OPERATORS_STAR_6));
                 current_operators_6_all = OPERATORS_STAR_6_ALL.slice();
@@ -484,16 +496,20 @@
             }
             let opening_is = current_is[hash_int % current_is.length];
             let opening_group;
-            if (opening_is == '傀影与猩红孤钻') {
-                opening_group = GROUPS_2[hash_int % GROUPS_2.length];
+            if (document.getElementById('job_group_only').checked) {
+                opening_group = GROUPS_JOBS[hash_int % GROUPS_JOBS.length];
             }
-            if (opening_is == '水月与深蓝之树') {
-                opening_group = GROUPS_3[hash_int % GROUPS_3.length];
+            else {
+                if (opening_is == '傀影与猩红孤钻') {
+                    opening_group = GROUPS_2[hash_int % GROUPS_2.length];
+                }
+                if (opening_is == '水月与深蓝之树') {
+                    opening_group = GROUPS_3[hash_int % GROUPS_3.length];
+                }
+                if (opening_is == '探索者的银凇止境') {
+                    opening_group = GROUPS_4[hash_int % GROUPS_4.length];
+                }
             }
-            if (opening_is == '探索者的银凇止境') {
-                opening_group = GROUPS_4[hash_int % GROUPS_4.length];
-            }
-
             let operators;
             if (opening_group == '突击战术分队') {
                 operators = current_operators_6['vanguard'].concat(current_operators_6['guard']);
