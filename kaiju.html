@@ -269,14 +269,14 @@
         </tr>
     </table>
     <table class="table_text" id="table_box" onclick="save_settings();" style="display: none; table-layout: auto; border: 1px solid #ccc;">
-        <tr><th style="width: 80px;">先锋</th><td style="width: auto;" id="td_box_operators_star_6_vanguard"></td></tr>
-        <tr><th style="width: 80px;">近卫</th><td style="width: auto;" id="td_box_operators_star_6_guard"></td></tr>
-        <tr><th style="width: 80px;">重装</th><td style="width: auto;" id="td_box_operators_star_6_defender"></td></tr>
-        <tr><th style="width: 80px;">狙击</th><td style="width: auto;" id="td_box_operators_star_6_sniper"></td></tr>
-        <tr><th style="width: 80px;">术师</th><td style="width: auto;" id="td_box_operators_star_6_caster"></td></tr>
-        <tr><th style="width: 80px;">医疗</th><td style="width: auto;" id="td_box_operators_star_6_medic"></td></tr>
-        <tr><th style="width: 80px;">辅助</th><td style="width: auto;" id="td_box_operators_star_6_supporter"></td></tr>
-        <tr><th style="width: 80px;">特种</th><td style="width: auto;" id="td_box_operators_star_6_specialist"></td></tr>
+        <tr><th style="width: 80px;">先锋</th><td style="width: auto;" id="td_box_operators_star_6_先锋"></td></tr>
+        <tr><th style="width: 80px;">近卫</th><td style="width: auto;" id="td_box_operators_star_6_近卫"></td></tr>
+        <tr><th style="width: 80px;">重装</th><td style="width: auto;" id="td_box_operators_star_6_重装"></td></tr>
+        <tr><th style="width: 80px;">狙击</th><td style="width: auto;" id="td_box_operators_star_6_狙击"></td></tr>
+        <tr><th style="width: 80px;">术师</th><td style="width: auto;" id="td_box_operators_star_6_术师"></td></tr>
+        <tr><th style="width: 80px;">医疗</th><td style="width: auto;" id="td_box_operators_star_6_医疗"></td></tr>
+        <tr><th style="width: 80px;">辅助</th><td style="width: auto;" id="td_box_operators_star_6_辅助"></td></tr>
+        <tr><th style="width: 80px;">特种</th><td style="width: auto;" id="td_box_operators_star_6_特种"></td></tr>
     </table>
     <table class="table_text">
         <tr id="tr_notice">
@@ -284,6 +284,8 @@
                 <h3>最近更新：</h3>
                 <p>加入自定义box设置</p>
                 <p>加入自动保存设置功能</p>
+                <p>加入仅使用职业分队开局选项</p>
+                <p>加入<span style="color: #bb5a5a;">今日剧本！</span></p>
             </td>
             <td id="td_notice_button">
                 <div class="div_notice_button" onclick="handle_notice(1);">好的</div>
@@ -310,6 +312,13 @@
         </tr>
         <tr id="tr_today_result" style="display: none;">
             <td colspan="2" id="td_today"></td>
+        </tr>
+        <tr id="tr_drama_button">
+            <th colspan="1" style="color: #ffbf92;"><div class="div_button" onclick="get_drama_today_4(1);">今日剧本！</div></th>
+            <th colspan="1" style="color: #bb5a5a;"><div class="div_button" onclick="get_drama_today_4(2);">今日剧本+！</div></th>
+        </tr>
+        <tr id="tr_drama_result" style="display: none;">
+            <td colspan="2" id="td_drama"></td>
         </tr>
         <tr>
             <th colspan="2"><div class="div_button" onclick="get_opening_random_4();">随机开局！</div></th>
@@ -357,14 +366,14 @@
         const OPERATORS_STAR_6_SPECIALIST = ['阿', '傀影', '温蒂', '歌蕾蒂娅', '水月', '老鲤', '归溟幽灵鲨', '多萝西', '缄默德克萨斯', '麒麟R夜刀', '琳琅诗怀雅']
         const OPERATORS_STAR_6_ALL = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD).concat(OPERATORS_STAR_6_DEFENDER).concat(OPERATORS_STAR_6_SNIPER).concat(OPERATORS_STAR_6_CASTER).concat(OPERATORS_STAR_6_MEDIC).concat(OPERATORS_STAR_6_SUPPORTER).concat(OPERATORS_STAR_6_SPECIALIST)
         const OPERATORS_STAR_6 = {
-            'vanguard': OPERATORS_STAR_6_VANGUARD,
-            'guard': OPERATORS_STAR_6_GUARD,
-            'defender': OPERATORS_STAR_6_DEFENDER,
-            'sniper': OPERATORS_STAR_6_SNIPER,
-            'caster': OPERATORS_STAR_6_CASTER,
-            'medic': OPERATORS_STAR_6_MEDIC,
-            'supporter': OPERATORS_STAR_6_SUPPORTER,
-            'specialist': OPERATORS_STAR_6_SPECIALIST
+            '先锋': OPERATORS_STAR_6_VANGUARD,
+            '近卫': OPERATORS_STAR_6_GUARD,
+            '重装': OPERATORS_STAR_6_DEFENDER,
+            '狙击': OPERATORS_STAR_6_SNIPER,
+            '术师': OPERATORS_STAR_6_CASTER,
+            '医疗': OPERATORS_STAR_6_MEDIC,
+            '辅助': OPERATORS_STAR_6_SUPPORTER,
+            '特种': OPERATORS_STAR_6_SPECIALIST
         }
 
         const OPERATORS_STAR_5_VANGUARD = ['凛冬', '德克萨斯', '格拉尼', '苇草', '极境', '贾维', '野鬃', '夜半', '晓歌', '谜图', '青枳']
@@ -484,17 +493,17 @@
             let now = (new Date).toLocaleDateString("zh-CN");
             let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16) % (GROUPS_4.length * current_operators_6_all.length);
 
-            let current_is = [];
+            let is_pool = [];
             if (document.getElementById('is_2').checked) {
-                current_is.push('傀影与猩红孤钻')
+                is_pool.push('傀影与猩红孤钻')
             }
             if (document.getElementById('is_3').checked) {
-                current_is.push('水月与深蓝之树')
+                is_pool.push('水月与深蓝之树')
             }
             if (document.getElementById('is_4').checked) {
-                current_is.push('探索者的银凇止境')
+                is_pool.push('探索者的银凇止境')
             }
-            let opening_is = current_is[hash_int % current_is.length];
+            let opening_is = is_pool[hash_int % is_pool.length];
             let opening_group;
             if (document.getElementById('job_group_only').checked) {
                 opening_group = GROUPS_JOBS[hash_int % GROUPS_JOBS.length];
@@ -512,16 +521,16 @@
             }
             let operators;
             if (opening_group == '突击战术分队') {
-                operators = current_operators_6['vanguard'].concat(current_operators_6['guard']);
+                operators = current_operators_6['先锋'].concat(current_operators_6['近卫']);
             }
             else if (opening_group == '堡垒战术分队') {
-                operators = current_operators_6['defender'].concat(current_operators_6['supporter']);
+                operators = current_operators_6['重装'].concat(current_operators_6['辅助']);
             }
             else if (opening_group == '远程战术分队') {
-                operators = current_operators_6['sniper'].concat(current_operators_6['medic']);
+                operators = current_operators_6['狙击'].concat(current_operators_6['医疗']);
             }
             else if (opening_group == '破坏战术分队') {
-                operators = current_operators_6['caster'].concat(current_operators_6['specialist']);
+                operators = current_operators_6['术师'].concat(current_operators_6['特种']);
             }
             else {
                 operators = current_operators_6_all;
@@ -531,6 +540,143 @@
             document.getElementById('tr_today_button').style.display = 'none';
             document.getElementById('tr_today_result').style.display = '';
             handle_text_animation('td_today', result);
+        }
+
+        function get_drama_today_4(level=1) {
+            update_current_operators();
+            let drama_level, replys = [];
+            let user_id = document.getElementById('user_id').value;
+            let now = (new Date).toLocaleDateString("zh-CN");
+            let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16) % (GROUPS_4.length * current_operators_6_all.length);
+
+            let is_pool = [];
+            if (document.getElementById('is_2').checked) {
+                is_pool.push('傀影与猩红孤钻')
+            }
+            if (document.getElementById('is_3').checked) {
+                is_pool.push('水月与深蓝之树')
+            }
+            if (document.getElementById('is_4').checked) {
+                is_pool.push('探索者的银凇止境')
+            }
+            let opening_is = is_pool[hash_int % is_pool.length];
+            let opening_group;
+            if (document.getElementById('job_group_only').checked) {
+                opening_group = GROUPS_JOBS[hash_int % GROUPS_JOBS.length];
+            }
+            else {
+                if (opening_is == '傀影与猩红孤钻') {
+                    opening_group = GROUPS_2[hash_int % GROUPS_2.length];
+                }
+                if (opening_is == '水月与深蓝之树') {
+                    opening_group = GROUPS_3[hash_int % GROUPS_3.length];
+                }
+                if (opening_is == '探索者的银凇止境') {
+                    opening_group = GROUPS_4[hash_int % GROUPS_4.length];
+                }
+            }
+            let operators;
+            if (opening_group == '突击战术分队') {
+                operators = current_operators_6['先锋'].concat(current_operators_6['近卫']);
+            }
+            else if (opening_group == '堡垒战术分队') {
+                operators = current_operators_6['重装'].concat(current_operators_6['辅助']);
+            }
+            else if (opening_group == '远程战术分队') {
+                operators = current_operators_6['狙击'].concat(current_operators_6['医疗']);
+            }
+            else if (opening_group == '破坏战术分队') {
+                operators = current_operators_6['术师'].concat(current_operators_6['特种']);
+            }
+            else {
+                operators = current_operators_6_all.slice();
+            }
+            let opening_operator = operators[hash_int % operators.length];
+            replys.push(`我掐指一算，今天 ${user_id} 适合在 ${opening_is} 用 ${opening_group} ${opening_operator} 开局`);
+
+            let user_box = JSON.parse(JSON.stringify(current_operators_6));
+            let tefuda = {
+                '先锋': 0,
+                '近卫': 0,
+                '重装': 0,
+                '狙击': 0,
+                '术师': 0,
+                '医疗': 0,
+                '辅助': 0,
+                '特种': 0,
+            }
+            operators = current_operators_6_all.slice();
+            operators.splice(operators.indexOf(opening_operator), 1);
+            for (let job in user_box) {
+                if (user_box[job].includes(opening_operator)) {
+                    tefuda[job] += 1
+                    user_box[job].splice(user_box[job].indexOf(opening_operator), 1);
+                    break;
+                }
+            }
+            switch (level) {
+                case 1:
+                    drama_level = 7;
+                    // replys.push(`指定的强度为${level}`);
+                    break;
+                case 2:
+                    drama_level = 15;
+                    // replys.push(`指定的强度为${level}`);
+                    break;
+                default:
+                    drama_level = 7;
+                    // replys.push(`使用默认强度${drama_level}`);
+            }
+            // 禁用
+            let banned_operators = []
+            for (let i = 0; i <= drama_level; i++) {
+                let banned_operator = operators[hash_int % operators.length];
+                banned_operators.push(banned_operator);
+                operators.splice(operators.indexOf(banned_operator), 1);
+                for (let job in user_box) {
+                    if (user_box[job].includes(banned_operator)) {
+                        user_box[job].splice(user_box[job].indexOf(banned_operator), 1);
+                        break;
+                    }
+                }
+            }
+            replys.push(`将以下 ${banned_operators.length} 位干员从本局游戏中移除：[ ${banned_operators.join('、')} ]`);
+            // 处理某一职业刚好全被禁用的情况
+            let keys = Object.keys(user_box);
+            for (let i = 0; i < keys.length; i++) {
+                let job = keys[i];
+                if (user_box[job].length == 0) {
+                    delete user_box[job];
+                    delete tefuda[job];
+                }
+            }
+
+            // 选择
+            for (let i = 0; i < drama_level; i++) {
+                let jobs = [];
+                for (let j in tefuda) {
+                    if (tefuda[j] < Math.max(...Object.values(tefuda))) {
+                        jobs.push(j);
+                    }
+                }
+                if (jobs.length == 0) {
+                    jobs = Object.keys(tefuda);
+                }
+                let job_id = hash_int % jobs.length;
+                let job = jobs[job_id];
+                operator = user_box[job].splice(hash_int % user_box[job].length, 1)
+                tefuda[job] += 1
+                replys.push(`第 ${tefuda[job]} 位 六星${job}干员 选择 ${operator}`)
+                if (user_box[job].length == 0) {
+                    delete user_box[job];
+                    delete tefuda[job];
+                }
+            }
+            document.getElementById('tr_today_button').style.display = 'none';
+            document.getElementById('tr_today_result').style.display = 'none';
+            document.getElementById('tr_drama_button').style.display = 'none';
+            document.getElementById('tr_drama_result').style.display = '';
+            document.getElementById('td_drama').innerHTML = replys.join('<br>');
         }
 
         function get_opening_random_4() {
@@ -636,6 +782,8 @@
             document.getElementById('user_id').value = ''
             document.getElementById('tr_today_button').style.display = '';
             document.getElementById('tr_today_result').style.display = 'none';
+            document.getElementById('tr_drama_button').style.display = '';
+            document.getElementById('tr_drama_result').style.display = 'none';
         }
 
 
