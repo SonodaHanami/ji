@@ -285,7 +285,7 @@
                 <p>加入自定义box设置</p>
                 <p>加入自动保存设置功能</p>
                 <p>加入仅使用职业分队开局选项</p>
-                <p>加入<span style="color: #bb5a5a;">今日剧本！</span></p>
+                <p>加入<span style="color: #dd9090;">今日剧本！</span></p>
             </td>
             <td id="td_notice_button">
                 <div class="div_notice_button" onclick="handle_notice(1);">好的</div>
@@ -315,7 +315,7 @@
         </tr>
         <tr id="tr_drama_button">
             <th colspan="1" style="color: #ffbf92;"><div class="div_button" onclick="get_drama_today_4(1);">今日剧本！</div></th>
-            <th colspan="1" style="color: #bb5a5a;"><div class="div_button" onclick="get_drama_today_4(2);">今日剧本+！</div></th>
+            <th colspan="1" style="color: #dd9090;"><div class="div_button" onclick="get_drama_today_4(2);">今日剧本+！</div></th>
         </tr>
         <tr id="tr_drama_result" style="display: none;">
             <td colspan="2" id="td_drama"></td>
@@ -640,7 +640,7 @@
                     }
                 }
             }
-            replys.push(`将以下 ${banned_operators.length} 位干员从本局游戏中移除：[ ${banned_operators.join('、')} ]`);
+            replys.push(`将以下 ${banned_operators.length} 位干员从本局游戏中移除：${banned_operators.join('、')}`);
             // 处理某一职业刚好全被禁用的情况
             let keys = Object.keys(user_box);
             for (let i = 0; i < keys.length; i++) {
@@ -666,7 +666,7 @@
                 let job = jobs[job_id];
                 operator = user_box[job].splice(hash_int % user_box[job].length, 1)
                 tefuda[job] += 1
-                replys.push(`第 ${tefuda[job]} 位 六星${job}干员 选择 ${operator}`)
+                replys.push(`<input type="checkbox" id="operator_pick_${i}"><label for="operator_pick_${i}">第 ${tefuda[job]} 位 六星${job}干员 选择 ${operator}</label>`)
                 if (user_box[job].length == 0) {
                     delete user_box[job];
                     delete tefuda[job];
