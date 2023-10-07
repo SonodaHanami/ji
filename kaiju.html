@@ -245,13 +245,13 @@
                 集成战略：
             </td>
             <td>
-                <input id="is_4" type="checkbox" checked="checked">探索者的银凇止境
+                <input id="is_4" type="checkbox" checked="checked"><label for="is_4">探索者的银凇止境</label>
             </td>
             <td>
-                <input id="is_3" type="checkbox">水月与深蓝之树
+                <input id="is_3" type="checkbox"><label for="is_3">水月与深蓝之树</label>
             </td>
             <td>
-                <input id="is_2" type="checkbox">傀影与猩红孤钻
+                <input id="is_2" type="checkbox"><label for="is_2">傀影与猩红孤钻</label>
             </td>
         </tr>
         <tr>
@@ -274,7 +274,8 @@
         <tr id="tr_notice">
             <td id="td_notice">
                 <h3>最近更新：</h3>
-                <p>加入设置，但是还没有保存功能</p>
+                <p>加入自定义box设置</p>
+                <p>加入自动保存设置功能</p>
             </td>
             <td id="td_notice_button">
                 <div class="div_notice_button" onclick="handle_notice(1);">好的</div>
@@ -380,6 +381,7 @@
             else {
                 console.log("save_settings()");
                 let storage = window.localStorage;
+                // 选中的集成战略
                 let enabled_is = [];
                 if (document.getElementById('is_2').checked) {
                     enabled_is.push(2)
@@ -390,6 +392,7 @@
                 if (document.getElementById('is_4').checked) {
                     enabled_is.push(4)
                 }
+                // 不在box中的干员
                 let operators_star_6_to_get = [];
                 for (let idx = 0; idx < OPERATORS_STAR_6_ALL.length; idx++) {
                     let code_name = OPERATORS_STAR_6_ALL[idx];
@@ -406,12 +409,44 @@
             }
         }
 
+        function load_settings() {
+            if (!window.localStorage) {
+                console.error("浏览器不支持localStorage");
+            }
+            else {
+                console.log("load_settings()");
+                if (!window.localStorage['data_ji_kaiju']) {
+                    console.log("没有找到已保存的设置");
+                    return false;
+                }
+                let data = JSON.parse(window.localStorage['data_ji_kaiju']);
+                // 选中的集成战略
+                document.getElementById('is_2').checked = data['enabled_is'].includes(2);
+                document.getElementById('is_3').checked = data['enabled_is'].includes(3);
+                document.getElementById('is_4').checked = data['enabled_is'].includes(4);
+                // 不在box中的干员
+                current_operators_6 = JSON.parse(JSON.stringify(OPERATORS_STAR_6));
+                current_operators_6_all = OPERATORS_STAR_6_ALL.slice();
+                for (let job in OPERATORS_STAR_6) {
+                    for (let idx = 0; idx < OPERATORS_STAR_6[job].length; idx++) {
+                        let code_name = OPERATORS_STAR_6[job][idx];
+                        if (data['to_get'].includes(code_name)) {
+                            document.getElementById(code_name).checked = false;
+                            current_operators_6_all.splice(current_operators_6_all.indexOf(code_name), 1);
+                            current_operators_6[job].splice(current_operators_6[job].indexOf(code_name), 1);
+                        }
+                    }
+                }
+                return true;
+            }
+        }
+
         function init_table_box() {
             for (let job in OPERATORS_STAR_6) {
                 for (let idx = 0; idx < OPERATORS_STAR_6[job].length; idx++) {
                     let code_name = OPERATORS_STAR_6[job][idx];
                     document.getElementById(`td_box_operators_star_6_${job}`).innerHTML += `
-                        <span><input type="checkbox" id="${code_name}" name="${code_name}" checked><label for="${code_name}">${code_name}</label></span>
+                        <span><input type="checkbox" id="${code_name}" checked><label for="${code_name}">${code_name}</label></span>
                     `
                 }
             }
@@ -587,12 +622,11 @@
             document.getElementById('tr_today_result').style.display = 'none';
         }
 
-        // TODO 在自定义box时保存box
 
 
         // 页面加载完成时执行
         init_table_box();
-        // TODO 读取保存的box
+        load_settings();
         update_current_operators();
         handle_notice();
     </script>
