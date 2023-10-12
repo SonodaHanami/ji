@@ -15,11 +15,6 @@
             color: #FFA500;
         }
 
-        textarea {
-            width: 100%;
-            resize: none;
-        }
-
         table {
             border-collapse: collapse;
         }
@@ -53,6 +48,19 @@
         td[id^="td_box"] span {
             display: inline-block;
             margin-right: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            resize: none;
+        }
+
+        #textarea_bp {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            z-index: -10;
         }
 
         .div_button {
@@ -130,12 +138,14 @@
             background-color: #76cb8b;
         }
 
-        .span_picks {
+        #span_picks {
             background-color: #aaccee;
+            cursor: pointer;
         }
 
-        .span_bans {
+        #span_bans {
             background-color: #eeaaaa;
+            cursor: pointer;
         }
     </style>
     <link rel="icon" href="./favicon.ico">
@@ -209,8 +219,7 @@
         <tr id="tr_notice">
             <td id="td_notice">
                 <h3>最近更新：</h3>
-                <p>加入选择框</p>
-                <p>单独显示一行所有必须优先选择的六星</p>
+                <p>新增点击复制，点击带背景颜色高亮的移除/优先选择干员名单可以直接复制到剪贴板</p>
             </td>
             <td id="td_notice_button">
                 <div class="div_notice_button" onclick="handle_notice(1);">好的</div>
@@ -245,8 +254,8 @@
         </tr>
         <tr>
             <td colspan="2" id="td_random"></td>
-        </tr>
     </table>
+    <textarea id="textarea_bp">用于点击复制</textarea>
 
     <script>
         const question_mark = '？';
@@ -572,7 +581,7 @@
                     }
                 }
             }
-            replys.push(`<p>将以下 ${banned_operators.length} 位干员从本局游戏中移除：<span class="span_bans">${banned_operators.join('、')}</span></p>`);
+            replys.push(`<p>将以下 ${banned_operators.length} 位干员从本局游戏中移除：<span id="span_bans" onclick="handle_click_copy('span_bans');">${banned_operators.join('、')}</span></p>`);
             // 处理某一职业刚好全被禁用的情况
             let keys = Object.keys(user_box);
             for (let i = 0; i < keys.length; i++) {
@@ -606,7 +615,7 @@
                 }
             }
             let picks_oneline = JSON.stringify(picks).replaceAll('","', '、').replaceAll('"', '').replaceAll('[', '').replaceAll(']', '').replaceAll('{', '').replaceAll('}', '').replaceAll(':', '：').replaceAll(',', ' | ');
-            picks_oneline = `<p>各职业六星干员必须优先选择：<span class="span_picks">${picks_oneline}</span></p>`;
+            picks_oneline = `<p>各职业六星干员必须优先选择：<span id="span_picks" onclick="handle_click_copy('span_picks');">${picks_oneline}</span></p>`;
             document.getElementById('tr_today_button').style.display = 'none';
             document.getElementById('tr_today_result').style.display = 'none';
             document.getElementById('tr_drama_button').style.display = 'none';
@@ -671,6 +680,17 @@
             if (keyCode == 13) {
                 get_opening_today_4();
             }
+        }
+
+        function handle_click_copy(target) {
+            console.log('点击复制');
+            let input = document.getElementById("textarea_bp");
+            let text = document.getElementById(target).innerText;
+            input.value = text; // 修改文本框的内容
+            input.select(); // 选中文本
+            document.execCommand("copy"); // 执行浏览器复制命令
+            // alert("复制成功");
+            console.log('复制成功');
         }
 
         function handle_notice(code) {
