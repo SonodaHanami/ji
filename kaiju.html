@@ -640,7 +640,7 @@
                     }
                 }
             }
-            replys.push(`<p>将以下 ${banned_operators.length} 位干员从本局游戏中移除：<span id="span_bans" onclick="handle_click_copy('span_bans');">${banned_operators.join('、')}</span></p>`);
+            replys.push(`<p>将以下 ${banned_operators.length} 位干员从本局游戏中移除：<span id="span_bans" onclick="handle_click_copy('span_bans');">${banned_operators.join('、')}</span> <span id="span_bans_copied" style="display: none;">已复制到剪贴板</span></p>`);
             // 处理禁用后box中某一职业没有六星的情况
             check_drama_box();
             // 选择
@@ -666,7 +666,7 @@
                 }
             }
             let picks_oneline = JSON.stringify(picks).replaceAll('","', '、').replaceAll('"', '').replaceAll('[', '').replaceAll(']', '').replaceAll('{', '').replaceAll('}', '').replaceAll(':', '：').replaceAll(',', ' | ');
-            picks_oneline = `<p>各职业六星干员必须优先选择：<span id="span_picks" onclick="handle_click_copy('span_picks');">${picks_oneline}</span></p>`;
+            picks_oneline = `<p>各职业六星干员必须优先选择：<span id="span_picks" onclick="handle_click_copy('span_picks');">${picks_oneline}</span> <span id="span_picks_copied" style="display: none;">已复制到剪贴板</span></p>`;
             document.getElementById('tr_today_button').style.display = 'none';
             document.getElementById('tr_today_result').style.display = 'none';
             document.getElementById('tr_drama_button').style.display = 'none';
@@ -735,12 +735,13 @@
 
         function handle_click_copy(target) {
             console.log('点击复制');
-            let input = document.getElementById("textarea_bp");
+            let input = document.getElementById('textarea_bp');
             let text = document.getElementById(target).innerText;
             input.value = text; // 修改文本框的内容
             input.select(); // 选中文本
-            document.execCommand("copy"); // 执行浏览器复制命令
-            // alert("复制成功");
+            document.execCommand('copy'); // 执行浏览器复制命令
+            document.getElementById(`${target}_copied`).style.display = '';
+            setTimeout(() => {document.getElementById(`${target}_copied`).style.display = 'none';}, 3000);
             console.log('复制成功');
         }
 
