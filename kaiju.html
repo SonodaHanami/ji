@@ -171,12 +171,6 @@
         </tr>
     </table>
     <table class="table_text" id="table_settings" onclick="save_settings();" style="display: none;">
-        <tr style="display: none;">
-            <td colspan="2">
-                <div class="div_button_settings" onclick="handle_notice(101);">使用默认设置</div>
-                <div class="div_button_settings" onclick="handle_notice(102);">恢复之前设置</div>
-            </td>
-        </tr>
         <tr>
             <td>
                 集成战略：
@@ -193,6 +187,14 @@
         </tr>
         <tr>
             <td>
+                允许使用不在box中的干员开局（招募助战）
+            </td>
+            <td>
+                <input id="support_unit_enabled" type="checkbox"><label for="support_unit_enabled">开启</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 仅使用职业分队开局
             </td>
             <td>
@@ -201,7 +203,10 @@
         </tr>
         <tr>
             <td>
-                <div class="div_button_settings" id="div_button_settings_box" onclick="handle_box_settings();">自定义box</div>
+                自定义box
+            </td>
+            <td>
+                <div class="div_button_settings" id="div_button_settings_box" onclick="handle_box_settings();" style="width: 100%">展开box</div>
             </td>
         </tr>
     </table>
@@ -220,6 +225,8 @@
             <td id="td_notice">
                 <h3>最近更新：</h3>
                 <p>新增点击复制，点击带背景颜色高亮的移除/优先选择干员名单可以直接复制到剪贴板</p>
+                <p>新增允许使用不在box中的干员开局选项</p>
+                <p>优化对box中干员很少的情况的处理</p>
             </td>
             <td id="td_notice_button">
                 <div class="div_notice_button" onclick="handle_notice(1);">好的</div>
@@ -350,6 +357,7 @@
                 let data_to_save = {
                     'enabled_is': enabled_is,
                     'job_group_only': document.getElementById('job_group_only').checked,
+                    'support_unit_enabled': document.getElementById('support_unit_enabled').checked,
                     'to_get': operators_star_6_to_get,
                 };
                 storage['data_ji_kaiju'] = JSON.stringify(data_to_save);
@@ -374,6 +382,7 @@
                 document.getElementById('is_4').checked = data['enabled_is'].includes(4);
                 // 仅使用职业分队开局
                 document.getElementById('job_group_only').checked = data['job_group_only'];
+                document.getElementById('support_unit_enabled').checked = data['support_unit_enabled'];
                 // 不在box中的干员
                 current_operators_6 = JSON.parse(JSON.stringify(OPERATORS_STAR_6));
                 current_operators_6_all = OPERATORS_STAR_6_ALL.slice();
@@ -402,25 +411,31 @@
             }
         }
 
-        function update_current_operators() {
+        function update_current_operators(full_box=false) {
             current_operators_6 = JSON.parse(JSON.stringify(OPERATORS_STAR_6));
             current_operators_6_all = OPERATORS_STAR_6_ALL.slice();
+            let operators_to_get = [];
+            if (full_box) {
+                return operators_to_get;
+            }
             for (let job in OPERATORS_STAR_6) {
                 for (let idx = 0; idx < OPERATORS_STAR_6[job].length; idx++) {
                     let code_name = OPERATORS_STAR_6[job][idx];
                     if (document.getElementById(code_name).checked == false) {
                         current_operators_6_all.splice(current_operators_6_all.indexOf(code_name), 1);
                         current_operators_6[job].splice(current_operators_6[job].indexOf(code_name), 1);
+                        operators_to_get.push(code_name);
                     }
                 }
             }
+            return operators_to_get;
         }
 
         function get_opening_today_4() {
-            update_current_operators();
+            update_current_operators(document.getElementById('support_unit_enabled').checked);
             let user_id = document.getElementById('user_id').value;
             let now = (new Date).toLocaleDateString("zh-CN");
-            let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16) % (GROUPS_4.length * current_operators_6_all.length);
+            let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16) % (GROUPS_4.length * (OPERATORS_STAR_6_ALL.length + current_operators_6_all.length));
 
             let is_pool = [];
             if (document.getElementById('is_2').checked) {
@@ -472,11 +487,29 @@
         }
 
         function get_drama_today_4(level=1) {
-            update_current_operators();
+            function check_drama_box() {
+                let keys = Object.keys(drama_box);
+                for (let i = 0; i < keys.length; i++) {
+                    let job = keys[i];
+                    if (drama_box[job].length == 0) {
+                        delete drama_box[job];
+                        delete picks_count[job];
+                    }
+                }
+            }
+
             let drama_level, replys = [], reply_picks = [];
+            let operators_to_get = update_current_operators();
+            if (operators_to_get.length > 0) {
+                replys.push(`<span onclick="document.getElementById('span_to_get').style.display = '';" style="background-color: #ffbf92; cursor: pointer;">${operators_to_get.length}位干员</span><span id="span_to_get" style="display: none;">（${operators_to_get.join('、')}）</span>不在box中`);
+            }
+            if (document.getElementById('support_unit_enabled').checked) {
+                update_current_operators(true);
+                replys.push('允许使用不在box中的干员开局（招募助战）');
+            }
             let user_id = document.getElementById('user_id').value;
             let now = (new Date).toLocaleDateString("zh-CN");
-            let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16) % (GROUPS_4.length * current_operators_6_all.length);
+            let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16) % (GROUPS_4.length * (OPERATORS_STAR_6_ALL.length + current_operators_6_all.length));
 
             let is_pool = [];
             if (document.getElementById('is_2').checked) {
@@ -492,6 +525,7 @@
             let opening_group;
             if (document.getElementById('job_group_only').checked) {
                 opening_group = GROUPS_JOBS[hash_int % GROUPS_JOBS.length];
+                replys.push('仅使用职业分队开局');
             }
             else {
                 if (opening_is == '傀影与猩红孤钻') {
@@ -504,26 +538,29 @@
                     opening_group = GROUPS_4[hash_int % GROUPS_4.length];
                 }
             }
-            let operators;
+            let drama_box, drama_operators;
             if (opening_group == '突击战术分队') {
-                operators = current_operators_6['先锋'].concat(current_operators_6['近卫']);
+                drama_operators = current_operators_6['先锋'].concat(current_operators_6['近卫']);
             }
             else if (opening_group == '堡垒战术分队') {
-                operators = current_operators_6['重装'].concat(current_operators_6['辅助']);
+                drama_operators = current_operators_6['重装'].concat(current_operators_6['辅助']);
             }
             else if (opening_group == '远程战术分队') {
-                operators = current_operators_6['狙击'].concat(current_operators_6['医疗']);
+                drama_operators = current_operators_6['狙击'].concat(current_operators_6['医疗']);
             }
             else if (opening_group == '破坏战术分队') {
-                operators = current_operators_6['术师'].concat(current_operators_6['特种']);
+                drama_operators = current_operators_6['术师'].concat(current_operators_6['特种']);
             }
             else {
-                operators = current_operators_6_all.slice();
+                drama_operators = current_operators_6_all.slice();
             }
-            let opening_operator = operators[hash_int % operators.length];
+            let opening_operator = drama_operators[hash_int % drama_operators.length];
+            if (replys.length > 0) {
+                replys = [`<p>${replys.join('，')}</p>`];
+            }
             replys.push(`<p>我掐指一算，今天 ${user_id} 适合在 ${opening_is} 用 ${opening_group} ${opening_operator} 开局</p>`);
 
-            let user_box = JSON.parse(JSON.stringify(current_operators_6));
+            update_current_operators();
             let picks = {
                 '先锋': [],
                 '近卫': [],
@@ -544,14 +581,36 @@
                 '辅助': 0,
                 '特种': 0,
             }
-            operators = current_operators_6_all.slice();
-            operators.splice(operators.indexOf(opening_operator), 1);
-            for (let job in user_box) {
-                if (user_box[job].includes(opening_operator)) {
+            drama_box = JSON.parse(JSON.stringify(current_operators_6));
+            drama_operators = current_operators_6_all.slice();
+            if (document.getElementById('support_unit_enabled').checked) {
+                // 将助战招募干员临时加入box
+                for (let job in OPERATORS_STAR_6) {
+                    if (OPERATORS_STAR_6[job].includes(opening_operator)) {
+                        if (!(job in drama_box)) {
+                            drama_box[job] = [];
+                        }
+                        if (!(drama_box[job].includes(opening_operator))) {
+                            drama_box[job].push(opening_operator);
+                        }
+                        if (!(drama_operators.includes(opening_operator))) {
+                            drama_operators.push(opening_operator);
+                        }
+                        break;
+                    }
+                }
+            }
+            drama_operators.splice(drama_operators.indexOf(opening_operator), 1);
+            // 处理box中某一职业没有六星的情况
+            check_drama_box();
+            for (let job in OPERATORS_STAR_6) {
+                if (OPERATORS_STAR_6[job].includes(opening_operator)) {
                     picks[job].push(`${opening_operator}（开局）`)
                     picks_count[job] += 1
                     reply_picks.push(`<input type="checkbox" id="operator_pick_-1"><label for="operator_pick_-1">第 ${picks_count[job]} 位 六星${job}干员 选择 ${opening_operator}（开局）</label>`);
-                    user_box[job].splice(user_box[job].indexOf(opening_operator), 1);
+                    if (job in drama_box && drama_box[job].indexOf(opening_operator) > -1) {
+                        drama_box[job].splice(drama_box[job].indexOf(opening_operator), 1);
+                    }
                     break;
                 }
             }
@@ -568,32 +627,24 @@
                     drama_level = 7;
                     // replys.push(`使用默认强度${drama_level}`);
             }
-            // 禁用
+            // 禁用（从本局游戏中移除）
             let banned_operators = []
-            for (let i = 0; i <= drama_level; i++) {
-                let banned_operator = operators[hash_int % operators.length];
+            for (let i = 0; i <= drama_level && drama_operators.length > 0; i++) {
+                let banned_operator = drama_operators[hash_int % drama_operators.length];
                 banned_operators.push(banned_operator);
-                operators.splice(operators.indexOf(banned_operator), 1);
-                for (let job in user_box) {
-                    if (user_box[job].includes(banned_operator)) {
-                        user_box[job].splice(user_box[job].indexOf(banned_operator), 1);
+                drama_operators.splice(drama_operators.indexOf(banned_operator), 1);
+                for (let job in drama_box) {
+                    if (drama_box[job].includes(banned_operator)) {
+                        drama_box[job].splice(drama_box[job].indexOf(banned_operator), 1);
                         break;
                     }
                 }
             }
             replys.push(`<p>将以下 ${banned_operators.length} 位干员从本局游戏中移除：<span id="span_bans" onclick="handle_click_copy('span_bans');">${banned_operators.join('、')}</span></p>`);
-            // 处理某一职业刚好全被禁用的情况
-            let keys = Object.keys(user_box);
-            for (let i = 0; i < keys.length; i++) {
-                let job = keys[i];
-                if (user_box[job].length == 0) {
-                    delete user_box[job];
-                    delete picks_count[job];
-                }
-            }
-
+            // 处理禁用后box中某一职业没有六星的情况
+            check_drama_box();
             // 选择
-            for (let i = 0; i < drama_level; i++) {
+            for (let i = 0; i < drama_level && Object.keys(drama_box).length > 0; i++) {
                 let not_picked_jobs = [];
                 for (let p in picks_count) {
                     if (picks_count[p] < Math.max(...Object.values(picks_count))) {
@@ -605,12 +656,12 @@
                 }
                 let job_id = hash_int % not_picked_jobs.length;
                 let job = not_picked_jobs[job_id];
-                operator = user_box[job].splice(hash_int % user_box[job].length, 1)[0]
+                operator = drama_box[job].splice(hash_int % drama_box[job].length, 1)[0]
                 picks[job].push(operator);
                 picks_count[job] += 1;
                 reply_picks.push(`<input type="checkbox" id="operator_pick_${i}"><label for="operator_pick_${i}">第 ${picks_count[job]} 位 六星${job}干员 选择 ${operator}</label>`);
-                if (user_box[job].length == 0) {
-                    delete user_box[job];
+                if (drama_box[job].length == 0) {
+                    delete drama_box[job];
                     delete picks_count[job];
                 }
             }
@@ -717,7 +768,7 @@
                     document.getElementById('table_settings').style.display = 'none';
                     document.getElementById('div_button_settings_main').innerHTML = '设置';
                     document.getElementById('table_box').style.display = 'none';
-                    document.getElementById('div_button_settings_box').innerHTML = '自定义box';
+                    document.getElementById('div_button_settings_box').innerHTML = '展开box';
                 };
             }
         }
@@ -729,7 +780,7 @@
             }
             else {
                 document.getElementById('table_box').style.display = 'none';
-                document.getElementById('div_button_settings_box').innerHTML = '自定义box';
+                document.getElementById('div_button_settings_box').innerHTML = '展开box';
             }
         }
 
