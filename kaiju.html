@@ -129,6 +129,14 @@
         .div_button_tag_disabled_useless {
             background-color: #76cb8b;
         }
+
+        .span_picks {
+            background-color: #aaccee;
+        }
+
+        .span_bans {
+            background-color: #eeaaaa;
+        }
     </style>
     <link rel="icon" href="./favicon.ico">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-QGM58QCD7C"></script>
@@ -201,10 +209,8 @@
         <tr id="tr_notice">
             <td id="td_notice">
                 <h3>最近更新：</h3>
-                <p>加入自定义box设置</p>
-                <p>加入自动保存设置功能</p>
-                <p>加入仅使用职业分队开局选项</p>
-                <p>加入<span style="color: #dd9090;">今日剧本！</span></p>
+                <p>加入选择框</p>
+                <p>单独显示一行所有必须优先选择的六星</p>
             </td>
             <td id="td_notice_button">
                 <div class="div_notice_button" onclick="handle_notice(1);">好的</div>
@@ -458,7 +464,7 @@
 
         function get_drama_today_4(level=1) {
             update_current_operators();
-            let drama_level, replys = [];
+            let drama_level, replys = [], reply_picks = [];
             let user_id = document.getElementById('user_id').value;
             let now = (new Date).toLocaleDateString("zh-CN");
             let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16) % (GROUPS_4.length * current_operators_6_all.length);
@@ -509,7 +515,17 @@
             replys.push(`我掐指一算，今天 ${user_id} 适合在 ${opening_is} 用 ${opening_group} ${opening_operator} 开局`);
 
             let user_box = JSON.parse(JSON.stringify(current_operators_6));
-            let tefuda = {
+            let picks = {
+                '先锋': [],
+                '近卫': [],
+                '重装': [],
+                '狙击': [],
+                '术师': [],
+                '医疗': [],
+                '辅助': [],
+                '特种': [],
+            }
+            let picks_count = {
                 '先锋': 0,
                 '近卫': 0,
                 '重装': 0,
@@ -523,7 +539,8 @@
             operators.splice(operators.indexOf(opening_operator), 1);
             for (let job in user_box) {
                 if (user_box[job].includes(opening_operator)) {
-                    tefuda[job] += 1
+                    picks[job].push(`${opening_operator}（开局）`)
+                    picks_count[job] += 1
                     user_box[job].splice(user_box[job].indexOf(opening_operator), 1);
                     break;
                 }
@@ -554,43 +571,46 @@
                     }
                 }
             }
-            replys.push(`将以下 ${banned_operators.length} 位干员从本局游戏中移除：${banned_operators.join('、')}`);
+            replys.push(`将以下 ${banned_operators.length} 位干员从本局游戏中移除：<span class="span_bans">${banned_operators.join('、')}</span>`);
             // 处理某一职业刚好全被禁用的情况
             let keys = Object.keys(user_box);
             for (let i = 0; i < keys.length; i++) {
                 let job = keys[i];
                 if (user_box[job].length == 0) {
                     delete user_box[job];
-                    delete tefuda[job];
+                    delete picks_count[job];
                 }
             }
 
             // 选择
             for (let i = 0; i < drama_level; i++) {
-                let jobs = [];
-                for (let j in tefuda) {
-                    if (tefuda[j] < Math.max(...Object.values(tefuda))) {
-                        jobs.push(j);
+                let not_picked_jobs = [];
+                for (let p in picks_count) {
+                    if (picks_count[p] < Math.max(...Object.values(picks_count))) {
+                        not_picked_jobs.push(p);
                     }
                 }
-                if (jobs.length == 0) {
-                    jobs = Object.keys(tefuda);
+                if (not_picked_jobs.length == 0) {
+                    not_picked_jobs = Object.keys(picks_count);
                 }
-                let job_id = hash_int % jobs.length;
-                let job = jobs[job_id];
-                operator = user_box[job].splice(hash_int % user_box[job].length, 1)
-                tefuda[job] += 1
-                replys.push(`<input type="checkbox" id="operator_pick_${i}"><label for="operator_pick_${i}">第 ${tefuda[job]} 位 六星${job}干员 选择 ${operator}</label>`)
+                let job_id = hash_int % not_picked_jobs.length;
+                let job = not_picked_jobs[job_id];
+                operator = user_box[job].splice(hash_int % user_box[job].length, 1)[0]
+                picks[job].push(operator)
+                picks_count[job] += 1
+                reply_picks.push(`<input type="checkbox" id="operator_pick_${i}"><label for="operator_pick_${i}">第 ${picks_count[job]} 位 六星${job}干员 选择 ${operator}</label>`)
                 if (user_box[job].length == 0) {
                     delete user_box[job];
-                    delete tefuda[job];
+                    delete picks_count[job];
                 }
             }
             document.getElementById('tr_today_button').style.display = 'none';
             document.getElementById('tr_today_result').style.display = 'none';
             document.getElementById('tr_drama_button').style.display = 'none';
             document.getElementById('tr_drama_result').style.display = '';
-            document.getElementById('td_drama').innerHTML = replys.join('<br>');
+            let picks_oneline = JSON.stringify(picks).replaceAll('","', '、').replaceAll('"', '').replaceAll('[', '').replaceAll(']', '').replaceAll('{', '').replaceAll('}', '').replaceAll(':', '：').replaceAll(',', ' | ')
+            picks_oneline = `各职业六星干员必须优先选择：<span class="span_picks">${picks_oneline}</span>`
+            document.getElementById('td_drama').innerHTML = `${replys.join('<br>')}<br>${picks_oneline}<br>${reply_picks.join('<br>')}`;
         }
 
         function get_opening_random_4() {
