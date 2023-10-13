@@ -224,9 +224,7 @@
         <tr id="tr_notice">
             <td id="td_notice">
                 <h3>最近更新：</h3>
-                <p>新增点击复制，点击带背景颜色高亮的移除/优先选择干员名单可以直接复制到剪贴板</p>
-                <p>新增允许使用不在box中的干员开局选项</p>
-                <p>优化对box中干员很少的情况的处理</p>
+                <p>移除“随机开局！”，现在肉鸽开局生成器本身不包含任何随机逻辑</p>
             </td>
             <td id="td_notice_button">
                 <div class="div_notice_button" onclick="handle_notice(1);">好的</div>
@@ -256,11 +254,6 @@
         <tr id="tr_drama_result" style="display: none;">
             <td colspan="2" id="td_drama"></td>
         </tr>
-        <tr>
-            <th colspan="2"><div class="div_button" onclick="get_opening_random_4();">随机开局！</div></th>
-        </tr>
-        <tr>
-            <td colspan="2" id="td_random"></td>
     </table>
     <textarea id="textarea_bp">用于点击复制</textarea>
 
@@ -672,37 +665,6 @@
             document.getElementById('tr_drama_button').style.display = 'none';
             document.getElementById('tr_drama_result').style.display = '';
             document.getElementById('td_drama').innerHTML = `${replys.join('')}${picks_oneline}<p>${reply_picks.join('<br>')}</p>`;
-        }
-
-        function get_opening_random_4() {
-            let operators_star_5 = OPERATORS_STAR_5_ALL.slice();
-            let operators_star_6 = OPERATORS_STAR_6_ALL.slice();
-            let opening_group = GROUPS_4[Math.floor(Math.random() * GROUPS_4.length)];
-            if (opening_group == '突击战术分队') {
-                operators_star_6 = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD);
-                operators_star_5 = OPERATORS_STAR_5_VANGUARD.concat(OPERATORS_STAR_5_GUARD);
-            }
-            else if (opening_group == '堡垒战术分队') {
-                operators_star_6 = OPERATORS_STAR_6_DEFENDER.concat(OPERATORS_STAR_6_SUPPORTER);
-                operators_star_5 = OPERATORS_STAR_5_DEFENDER.concat(OPERATORS_STAR_5_SUPPORTER);
-            }
-            else if (opening_group == '远程战术分队') {
-                operators_star_6 = OPERATORS_STAR_6_SNIPER.concat(OPERATORS_STAR_6_MEDIC);
-                operators_star_5 = OPERATORS_STAR_5_SNIPER.concat(OPERATORS_STAR_5_MEDIC);
-            }
-            else if (opening_group == '破坏战术分队') {
-                operators_star_6 = OPERATORS_STAR_6_CASTER.concat(OPERATORS_STAR_6_SPECIALIST);
-                operators_star_5 = OPERATORS_STAR_5_CASTER.concat(OPERATORS_STAR_5_SPECIALIST);
-            }
-            let opening_operator;
-            if (Math.random() * (weight_star_5 + weight_star_6) <= weight_star_6) {
-                opening_operator = operators_star_6[Math.floor(Math.random() * operators_star_6.length)];
-            }
-            else {
-                opening_operator = operators_star_5[Math.floor(Math.random() * operators_star_5.length)];
-            }
-            let result = `用 ${opening_group} ${opening_operator} 开局吧！`;
-            handle_text_animation('td_random', result);
         }
 
         function handle_text_animation(element, full_text) {
