@@ -86,6 +86,10 @@
             padding-left: 10px;
         }
 
+        #tr_document {
+            background-color: #d5e4f3;
+        }
+
         #td_notice_button {
             width: 20%;
             padding-right: 10px;
@@ -138,15 +142,24 @@
             background-color: #76cb8b;
         }
 
-        #span_picks {
-            background-color: #aaccee;
-            cursor: pointer;
+        .span_delete_line {
+            text-decoration: line-through;
+        }
+
+        .span_orange {
+            background-color: #ffbf92;
         }
 
         #span_bans {
             background-color: #eeaaaa;
             cursor: pointer;
         }
+
+        #span_picks {
+            background-color: #aaccee;
+            cursor: pointer;
+        }
+
     </style>
     <link rel="icon" href="./favicon.ico">
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-QGM58QCD7C"></script>
@@ -163,7 +176,7 @@
     <table class="table_text">
         <tr>
             <td>
-                <div class="div_button" id="div_button_settings_main" onclick="handle_button_settings();">设置</div>
+                <div class="div_button" id="div_button_settings_main" onclick="handle_button_settings();">设置与文档</div>
             </td>
             <td>
                 <div class="div_button" onclick="location.reload();">清空（刷新）</div>
@@ -171,6 +184,27 @@
         </tr>
     </table>
     <table class="table_text" id="table_settings" onclick="save_settings();" style="display: none;">
+        <tr>
+            <td colspan="2">
+                <div class="div_button" id="div_button_document" onclick="handle_document();">展开文档</div>
+            </td>
+        </tr>
+        <tr id="tr_document" style="display: none;">
+            <td colspan="4">
+                <p>欢迎使用肉鸽开局生成器，你可以输入名字，点击按钮生成今天的<span class="span_delete_line">专属</span>开局或剧本。</p>
+                <p>肉鸽开局生成器将根据下列输入条件
+                    <ul>
+                        <li>你输入的名字（可以为空）</li>
+                        <li>今天的日期</li>
+                        <li>自定义box</li>
+                        <li>设置中的其他选项</li>
+                    </ul>
+                    经过<span class="span_orange">不包含任何随机逻辑的算法</span>计算，得到确定的输出结果，相同的输入总会得到相同的输出。
+                </p>
+                <p>当然你仍然可以尝试填入不同的名字作为生成的种子，或者调整系统日期<span class="span_delete_line">偷看明天的剧本</span>。</p>
+                <p>祝你玩得开心~</p>
+            </td>
+        </tr>
         <tr>
             <td>
                 集成战略：
@@ -225,6 +259,7 @@
             <td id="td_notice">
                 <h3>最近更新：</h3>
                 <p>移除“随机开局！”，现在肉鸽开局生成器本身不包含任何随机逻辑</p>
+                <p>新增文档，折叠在设置内</p>
             </td>
             <td id="td_notice_button">
                 <div class="div_notice_button" onclick="handle_notice(1);">好的</div>
@@ -494,7 +529,7 @@
             let drama_level, replys = [], reply_picks = [];
             let operators_to_get = update_current_operators();
             if (operators_to_get.length > 0) {
-                replys.push(`<span onclick="document.getElementById('span_to_get').style.display = '';" style="background-color: #ffbf92; cursor: pointer;">${operators_to_get.length}位干员</span><span id="span_to_get" style="display: none;">（${operators_to_get.join('、')}）</span>不在box中`);
+                replys.push(`<span class="span_orange" onclick="document.getElementById('span_to_get').style.display = '';" style="cursor: pointer;">${operators_to_get.length}位干员</span><span id="span_to_get" style="display: none;">（${operators_to_get.join('、')}）</span>不在box中`);
             }
             if (document.getElementById('support_unit_enabled').checked) {
                 update_current_operators(true);
@@ -723,16 +758,29 @@
         function handle_button_settings() {
             if (document.getElementById('table_settings').style.display == 'none') {
                 document.getElementById('table_settings').style.display = '';
-                document.getElementById('div_button_settings_main').innerHTML = "收起设置";
+                document.getElementById('div_button_settings_main').innerHTML = "收起设置与文档";
             }
             else {
                 // if (save_settings()) {
                 if (true) {
                     document.getElementById('table_settings').style.display = 'none';
-                    document.getElementById('div_button_settings_main').innerHTML = '设置';
+                    document.getElementById('div_button_settings_main').innerHTML = '设置与文档';
+                    document.getElementById('tr_document').style.display = 'none';
+                    document.getElementById('div_button_document').innerHTML = '展开文档';
                     document.getElementById('table_box').style.display = 'none';
                     document.getElementById('div_button_settings_box').innerHTML = '展开box';
                 };
+            }
+        }
+
+        function handle_document() {
+            if (document.getElementById('tr_document').style.display == 'none') {
+                document.getElementById('tr_document').style.display = '';
+                document.getElementById('div_button_document').innerHTML = "收起文档";
+            }
+            else {
+                document.getElementById('tr_document').style.display = 'none';
+                document.getElementById('div_button_document').innerHTML = '展开文档';
             }
         }
 
