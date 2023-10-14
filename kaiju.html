@@ -701,6 +701,13 @@
                     delete picks_count[job];
                 }
             }
+            let picks_keys = Object.keys(picks);
+            for (let i = 0; i < picks_keys.length; i++) {
+                let job = picks_keys[i];
+                if (picks[job].length == 0) {
+                    delete picks[job];
+                }
+            }
             let picks_oneline = JSON.stringify(picks).replaceAll('","', '、').replaceAll('"', '').replaceAll('[', '').replaceAll(']', '').replaceAll('{', '').replaceAll('}', '').replaceAll(':', '：').replaceAll(',', ' | ');
             picks_oneline = `<p>各职业六星干员必须优先选择：<span id="span_picks" onclick="handle_click_copy('span_picks');">${picks_oneline}</span> <span id="span_picks_copied" style="display: none;">已复制到剪贴板</span></p>`;
             document.getElementById('tr_today_button').style.display = 'none';
