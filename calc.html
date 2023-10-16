@@ -1,0 +1,415 @@
+<html>
+
+<head>
+    <title>集成战略计算器</title>
+    <style>
+        @font-face {
+            font-family: 'LESLIE';
+            src: url('LESLIE.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'Sarasa';
+            src: url('sarasa-mono-sc-regular.ttf') format('truetype');
+        }
+        body {
+            padding-top: 10px;
+            padding-left: 10px;
+            padding-right: 10px;
+            /* color: rgb(255, 255, 255); */
+            color: rgb(255, 0, 0);
+            font-family: Sarasa;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            /* -webkit-text-stroke: #ffffff7f 0.25px; */
+        }
+
+        textarea {
+            width: 100%;
+            resize: none;
+        }
+
+        .text {
+            width: 100%;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .text tr {
+            height: 40px;
+        }
+
+        .panel {
+            width: 100%;
+        }
+
+        .panel tr td {
+            width: 25%;
+        }
+
+        .panel tr td input[type=submit],
+        .panel tr td input[type=number],
+        .panel tr td input[type=text] {
+            height: 40px;
+            width: 100%;
+        }
+
+        #table_settings_bonus tr td input[type=submit] {
+            height: 40px;
+            width: 33%;
+        }
+
+        input[type=checkbox] {
+            height: auto;
+            width: auto;
+        }
+
+        .score {
+            text-align: right;
+            font-family: LESLIE;
+            font-size: 48px;
+            float: right;
+        }
+    </style>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QGM58QCD7C"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-QGM58QCD7C');
+    </script>
+</head>
+
+<body>
+    <table class="text" id="table_text">
+        <tr>
+            <td>总分：</td>
+            <td class="score" id="text_total_score">0</td>
+        </tr>
+        <tr>
+            <td>原始分：</td>
+            <td class="score" id="text_basic_score">0</td>
+        </tr>
+        <tr>
+            <td>难度：</td>
+            <td class="score" id="text_level">0</td>
+        </tr>
+        <tr>
+            <td>倍率：</td>
+            <td class="score" id="text_multi">1.00</td>
+        </tr>
+        <tr>
+            <td>额外加分：</td>
+            <td class="score" id="text_bonus_score">0</td>
+        </tr>
+        <tr>
+            <td colspan="2" rowspan="4" >
+                额外加分项： <span id="text_bonus">无</span>
+            </td>
+        </tr>
+        <tr><td></td></tr>
+        <tr><td></td></tr>
+        <tr><td></td></tr>
+    </table>
+    <table class="panel" id="table_panel_bonus" border="0" cellspacing="1">
+    </table>
+    <table class="panel" id="table_panel_others" border="0" cellspacing="1">
+        <tr>
+            <td>难度：　<input type="number" value="0" id="level" min="0" max="15"></td>
+            <td>原始分：<input type="number" value="0" id="basic_score" min="0"></td>
+            <td>干员：　<input type="number" value="0" id="operator" min="0"></td>
+            <td>藏品：　<input type="number" value="0" id="item" min="0"></td>
+        </tr>
+        <tr>
+            <td>
+                <input type="submit" value="设置" onclick="func_click('设置')" id="button_settings">
+            </td>
+            <td>
+                <input type="submit" value="清空" onclick="func_click('清空')">
+            </td>
+            <td>
+                <input type="submit" value="撤销" onclick="func_click('撤销')">
+            </td>
+            <td>
+                <input type="submit" value="计算" onclick="func_click('计算')">
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <div id="div_settings" style="display:none">
+                    <table class="panel" id="table_settings_bonus"></table>
+                    <table class="panel" id="table_settings_export">
+                        <tr>
+                            <td><input type="submit" value="导入"></td>
+                            <td><input type="submit" value="导出"></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                    <textarea id="textarea_settings" rows="10"></textarea>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <input type="text" id="input_api_url">
+                <input type="submit" value="提交" onclick="func_request_api();">
+            </td>
+        </tr>
+    </table>
+
+    <script>
+        let default_settings = {
+            "bonus_item" : {
+                "骑士": 350,
+                "蒂蒂": 80,
+                "墓碑/寒灾": 60,
+                "锈锤": 50,
+                "紧急领地意识": 30,
+                "紧急狩猎场": 20,
+                "紧急失控": 50,
+                "紧急育生池": 30,
+                "紧急好梦在何方": 30,
+                "紧急机械之灾": 15,
+                "紧急深度认知": 60,
+                "紧急水火相容": 40,
+                "监工现场杀鸭": 20,
+                "真相": 20,
+                "跳舞": 15,
+                "跳舞无漏": 30,
+                "鸭本运作": 20,
+                "狂信如火": 20,
+                "竭泽而渔": 20,
+                "图穷匕见": 20,
+                "鸭": 20,
+                "熊": 20,
+                "狗": 15,
+                "全撤了": 0,
+            },
+            "multi_interval": {
+                "难度倍率": [],
+            }
+        }
+
+        let current_settings = {
+            "bonus_item" : {},
+            "multi_interval": {},
+        };
+        let current_bonus = [];
+        let current_bonus_score = [];
+        
+        function sum_bonus_score() {
+            // console.log(current_bonus_score);
+            let result = 0;
+            for (let i = 0; i < current_bonus_score.length; i++){
+                result += parseInt(current_bonus_score[i]);
+            }
+            return result;
+        }
+
+        function draw() {
+            // draw table_panel_bonus
+            let i, k, l, table_body;
+            i = 0;
+            k = Object.keys(current_settings['bonus_item']);
+            l = k.length;
+            table_body = '';
+            while (i < l || i % 4 != 0) {
+                if (i % 4 == 0) {
+                    table_body += '<tr>';
+                }
+                if (i < l) {
+                    table_body += `<td><input type="submit" value="${k[i]}" onclick="func_click('${k[i]}')"></td>`;
+                }
+                else {
+                    table_body += `<td></td>`;
+                }
+                if (i % 4 == 3) {
+                    table_body += '</tr>';
+                }
+                i += 1;
+            }
+            document.getElementById('table_panel_bonus').innerHTML = table_body;
+
+            // draw table_settings_bonus
+            i = 0;
+            k = Object.keys(current_settings['bonus_item']);
+            l = k.length;
+            table_body = '<tr><th>加分项</th><th>分数</th><th>乘区</th><th>操作</th><tr>';
+            while (i < l) {
+                table_body += `<tr><td><input type="text" value="${k[i]}"></td>`;
+                table_body += `<td><input type="number" value="${current_settings['bonus_item'][k[i]]}"></td>`;
+                table_body += `<td class="settings_bonus_checkbox">`;
+                for (let m in current_settings['multi_interval']) {
+                    table_body += `<p><input type="checkbox" ${k[i] in current_settings['multi_interval'][m]?'checked':''}">${m}<p>`;
+                }
+                table_body += `</td>`;
+                table_body += `<td>`;
+                table_body += `<input type="submit" value="上移" onclick="func_click('${k[i]}')">`;
+                table_body += `<input type="submit" value="下移" onclick="func_click('${k[i]}')">`;
+                table_body += `<input type="submit" value="删除" onclick="func_click('${k[i]}')">`;
+                table_body += `</td>`;
+                i += 1;
+            }
+            document.getElementById('table_settings_bonus').innerHTML = table_body;
+
+
+            // draw table_text
+            let basic_score = parseInt(document.getElementById("basic_score").value);
+            document.getElementById("text_basic_score").innerHTML = basic_score;
+            let level = parseInt(document.getElementById("level").value);
+            let multi = level == 15 ? 1.8 : 1 + 0.05 * level;
+            document.getElementById("text_level").innerHTML = level;
+            document.getElementById("text_multi").innerHTML = multi.toFixed(2);
+            document.getElementById("text_bonus_score").innerHTML = sum_bonus_score();
+            if (current_bonus.length > 0) {
+                document.getElementById("text_bonus").innerHTML = current_bonus.join(', ');
+            }
+            else {
+                document.getElementById("text_bonus").innerHTML = '无';
+            }
+        }
+
+        function clear() {
+            current_bonus = [];
+            current_bonus_score = [];
+            document.getElementById("text_total_score").innerHTML = 0;
+            document.getElementById("text_basic_score").innerHTML = 0;
+            document.getElementById("text_level").innerHTML = 0;
+            document.getElementById("text_level").innerHTML = '1.00';
+            document.getElementById("level").value = 0;
+            document.getElementById("basic_score").value = 0;
+            document.getElementById("operator").value = 0;
+            document.getElementById("item").value = 0;
+        }
+
+        function undo() {
+            if (current_bonus.length > 0) {
+                current_bonus.pop();
+                current_bonus_score.pop();
+                document.getElementById("text_bonus_score").innerHTML = sum_bonus_score();
+            }
+        }
+
+        function solve() {
+            current_bonus.push(`干员×${operator.value}`);
+            current_bonus_score.push(operator.value * 10);
+            current_bonus.push(`藏品×${item.value}`);
+            current_bonus_score.push(item.value * 10);
+            basic_score = parseInt(document.getElementById("basic_score").value);
+            level = parseInt(document.getElementById("level").value);
+            multi = level == 15 ? 1.8 : 1 + 0.05 * level;
+            document.getElementById("text_bonus_score").innerHTML = sum_bonus_score();
+            document.getElementById("text_total_score").innerHTML = Math.round(
+                basic_score * multi + sum_bonus_score()
+            );
+        }
+
+        function loadLocalStorage() {
+            if (!window.localStorage) {
+                console.error("浏览器不支持localStorage");
+            }
+            else {
+                console.log("loadLocalStorage()");
+                let k, i, storage = window.localStorage;
+                if (storage['data_ji']) {
+                    const data = JSON.parse(storage['data_ji']);
+                    // console.log(data);
+                    for (k in default_settings) {
+                        if (data[k]) {
+                            current_settings[k] = {};
+                            for (let i in data[k]) {
+                                current_settings[k][i] = data[k][i];
+                            }
+                        }
+                        else {
+                            // 初始化
+                            current_settings[k] = default_settings[k];
+                        }
+                    }
+                }
+                else {
+                    // 初始化
+                    for (k in default_settings) {
+                        current_settings[k] = default_settings[k];
+                    }
+                }
+                document.getElementById('textarea_settings').value = JSON.stringify(current_settings);
+            }
+        }
+
+        function saveLocalStorage() {
+            if (!window.localStorage) {
+                console.error("浏览器不支持localStorage");
+            }
+            else {
+                console.log("saveLocalStorage()");
+                let k, storage = window.localStorage;
+                let new_settings = {'bonus_item': {}, 'multi_interval': {}};
+                let settings = JSON.parse(document.getElementById("textarea_settings").value);
+                for (let k in new_settings) {
+                    for (let i in settings[k]) {
+                        current_settings[k][i] = settings[k][i];
+                        new_settings[k][i] = settings[k][i];
+                    }
+                }
+                storage['data_ji'] = JSON.stringify(new_settings);
+                // console.log(settings, storage['data_ji']);
+            }
+        }
+
+        function func_click(target) {
+            console.log('button func_click', target);
+            if (target == '清空') {
+                clear();
+            }
+            else if (target == '撤销') {
+                undo();
+            }
+            else if (target == '计算') {
+                solve();
+            }
+            else if (target == '设置') {
+                if (document.getElementById('button_settings').value == '设置') {
+                    document.getElementById('div_settings').style.display = "";
+                    document.getElementById('button_settings').value = "保存设置";
+                }
+                else {
+                    document.getElementById('div_settings').style.display = "none";
+                    document.getElementById('button_settings').value = "设置";
+                }
+            }
+            else {
+                current_bonus.push(target);
+                current_bonus_score.push(current_settings['bonus_item'][target] ? current_settings['bonus_item'][target] : 0);
+            }
+            draw();
+        }
+
+        function func_request_api() {
+            let api_url = document.getElementById('input_api_url').value;
+            console.log(api_url);
+            let payload = {'code': 302}
+            let xhr = new XMLHttpRequest();
+            xhr.open('POST', api_url, true);
+            xhr.setRequestHeader('Content-Type', 'text/plain')
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200 || xhr.status == 304) {
+                    response = JSON.parse(xhr.responseText);
+                    console.log('request api, response:', response);
+                }
+            };
+            xhr.send(JSON.stringify(payload));
+        }
+
+        loadLocalStorage();
+        draw();
+        document.onclick = () => {
+            // console.log('document onclick');
+            saveLocalStorage();
+            draw();
+        }
+    </script>
+</body>
+<html>
