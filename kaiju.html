@@ -741,6 +741,15 @@
         }
 
         function get_opening_today() {
+            if (current_box_mode == 1) {
+                get_opening_basic();
+            }
+            else if (current_box_mode == 2) {
+                get_drama_deck(0);
+            }
+        }
+
+        function get_opening_basic() {
             update_current_operators(document.getElementById('support_unit_enabled').checked);
             let user_id = document.getElementById('user_id').value;
             let now = (new Date).toLocaleDateString("zh-CN");
@@ -1146,7 +1155,7 @@
 
             // 禁用干员（从本局游戏中移除）
             let banned_operators = [];
-            for (let i = 0; i <= drama_level && drama_operators_star_6.length > 0; i++) {
+            for (let i = 0; i <= drama_level && drama_level > 0 && drama_operators_star_6.length > 0; i++) {
                 let banned_operator = drama_operators_star_6[hash_int % drama_operators_star_6.length];
                 let banned_opr = get_operator_by_code_name(banned_operator);
                 banned_operators.push(banned_operator);
@@ -1170,7 +1179,9 @@
             replys.push(`<p>不符合以上规则招募到的干员从本局游戏中移除</p>`);
                 // 本局游戏中临时招募干员时可以选择卡组外的干员
             // replys.push(`<p>本局游戏中招募所有对应职业的必须优先选择的六星干员之前，可以临时招募其他六星干员，但是招募所有对应职业的必须优先选择的六星干员之后，对应的临时招募六星干员才能进入编队</p>`);
-            replys.push(`<p>将以下 ${banned_operators.length} 位干员从本局游戏中移除：<span id="span_bans" onclick="handle_click_copy('span_bans');">${banned_operators.join('、')}</span> <span id="span_bans_copied" style="display: none;">已复制到剪贴板</span></p>`);
+            if (banned_operators.length > 0) {
+                replys.push(`<p>将以下 ${banned_operators.length} 位干员从本局游戏中移除：<span id="span_bans" onclick="handle_click_copy('span_bans');">${banned_operators.join('、')}</span> <span id="span_bans_copied" style="display: none;">已复制到剪贴板</span></p>`);
+            }
             // 处理禁用后box中某一职业没有六星的情况
             check_drama_box_by_job();
 
