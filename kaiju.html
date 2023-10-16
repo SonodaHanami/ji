@@ -391,7 +391,7 @@
     <textarea id="textarea_bp">用于点击复制</textarea>
 
     <script>
-        const VERSION = '2.0.1'
+        const VERSION = '2.0.2';
 
         const question_mark = '？';
         const window_length = 10;
@@ -1126,7 +1126,8 @@
                     opening_group = GROUPS_4[hash_int % GROUPS_4.length];
                 }
             }
-            let drama_box_by_job = {}, drama_operators_star_6 = [];
+            let drama_operators_star_6 = [], drama_box_by_job = {};
+            // 开局干员池
             for (let i = 0; i < drama_deck_list.length; i++) {
                 let opr = get_operator_by_code_name(drama_deck_list[i]);
                 if (opr.star == 6) {
@@ -1149,17 +1150,28 @@
                     }
                 }
             }
+            // 确定开局干员
             let opening_operator = drama_operators_star_6[hash_int % drama_operators_star_6.length];
+            let opening_result = `<p>我掐指一算，今天 ${user_id} 适合在 ${opening_is} 用 ${opening_group} ${opening_operator} 开局</p>`;
             let temp_deck = '';
             for (let i = 0; i < drama_deck_list.length; i++) {
                 let code_name = drama_deck_list[i];
                 let star = get_operator_star(code_name);
                 temp_deck += `<div class="div_button_operator div_button_operator_star_${star} div_temp_deck_${code_name}">${code_name}</div>`
             }
-            replys.push(`<p>当前卡组大小为${drama_deck_list.length}，包含${Array.from(drama_box_set).length}位不同的干员，其中有${drama_operators_star_6.length}位不同的六星干员${opening_job_group_only_text}</p>`);
+            // 干员池重置为卡组中所有六星干员
+            drama_operators_star_6 = [];
+            for (let i = 0; i < drama_deck_list.length; i++) {
+                let opr = get_operator_by_code_name(drama_deck_list[i]);
+                if (opr.star == 6) {
+                    drama_operators_star_6.push(drama_deck_list[i]);
+                }
+            }
+            let drama_operators_star_6_set = new Set(drama_operators_star_6);
+            replys.push(`<p>当前卡组大小为${drama_deck_list.length}，包含${Array.from(drama_box_set).length}位不同的干员，其中有${Array.from(drama_operators_star_6_set).length}位不同的六星干员${opening_job_group_only_text}</p>`);
             // replys.push(`<span class="elm_bg_orange" onclick="document.getElementById('div_temp_deck').style.display = '';" style="cursor: pointer;">点击显示卡组</span>`);
             replys.push(`<div id="div_temp_deck">${temp_deck}</div>`);
-            replys.push(`<p>我掐指一算，今天 ${user_id} 适合在 ${opening_is} 用 ${opening_group} ${opening_operator} 开局</p>`);
+            replys.push(opening_result);
 
             let picks_by_job = {
                 '先锋': [],
