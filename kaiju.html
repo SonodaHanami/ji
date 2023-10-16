@@ -36,7 +36,6 @@
 
         .table_text td {
             height: 90px;
-            width: 50%;
             font-size: 1.5em;
             padding: 10px;
         }
@@ -137,7 +136,7 @@
         }
 
         .div_button_operator_star_6 {
-            background-color: #bb5a5a;
+            background-color: #cc5a5a;
         }
 
         .div_button_operator_star_5 {
@@ -145,23 +144,24 @@
         }
 
         .div_button_operator_star_4 {
-            background-color: #eeaaee;
+            background-color: #ee77ee;
         }
 
         .div_button_operator_star_3 {
             background-color: #dddddd;
         }
 
-        .div_button_operator_enabled {
+        .div_button_operator_opening {
             background-color: #00AAFF;
         }
 
-        .div_button_operator_enabled_useless {
-            background-color: #bb5a5a;
+        .div_button_operator_enabled_waiting {
+            background-color: #ffaaaa;
         }
 
         .div_button_operator_disabled {
-            background-color: #ebeb16;
+            color: #777777;
+            background-color: #999999;
         }
 
         .div_button_operator_disabled_useless {
@@ -233,6 +233,8 @@
                 <p>祝你玩得开心~</p>
             </td>
         </tr>
+        <tr id="tr_mode_1"><th colspan="4"><div class="div_button" onclick="handle_box_mode(2);">当前为基础模式，点击切换到卡组模式</div></th></tr>
+        <tr id="tr_mode_2"><th colspan="4"><div class="div_button" onclick="handle_box_mode(1);">当前为卡组模式，点击切换到基础模式</div></th></tr>
         <tr>
             <td>
                 集成战略：
@@ -249,7 +251,7 @@
         </tr>
         <tr>
             <td>
-                允许使用不在box中的干员开局（招募助战）
+                允许使用不在box中的干员开局（招募助战）<span id="support_unit_disabled_in_deck_mode"></span>
             </td>
             <td>
                 <input id="support_unit_enabled" type="checkbox"><label for="support_unit_enabled">开启</label>
@@ -272,8 +274,7 @@
             </td>
         </tr>
     </table>
-    <table class="table_text" id="table_box" onclick="save_settings();" style="display: none; table-layout: auto; border: 1px solid #CCCCCC; user-select: none;">
-        <tr><th colspan="2"><div class="div_button" onclick="handle_box_content(2);">当前为基础模式，点击切换到卡组模式</div></th></tr>
+    <table class="table_text" id="table_box_basic" onclick="save_settings();" style="display: none; table-layout: auto; border: 1px solid #CCCCCC; user-select: none;">
         <tr><th style="width: 80px;">先锋</th><td style="width: auto;" id="td_box_operators_star_6_先锋"></td></tr>
         <tr><th style="width: 80px;">近卫</th><td style="width: auto;" id="td_box_operators_star_6_近卫"></td></tr>
         <tr><th style="width: 80px;">重装</th><td style="width: auto;" id="td_box_operators_star_6_重装"></td></tr>
@@ -283,8 +284,7 @@
         <tr><th style="width: 80px;">辅助</th><td style="width: auto;" id="td_box_operators_star_6_辅助"></td></tr>
         <tr><th style="width: 80px;">特种</th><td style="width: auto;" id="td_box_operators_star_6_特种"></td></tr>
     </table>
-    <table class="table_text" id="table_deck" onclick="save_settings();" style="display: none; border: 1px solid #CCCCCC; user-select: none;">
-        <tr><th colspan="4"><div class="div_button" onclick="handle_box_content(1);">当前为卡组模式，点击切换到基础模式</div></th></tr>
+    <table class="table_text" id="table_box_deck" onclick="save_settings();" style="display: none; border: 1px solid #CCCCCC; user-select: none;">
         <tr>
             <td>当前 <span id="td_deck_count">0</span>，下限 40，上限 60</td>
             <th><div class="div_button" onclick="handle_full_deck();">清空当前卡组</div></th>
@@ -303,10 +303,7 @@
     <table class="table_text">
         <tr id="tr_notice">
             <td id="td_notice">
-                <h3>最近更新：</h3>
-                <p>移除“随机开局！”，现在肉鸽开局生成器本身不包含任何随机逻辑</p>
-                <p>新增文档，折叠在设置内</p>
-                <p>新增今日剧本青春版！</p>
+                <h2>最近更新：新增卡组模式</h2>
             </td>
             <td id="td_notice_button">
                 <div class="div_notice_button" onclick="handle_notice(1);">好的</div>
@@ -632,7 +629,7 @@
             }
         }
 
-        function init_table_box() {
+        function init_table_box_basic() {
             for (let job in OPERATORS_STAR_6_BY_JOB) {
                 document.getElementById(`td_box_operators_star_6_${job}`).innerHTML = '';
                 for (let idx = 0; idx < OPERATORS_STAR_6_BY_JOB[job].length; idx++) {
@@ -644,7 +641,8 @@
             }
         }
 
-        function init_table_deck() {
+        function init_table_box_deck() {
+            document.getElementById('td_current_deck_all').innerHTML = '当前卡组为空';
             for (let i = 0; i < JOBS.length; i++) {
                 document.getElementById(`td_deck_operators_${JOBS[i]}`).innerHTML = '';
             }
@@ -682,11 +680,8 @@
                 }
             }
             current_deck = new_deck.slice();
-            init_table_deck();
-            if (current_deck.length == 0) {
-                document.getElementById('td_current_deck_all').innerHTML = '当前卡组为空';
-            }
-            else {
+            init_table_box_deck();
+            if (current_deck.length > 0) {
                 document.getElementById('td_current_deck_all').innerHTML = '';
                 for (let i = 0; i < current_deck.length; i++) {
                     let code_name = current_deck[i];
@@ -861,23 +856,23 @@
                     opening_group = GROUPS_4[hash_int % GROUPS_4.length];
                 }
             }
-            let drama_box, drama_operators;
+            let drama_box, drama_operators_star_6;
             if (opening_group == '突击战术分队') {
-                drama_operators = current_operators_6['先锋'].concat(current_operators_6['近卫']);
+                drama_operators_star_6 = current_operators_6['先锋'].concat(current_operators_6['近卫']);
             }
             else if (opening_group == '堡垒战术分队') {
-                drama_operators = current_operators_6['重装'].concat(current_operators_6['辅助']);
+                drama_operators_star_6 = current_operators_6['重装'].concat(current_operators_6['辅助']);
             }
             else if (opening_group == '远程战术分队') {
-                drama_operators = current_operators_6['狙击'].concat(current_operators_6['医疗']);
+                drama_operators_star_6 = current_operators_6['狙击'].concat(current_operators_6['医疗']);
             }
             else if (opening_group == '破坏战术分队') {
-                drama_operators = current_operators_6['术师'].concat(current_operators_6['特种']);
+                drama_operators_star_6 = current_operators_6['术师'].concat(current_operators_6['特种']);
             }
             else {
-                drama_operators = current_operators_6_all.slice();
+                drama_operators_star_6 = current_operators_6_all.slice();
             }
-            let opening_operator = drama_operators[hash_int % drama_operators.length];
+            let opening_operator = drama_operators_star_6[hash_int % drama_operators_star_6.length];
             if (replys.length > 0) {
                 replys = [`<p>${replys.join('，')}</p>`];
             }
@@ -905,7 +900,7 @@
                 '特种': 0,
             }
             drama_box = JSON.parse(JSON.stringify(current_operators_6));
-            drama_operators = current_operators_6_all.slice();
+            drama_operators_star_6 = current_operators_6_all.slice();
             if (document.getElementById('support_unit_enabled').checked) {
                 // 将助战招募干员临时加入box
                 for (let job in OPERATORS_STAR_6_BY_JOB) {
@@ -916,14 +911,14 @@
                         if (!(drama_box[job].includes(opening_operator))) {
                             drama_box[job].push(opening_operator);
                         }
-                        if (!(drama_operators.includes(opening_operator))) {
-                            drama_operators.push(opening_operator);
+                        if (!(drama_operators_star_6.includes(opening_operator))) {
+                            drama_operators_star_6.push(opening_operator);
                         }
                         break;
                     }
                 }
             }
-            drama_operators.splice(drama_operators.indexOf(opening_operator), 1);
+            drama_operators_star_6.splice(drama_operators_star_6.indexOf(opening_operator), 1);
             // 处理box中某一职业没有六星的情况
             check_drama_box();
             for (let job in OPERATORS_STAR_6_BY_JOB) {
@@ -952,10 +947,10 @@
             }
             // 禁用（从本局游戏中移除）
             let banned_operators = []
-            for (let i = 0; i <= drama_level && drama_operators.length > 0; i++) {
-                let banned_operator = drama_operators[hash_int % drama_operators.length];
+            for (let i = 0; i <= drama_level && drama_operators_star_6.length > 0; i++) {
+                let banned_operator = drama_operators_star_6[hash_int % drama_operators_star_6.length];
                 banned_operators.push(banned_operator);
-                drama_operators.splice(drama_operators.indexOf(banned_operator), 1);
+                drama_operators_star_6.splice(drama_operators_star_6.indexOf(banned_operator), 1);
                 for (let job in drama_box) {
                     if (drama_box[job].includes(banned_operator)) {
                         drama_box[job].splice(drama_box[job].indexOf(banned_operator), 1);
@@ -1029,8 +1024,6 @@
             let replys = [], reply_picks = [];
             let drama_deck_list = current_deck.slice();
             let drama_box_set = new Set(drama_deck_list);
-            console.log('drama_deck_list:', drama_deck_list)
-            console.log('drama_box_set:', drama_box_set)
             if (drama_deck_list.length < MIN_DECK_SIZE) {
                 output_drama(`当前卡组大小为${drama_deck_list.length}，小于下限${MIN_DECK_SIZE}，请检查设置后重试`);
                 return;
@@ -1039,14 +1032,6 @@
                 output_drama(`当前卡组大小为${drama_deck_list.length}，超过上限${MAX_DECK_SIZE}，请检查设置后重试`);
                 return;
             }
-            let temp_deck = '';
-            for (let i = 0; i < drama_deck_list.length; i++) {
-                let code_name = drama_deck_list[i];
-                let star = get_operator_star(code_name);
-                temp_deck += `<div class="div_button_operator div_button_operator_star_${star}">${code_name}</div>`
-            }
-            replys.push(`当前卡组大小为${drama_deck_list.length}，包含${Array.from(drama_box_set).length}位不同的干员`);
-            replys.push(`<span class="span_orange" onclick="document.getElementById('div_temp_deck').style.display = '';" style="cursor: pointer;">点击显示卡组</span>`);
 
             let user_id = document.getElementById('user_id').value;
             let now = (new Date).toLocaleDateString("zh-CN");
@@ -1063,10 +1048,10 @@
                 is_pool.push('探索者的银凇止境')
             }
             let opening_is = is_pool[hash_int % is_pool.length];
-            let opening_group;
+            let opening_group, opening_job_group_only_text = '';
             if (document.getElementById('job_group_only').checked) {
                 opening_group = GROUPS_JOBS[hash_int % GROUPS_JOBS.length];
-                replys.push('仅使用职业分队开局');
+                opening_job_group_only_text = '；仅使用职业分队开局';
             }
             else {
                 if (opening_is == '傀影与猩红孤钻') {
@@ -1079,31 +1064,35 @@
                     opening_group = GROUPS_4[hash_int % GROUPS_4.length];
                 }
             }
-            let drama_box_by_job = {}, drama_operators = [];
+            let drama_box_by_job = {}, drama_operators_star_6 = [];
             for (let i = 0; i < drama_deck_list.length; i++) {
                 let opr = get_operator_by_code_name(drama_deck_list[i]);
                 if (opr.star == 6) {
                     if (opening_group == '突击战术分队' && (opr.job == '先锋' || opr.job == '近卫')) {
-                        drama_operators.push(drama_deck_list[i]);
+                        drama_operators_star_6.push(drama_deck_list[i]);
                     }
                     if (opening_group == '堡垒战术分队' && (opr.job == '重装' || opr.job == '辅助')) {
-                        drama_operators.push(drama_deck_list[i]);
+                        drama_operators_star_6.push(drama_deck_list[i]);
                     }
                     if (opening_group == '远程战术分队' && (opr.job == '狙击' || opr.job == '医疗')) {
-                        drama_operators.push(drama_deck_list[i]);
+                        drama_operators_star_6.push(drama_deck_list[i]);
                     }
                     if (opening_group == '破坏战术分队' && (opr.job == '术师' || opr.job == '特种')) {
-                        drama_operators.push(drama_deck_list[i]);
+                        drama_operators_star_6.push(drama_deck_list[i]);
                     }
-                    drama_operators.push(drama_deck_list[i]);
+                    drama_operators_star_6.push(drama_deck_list[i]);
                 }
             }
-            console.log('drama_operators', drama_operators)
-            let opening_operator = drama_operators[hash_int % drama_operators.length];
-            if (replys.length > 0) {
-                replys = [`<p>${replys.join('，')}</p>`];
+            let opening_operator = drama_operators_star_6[hash_int % drama_operators_star_6.length];
+            let temp_deck = '';
+            for (let i = 0; i < drama_deck_list.length; i++) {
+                let code_name = drama_deck_list[i];
+                let star = get_operator_star(code_name);
+                temp_deck += `<div class="div_button_operator div_button_operator_star_${star} div_temp_deck_${code_name}">${code_name}</div>`
             }
-            replys.push(`<div id="div_temp_deck" style="display: none;">${temp_deck}</div>`);
+            replys.push(`<p>当前卡组大小为${drama_deck_list.length}，包含${Array.from(drama_box_set).length}位不同的干员，其中有${drama_operators_star_6.length}位不同的六星干员${opening_job_group_only_text}</p>`);
+            // replys.push(`<span class="span_orange" onclick="document.getElementById('div_temp_deck').style.display = '';" style="cursor: pointer;">点击显示卡组</span>`);
+            replys.push(`<div id="div_temp_deck">${temp_deck}</div>`);
             replys.push(`<p>我掐指一算，今天 ${user_id} 适合在 ${opening_is} 用 ${opening_group} ${opening_operator} 开局</p>`);
 
             let picks_by_job = {
@@ -1148,8 +1137,8 @@
             while (opening_opr.job in drama_box_by_job && drama_box_by_job[opening_opr.job].indexOf(opening_operator) > -1) {
                 drama_box_by_job[opening_opr.job].splice(drama_box_by_job[opening_opr.job].indexOf(opening_operator), 1);
             }
-            while (drama_operators.includes(opening_operator)) {
-                drama_operators.splice(drama_operators.indexOf(opening_operator), 1);
+            while (drama_operators_star_6.includes(opening_operator)) {
+                drama_operators_star_6.splice(drama_operators_star_6.indexOf(opening_operator), 1);
             }
 
             // 处理box中某一职业没有六星的情况
@@ -1157,8 +1146,8 @@
 
             // 禁用干员（从本局游戏中移除）
             let banned_operators = [];
-            for (let i = 0; i <= drama_level && drama_operators.length > 0; i++) {
-                let banned_operator = drama_operators[hash_int % drama_operators.length];
+            for (let i = 0; i <= drama_level && drama_operators_star_6.length > 0; i++) {
+                let banned_operator = drama_operators_star_6[hash_int % drama_operators_star_6.length];
                 let banned_opr = get_operator_by_code_name(banned_operator);
                 banned_operators.push(banned_operator);
                 // 从卡组中移除所有同名干员
@@ -1166,8 +1155,8 @@
                 while (banned_opr.job in drama_box_by_job && drama_box_by_job[banned_opr.job].indexOf(banned_operator) > -1) {
                     drama_box_by_job[banned_opr.job].splice(drama_box_by_job[banned_opr.job].indexOf(banned_operator), 1);
                 }
-                while (drama_operators.includes(banned_operator)) {
-                    drama_operators.splice(drama_operators.indexOf(banned_operator), 1);
+                while (drama_operators_star_6.includes(banned_operator)) {
+                    drama_operators_star_6.splice(drama_operators_star_6.indexOf(banned_operator), 1);
                 }
             }
 
@@ -1207,12 +1196,16 @@
                 while (picked_opr.job in drama_box_by_job && drama_box_by_job[picked_opr.job].indexOf(picked_operator) > -1) {
                     drama_box_by_job[picked_opr.job].splice(drama_box_by_job[picked_opr.job].indexOf(picked_operator), 1);
                 }
-                while (drama_operators.includes(picked_operator)) {
-                    drama_operators.splice(drama_operators.indexOf(picked_operator), 1);
+                while (drama_operators_star_6.includes(picked_operator)) {
+                    drama_operators_star_6.splice(drama_operators_star_6.indexOf(picked_operator), 1);
                 }
                 reply_picks.push(`<input type="checkbox" id="operator_pick_${i}"><label for="operator_pick_${i}">第 ${picks_count_by_job[picked_job]} 位 六星${picked_job}干员 选择 ${picked_operator}</label>`);
                 // 处理选择后box中某一职业没有六星的情况
                 check_drama_box_by_job();
+            }
+            // 处理box中所有六星提前抽完的情况
+            if (drama_level + 1 > reply_picks.length) {
+                reply_picks.push(`卡组中已经没有更多六星干员了`);
             }
             // 移除没有必须优先选择的六星干员的职业
             let picks_jobs = Object.keys(picks_by_job);
@@ -1226,6 +1219,42 @@
             let picks_oneline = JSON.stringify(picks_by_job).replaceAll('","', '、').replaceAll('"', '').replaceAll('[', '').replaceAll(']', '').replaceAll('{', '').replaceAll('}', '').replaceAll(':', '：').replaceAll(',', ' | ');
             picks_oneline = `<p>各职业六星干员必须优先选择：<span id="span_picks" onclick="handle_click_copy('span_picks');">${picks_oneline}</span> <span id="span_picks_copied" style="display: none;">已复制到剪贴板</span></p>`;
             output_drama(`${replys.join('')}${picks_oneline}<p>${reply_picks.join('<br>')}</p>`);
+
+            // // 输出结果中仅用于显示的卡组
+            // // 开局 - 蓝色
+            // for (let i = 0; i < 1; i++) {
+            //     let temp_deck_opening_operator = document.getElementsByClassName(`div_temp_deck_${opening_operator}`);
+            //     for (let j = 0; j < temp_deck_opening_operator.length; j++) {
+            //         temp_deck_opening_operator[j].classList.add('div_button_operator_opening');
+            //     }
+            // }
+            // // 优先选择 - 默认红色
+            // // 禁用 - 删除线
+            // for (let i = 0; i < banned_operators.length; i++) {
+            //     let banned_operator = banned_operators[i]
+            //     let temp_deck_banned_operator = document.getElementsByClassName(`div_temp_deck_${banned_operator}`);
+            //     for (let j = 0; j < temp_deck_banned_operator.length; j++) {
+            //         temp_deck_banned_operator[j].classList.add('div_button_operator_disabled');
+            //         temp_deck_banned_operator[j].classList.add('span_delete_line');
+            //     }
+            // }
+            // // 其他正在等待 - 淡红色
+            // for (let i = 0; i < current_deck.length; i++){
+            //     let opr = get_operator_by_code_name(current_deck[i]);
+            //     if (opr.star < 6) continue;
+            //     waiting = true;
+            //     for (let jid = 0; jid < JOBS.length; jid++) {
+            //         if (picks_by_job[JOBS[jid]].includes(opr.code_name)) {
+            //             waiting = false;
+            //         }
+            //     }
+            //     if (waiting && opr.code_name != opening_operator && !(banned_operators.includes(opr.code_name))) {
+            //         let temp_deck_waiting_operator = document.getElementsByClassName(`div_temp_deck_${opr.code_name}`);
+            //         for (let j = 0; j < temp_deck_waiting_operator.length; j++) {
+            //             temp_deck_waiting_operator[j].classList.add('div_button_operator_enabled_waiting');
+            //         }
+            //     }
+            // }
         }
 
         function handle_text_animation(element, full_text) {
@@ -1293,8 +1322,8 @@
                     document.getElementById('div_button_settings_main').innerHTML = '设置与文档';
                     document.getElementById('tr_document').style.display = 'none';
                     document.getElementById('div_button_document').innerHTML = '展开文档';
-                    document.getElementById('table_box').style.display = 'none';
-                    document.getElementById('table_deck').style.display = 'none';
+                    document.getElementById('table_box_basic').style.display = 'none';
+                    document.getElementById('table_box_deck').style.display = 'none';
                     document.getElementById('div_button_settings_box').innerHTML = '展开box';
                 };
             }
@@ -1312,27 +1341,48 @@
         }
 
         function handle_box_settings() {
-            if (document.getElementById('table_box').style.display == 'none' && document.getElementById('table_deck').style.display == 'none') {
-                handle_box_content(current_box_mode);
-                document.getElementById('div_button_settings_box').innerHTML = "收起box";
+            if (current_box_mode == 1) {
+                document.getElementById('table_box_deck').style.display = 'none';
+                if (document.getElementById('table_box_basic').style.display == 'none') {
+                    document.getElementById('table_box_basic').style.display = '';
+                    document.getElementById('div_button_settings_box').innerHTML = "收起box";
+                }
+                else {
+                    document.getElementById('table_box_basic').style.display = 'none';
+                    document.getElementById('div_button_settings_box').innerHTML = '展开box';
+                }
             }
-            else {
-                document.getElementById('table_box').style.display = 'none';
-                document.getElementById('table_deck').style.display = 'none';
-                document.getElementById('div_button_settings_box').innerHTML = '展开box';
+            else if (current_box_mode == 2) {
+                document.getElementById('table_box_basic').style.display = 'none';
+                if (document.getElementById('table_box_deck').style.display == 'none') {
+                    document.getElementById('table_box_deck').style.display = '';
+                    document.getElementById('div_button_settings_box').innerHTML = "收起box";
+                }
+                else {
+                    document.getElementById('table_box_deck').style.display = 'none';
+                    document.getElementById('div_button_settings_box').innerHTML = '展开box';
+                }
             }
         }
 
-        function handle_box_content(box_mode) {
+        function handle_box_mode(box_mode) {
             if (box_mode == 1) {
                 current_box_mode = box_mode;
-                document.getElementById('table_box').style.display = '';
-                document.getElementById('table_deck').style.display = 'none';
+                document.getElementById('tr_mode_1').style.display = '';
+                document.getElementById('tr_mode_2').style.display = 'none';
+                document.getElementById('table_box_basic').style.display = 'none';
+                document.getElementById('table_box_deck').style.display = 'none';
+                document.getElementById('support_unit_enabled').disabled = false;
+                document.getElementById('support_unit_disabled_in_deck_mode').innerHTML= '';
             }
             else if (box_mode == 2) {
                 current_box_mode = box_mode;
-                document.getElementById('table_box').style.display = 'none';
-                document.getElementById('table_deck').style.display = '';
+                document.getElementById('tr_mode_1').style.display = 'none';
+                document.getElementById('tr_mode_2').style.display = '';
+                document.getElementById('table_box_basic').style.display = 'none';
+                document.getElementById('table_box_deck').style.display = 'none';
+                document.getElementById('support_unit_enabled').disabled = true;
+                document.getElementById('support_unit_disabled_in_deck_mode').innerHTML= '※在卡组模式下不可用';
             }
         }
 
@@ -1349,9 +1399,10 @@
 
         // 页面加载完成时执行
         init_all_operators();
-        init_table_box();
-        init_table_deck();
+        init_table_box_basic();
+        init_table_box_deck();
         load_settings();
+        handle_box_mode(current_box_mode);
         draw_current_deck();
         update_current_operators();
         handle_notice();
