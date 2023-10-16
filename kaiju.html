@@ -391,6 +391,8 @@
     <textarea id="textarea_bp">用于点击复制</textarea>
 
     <script>
+        const VERSION = '2.0.1'
+
         const question_mark = '？';
         const window_length = 10;
 
@@ -1128,19 +1130,23 @@
             for (let i = 0; i < drama_deck_list.length; i++) {
                 let opr = get_operator_by_code_name(drama_deck_list[i]);
                 if (opr.star == 6) {
-                    if (opening_group == '突击战术分队' && (opr.job == '先锋' || opr.job == '近卫')) {
+                    if (GROUPS_JOBS.includes(opening_group)) {
+                        if (opening_group == '突击战术分队' && (opr.job == '先锋' || opr.job == '近卫')) {
+                            drama_operators_star_6.push(drama_deck_list[i]);
+                        }
+                        if (opening_group == '堡垒战术分队' && (opr.job == '重装' || opr.job == '辅助')) {
+                            drama_operators_star_6.push(drama_deck_list[i]);
+                        }
+                        if (opening_group == '远程战术分队' && (opr.job == '狙击' || opr.job == '医疗')) {
+                            drama_operators_star_6.push(drama_deck_list[i]);
+                        }
+                        if (opening_group == '破坏战术分队' && (opr.job == '术师' || opr.job == '特种')) {
+                            drama_operators_star_6.push(drama_deck_list[i]);
+                        }
+                    }
+                    else {
                         drama_operators_star_6.push(drama_deck_list[i]);
                     }
-                    if (opening_group == '堡垒战术分队' && (opr.job == '重装' || opr.job == '辅助')) {
-                        drama_operators_star_6.push(drama_deck_list[i]);
-                    }
-                    if (opening_group == '远程战术分队' && (opr.job == '狙击' || opr.job == '医疗')) {
-                        drama_operators_star_6.push(drama_deck_list[i]);
-                    }
-                    if (opening_group == '破坏战术分队' && (opr.job == '术师' || opr.job == '特种')) {
-                        drama_operators_star_6.push(drama_deck_list[i]);
-                    }
-                    drama_operators_star_6.push(drama_deck_list[i]);
                 }
             }
             let opening_operator = drama_operators_star_6[hash_int % drama_operators_star_6.length];
@@ -1466,6 +1472,7 @@
 
 
         // 页面加载完成时执行
+        console.log(`肉鸽开局生成器 ${VERSION} 启动！`)
         init_all_operators();
         init_table_box_basic();
         init_table_box_deck();
