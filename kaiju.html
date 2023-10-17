@@ -164,7 +164,7 @@
             background-color: #00AAFF;
         }
 
-        .div_button_operator_enabled_waiting {
+        .div_button_operator_star_6_to_get, .div_button_operator_enabled_waiting {
             background-color: #ffaaaa;
         }
 
@@ -320,11 +320,14 @@
                 自定义box
             </td>
             <td>
-                <div class="div_button_settings" id="div_button_settings_box" onclick="handle_box_settings();" style="width: 100%">展开box</div>
+                <div class="div_button_settings" id="div_button_settings_box" onclick="handle_box_settings(1);" style="width: 80%;">展开box</div>
+            </td>
+            <td>
+                <div class="div_button_settings" id="div_button_settings_deck" onclick="handle_box_settings(2);" style="width: 80%;">展开卡组</div>
             </td>
         </tr>
     </table>
-    <table class="table_text" id="table_box_basic" onclick="save_settings();" style="display: none; table-layout: auto; border: 1px solid #CCCCCC; user-select: none;">
+    <table class="table_text" id="table_box_basic" onclick="update_current_deck(); save_settings();" style="display: none; table-layout: auto; border: 1px solid #CCCCCC; user-select: none;">
         <tr><th style="width: 80px;">先锋</th><td style="width: auto;" id="td_box_operators_star_6_先锋"></td></tr>
         <tr><th style="width: 80px;">近卫</th><td style="width: auto;" id="td_box_operators_star_6_近卫"></td></tr>
         <tr><th style="width: 80px;">重装</th><td style="width: auto;" id="td_box_operators_star_6_重装"></td></tr>
@@ -573,7 +576,7 @@
         const MAX_DECK_SIZE = 60;
 
         let current_box_mode = 2;
-        let current_operators_6_all, current_operators_6;
+        let current_operators_6_list, current_operators_6_by_job;
         let current_deck = [];
 
         function save_settings() {
@@ -643,15 +646,15 @@
                 }
                 // 不在box中的干员
                 if ('to_get' in data) {
-                    current_operators_6 = JSON.parse(JSON.stringify(OPERATORS_STAR_6_BY_JOB));
-                    current_operators_6_all = OPERATORS_STAR_6_LIST.slice();
+                    current_operators_6_by_job = JSON.parse(JSON.stringify(OPERATORS_STAR_6_BY_JOB));
+                    current_operators_6_list = OPERATORS_STAR_6_LIST.slice();
                     for (let job in OPERATORS_STAR_6_BY_JOB) {
                         for (let idx = 0; idx < OPERATORS_STAR_6_BY_JOB[job].length; idx++) {
                             let code_name = OPERATORS_STAR_6_BY_JOB[job][idx];
                             if (data['to_get'].includes(code_name)) {
                                 document.getElementById(`box_${code_name}`).checked = false;
-                                current_operators_6_all.splice(current_operators_6_all.indexOf(code_name), 1);
-                                current_operators_6[job].splice(current_operators_6[job].indexOf(code_name), 1);
+                                current_operators_6_list.splice(current_operators_6_list.indexOf(code_name), 1);
+                                current_operators_6_by_job[job].splice(current_operators_6_by_job[job].indexOf(code_name), 1);
                             }
                         }
                     }
@@ -707,31 +710,31 @@
             for (let i = 0; i < ALL_OPERATORS_DICTS_LIST.length; i++) {
                 let opr = ALL_OPERATORS_DICTS_LIST[i];
                 if (opr.star >= 3) {
+                    class_list = ['div_button_operator']
+                    if (opr.star == 6 && !(current_operators_6_list.includes(opr.code_name))) {
+                        class_list.push(`div_button_operator_star_6_to_get`);
+                    }
+                    else {
+                        class_list.push(`div_button_operator_star_${opr.star}`);
+                    }
                     document.getElementById(`td_deck_operators_${opr.job}`).innerHTML += `
-                        <div class="div_button_operator div_button_operator_star_${opr.star}" id="deck_${opr.code_name}" onclick="handle_deck('add', '${opr.code_name}');">${opr.code_name}</div>
+                        <div class="${class_list.join(' ')}" id="deck_${opr.code_name}" onclick="handle_deck('add', '${opr.code_name}', ${opr.star});">${opr.code_name}</div>
                     `
                 }
             }
         }
 
-        function get_operator_by_code_name(code_name) {
-            if (ALL_OPERATORS_LIST.indexOf(code_name) > -1) {
-                return ALL_OPERATORS_DICTS_LIST[ALL_OPERATORS_LIST.indexOf(code_name)];
-            }
-        }
-
-
-        function get_operator_star(code_name) {
-            return ALL_OPERATORS_DICTS_LIST[ALL_OPERATORS_LIST.indexOf(code_name)]['star'];
-        }
-
-        function draw_current_deck() {
-            console.time('draw_current_deck');
+        function update_current_deck() {
+            console.time('update_current_deck');
+            update_current_operators();
             // 按星级-职业-实装顺序排序
             let new_deck = [];
             for (let i = 0; i < ALL_OPERATORS_DICTS_LIST.length; i++) {
                 let opr = ALL_OPERATORS_DICTS_LIST[i];
                 if (opr.star >= 3) {
+                    if (opr.star == 6 && !(current_operators_6_list.includes(opr.code_name))) {
+                        continue;
+                    }
                     while (current_deck.includes(opr.code_name)) {
                         new_deck.push(current_deck.splice(current_deck.indexOf(opr.code_name), 1)[0]);
                     }
@@ -745,7 +748,7 @@
                     let code_name = current_deck[i];
                     let star = get_operator_star(code_name);
                     document.getElementById('td_current_deck_all').innerHTML += `
-                        <div class="div_button_operator div_button_operator_star_${star}" onclick="handle_deck('remove', '${code_name}');">${code_name}</div>
+                        <div class="div_button_operator div_button_operator_star_${star}" onclick="handle_deck('remove', '${code_name}', ${star});">${code_name}</div>
                     `
                     if (star < 6) {
                         document.getElementById(`deck_${code_name}`).style.display = 'none';
@@ -757,7 +760,18 @@
                 }
             }
             document.getElementById('td_deck_count').innerHTML = `${current_deck.length}`;
-            console.timeEnd('draw_current_deck');
+            console.timeEnd('update_current_deck');
+        }
+
+        function get_operator_by_code_name(code_name) {
+            if (ALL_OPERATORS_LIST.indexOf(code_name) > -1) {
+                return ALL_OPERATORS_DICTS_LIST[ALL_OPERATORS_LIST.indexOf(code_name)];
+            }
+        }
+
+
+        function get_operator_star(code_name) {
+            return ALL_OPERATORS_DICTS_LIST[ALL_OPERATORS_LIST.indexOf(code_name)]['star'];
         }
 
         function handle_deck(action, code_name, star) {
@@ -765,20 +779,23 @@
                 if (current_deck.length >= MAX_DECK_SIZE) {
                     return;
                 }
+                if (star == 6 && !(current_operators_6_list.includes(code_name))) {
+                    return;
+                }
                 current_deck.push(code_name);
             }
             else if (action == 'remove') {
                 current_deck.splice(current_deck.indexOf(code_name), 1);
             }
-            draw_current_deck();
+            update_current_deck();
         }
 
         function handle_full_deck(deck=[]) {
             current_deck = deck.slice();
-            draw_current_deck();
+            update_current_deck();
         }
 
-        function handle_deck_in_drama(code_name) {
+        function draw_in_drama(code_name) {
             // Draw!
             let draw_opr_from_deck = document.getElementsByClassName(`div_deck_in_drama_${code_name}`);
             for (let j = 0; j < draw_opr_from_deck.length; j++) {
@@ -791,8 +808,8 @@
         }
 
         function update_current_operators(full_box=false) {
-            current_operators_6 = JSON.parse(JSON.stringify(OPERATORS_STAR_6_BY_JOB));
-            current_operators_6_all = OPERATORS_STAR_6_LIST.slice();
+            current_operators_6_by_job = JSON.parse(JSON.stringify(OPERATORS_STAR_6_BY_JOB));
+            current_operators_6_list = OPERATORS_STAR_6_LIST.slice();
             let operators_to_get = [];
             if (full_box) {
                 return operators_to_get;
@@ -801,8 +818,8 @@
                 for (let idx = 0; idx < OPERATORS_STAR_6_BY_JOB[job].length; idx++) {
                     let code_name = OPERATORS_STAR_6_BY_JOB[job][idx];
                     if (document.getElementById(`box_${code_name}`).checked == false) {
-                        current_operators_6_all.splice(current_operators_6_all.indexOf(code_name), 1);
-                        current_operators_6[job].splice(current_operators_6[job].indexOf(code_name), 1);
+                        current_operators_6_list.splice(current_operators_6_list.indexOf(code_name), 1);
+                        current_operators_6_by_job[job].splice(current_operators_6_by_job[job].indexOf(code_name), 1);
                         operators_to_get.push(code_name);
                     }
                 }
@@ -853,19 +870,19 @@
             }
             let operators;
             if (opening_group == '突击战术分队') {
-                operators = current_operators_6['先锋'].concat(current_operators_6['近卫']);
+                operators = current_operators_6_by_job['先锋'].concat(current_operators_6_by_job['近卫']);
             }
             else if (opening_group == '堡垒战术分队') {
-                operators = current_operators_6['重装'].concat(current_operators_6['辅助']);
+                operators = current_operators_6_by_job['重装'].concat(current_operators_6_by_job['辅助']);
             }
             else if (opening_group == '远程战术分队') {
-                operators = current_operators_6['狙击'].concat(current_operators_6['医疗']);
+                operators = current_operators_6_by_job['狙击'].concat(current_operators_6_by_job['医疗']);
             }
             else if (opening_group == '破坏战术分队') {
-                operators = current_operators_6['术师'].concat(current_operators_6['特种']);
+                operators = current_operators_6_by_job['术师'].concat(current_operators_6_by_job['特种']);
             }
             else {
-                operators = current_operators_6_all;
+                operators = current_operators_6_list;
             }
             let opening_operator = operators[hash_int % operators.length];
             let result = `我掐指一算，今天 ${user_id} 适合在 ${opening_is} 用 ${opening_group} ${opening_operator} 开局`;
@@ -937,19 +954,19 @@
             }
             let drama_box, drama_operators_star_6;
             if (opening_group == '突击战术分队') {
-                drama_operators_star_6 = current_operators_6['先锋'].concat(current_operators_6['近卫']);
+                drama_operators_star_6 = current_operators_6_by_job['先锋'].concat(current_operators_6_by_job['近卫']);
             }
             else if (opening_group == '堡垒战术分队') {
-                drama_operators_star_6 = current_operators_6['重装'].concat(current_operators_6['辅助']);
+                drama_operators_star_6 = current_operators_6_by_job['重装'].concat(current_operators_6_by_job['辅助']);
             }
             else if (opening_group == '远程战术分队') {
-                drama_operators_star_6 = current_operators_6['狙击'].concat(current_operators_6['医疗']);
+                drama_operators_star_6 = current_operators_6_by_job['狙击'].concat(current_operators_6_by_job['医疗']);
             }
             else if (opening_group == '破坏战术分队') {
-                drama_operators_star_6 = current_operators_6['术师'].concat(current_operators_6['特种']);
+                drama_operators_star_6 = current_operators_6_by_job['术师'].concat(current_operators_6_by_job['特种']);
             }
             else {
-                drama_operators_star_6 = current_operators_6_all.slice();
+                drama_operators_star_6 = current_operators_6_list.slice();
             }
             let opening_operator = drama_operators_star_6[hash_int % drama_operators_star_6.length];
             if (replys.length > 0) {
@@ -978,8 +995,8 @@
                 '辅助': 0,
                 '特种': 0,
             }
-            drama_box = JSON.parse(JSON.stringify(current_operators_6));
-            drama_operators_star_6 = current_operators_6_all.slice();
+            drama_box = JSON.parse(JSON.stringify(current_operators_6_by_job));
+            drama_operators_star_6 = current_operators_6_list.slice();
             if (document.getElementById('support_unit_enabled').checked) {
                 // 将助战招募干员临时加入box
                 for (let job in OPERATORS_STAR_6_BY_JOB) {
@@ -1101,6 +1118,8 @@
             }
 
             let replys = [], reply_picks = [];
+            let operators_to_get = update_current_operators();
+            update_current_deck();
             let drama_deck_list = current_deck.slice();
             let drama_box_set = new Set(drama_deck_list);
             if (drama_deck_list.length < MIN_DECK_SIZE) {
@@ -1176,7 +1195,7 @@
                 let star = get_operator_star(code_name);
                 temp_deck += `
                     <div class="div_button_operator div_button_operator_star_${star} div_deck_in_drama_${code_name}"
-                        onclick="handle_deck_in_drama('${code_name}')";>
+                        onclick="draw_in_drama('${code_name}')";>
                         ${code_name}
                     </div>
                 `
@@ -1445,9 +1464,10 @@
             }
         }
 
-        function handle_box_settings() {
-            if (current_box_mode == 1) {
+        function handle_box_settings(mode) {
+            if (mode == 1) {
                 document.getElementById('table_box_deck').style.display = 'none';
+                document.getElementById('div_button_settings_deck').innerHTML = "展开卡组";
                 if (document.getElementById('table_box_basic').style.display == 'none') {
                     document.getElementById('table_box_basic').style.display = '';
                     document.getElementById('div_button_settings_box').innerHTML = "收起box";
@@ -1457,15 +1477,16 @@
                     document.getElementById('div_button_settings_box').innerHTML = '展开box';
                 }
             }
-            else if (current_box_mode == 2) {
+            else if (mode == 2) {
                 document.getElementById('table_box_basic').style.display = 'none';
+                document.getElementById('div_button_settings_box').innerHTML = '展开box';
                 if (document.getElementById('table_box_deck').style.display == 'none') {
                     document.getElementById('table_box_deck').style.display = '';
-                    document.getElementById('div_button_settings_box').innerHTML = "收起box";
+                    document.getElementById('div_button_settings_deck').innerHTML = "收起卡组";
                 }
                 else {
                     document.getElementById('table_box_deck').style.display = 'none';
-                    document.getElementById('div_button_settings_box').innerHTML = '展开box';
+                    document.getElementById('div_button_settings_deck').innerHTML = "展开卡组";
                 }
             }
         }
@@ -1508,11 +1529,11 @@
         init_version();
         init_all_operators();
         init_table_box_basic();
+        update_current_operators();
         init_table_box_deck();
         load_settings();
         handle_box_mode(current_box_mode);
-        draw_current_deck();
-        update_current_operators();
+        update_current_deck();
         handle_notice();
     </script>
 </body>
