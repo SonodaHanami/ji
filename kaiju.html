@@ -146,26 +146,27 @@
 
         .div_button_operator_star_6 {
             /* background-color: #cc5a5a; */
-            background-color: #ffaaaa;
+            color: #ff9c9c;
         }
 
         .div_button_operator_star_5 {
-            background-color: #eab655;
+            color: #ecb655;
         }
 
         .div_button_operator_star_4 {
-            background-color: #ee77ee;
-        }
-
-        .div_button_operator_star_3 {
-            background-color: #dddddd;
+            color: #ec9cec;
         }
 
         .div_button_operator_opening {
             background-color: #00AAFF;
         }
 
-        .div_button_operator_star_6_to_get, .div_button_operator_enabled_waiting {
+        .div_button_operator_to_get {
+            background-color: #aaaaaa;
+            cursor: auto;
+        }
+
+        .div_button_operator_enabled_waiting {
             /* background-color: #ffaaaa; */
             background-color: #a1e3b2;
         }
@@ -198,7 +199,6 @@
         .elm_bg_orange {
             background-color: #ffbf92;
         }
-
 
         #span_bans {
             background-color: #eeaaaa;
@@ -273,7 +273,7 @@
                 <p>五星及以下干员每位只能放入一张，六星干员可以放入多张。</p>
                 <p>放入多张同名干员意味着生成剧本时将以更高的概率选中这位干员作为开局干员或必须优先选择的干员，但同时也意味着将以更高的概率选中这位干员从本局游戏中移除（禁用）。</p>
                 <p>有点不知如何下手？没关系，默认卡组已经准备好了，你可以试试看，随时可以自己调整。</p>
-                <p>游戏中招募三星及以上的非预备干员时仅能选择卡组中的干员；可以临时招募干员，但仅能选择卡组中的干员；招募到所有对应职业的必须优先选择的六星干员之前，不能临时招募其他六星干员。</p>
+                <p>游戏中招募三星及以上的非预备干员时仅能选择卡组中的干员；可以临时招募干员，但仅能选择卡组中的干员（※特别地，可以临时招募Sharp、Stormeye、Pith、和Touch）；招募到对应职业的所有必须优先选择的六星干员之前，不能临时招募该职业的其他六星干员。</p>
                 <h2>生成剧本时发生了什么？</h2>
                 <p>本段落的目标是让小刻也能看懂，希望如此。</p>
                 <p>
@@ -372,12 +372,10 @@
             <td id="td_notice">
                 <h2>肉鸽开局生成器2.0：新增卡组模式</h2>
                 <p>本次更新变动较大，建议<a href="https://www.bilibili.com/video/BV1Ju4y1p79G/" target="_blank">观看PV</a>并阅读文档后使用</p>
-                <h2>肉鸽开局生成器2.10：</h2>
-                <p>修改版本号格式为 Dota 2 格式，<span class="elm_delete_line">2.5版本直接被跳过了，可喜可贺</span></p>
-                <p>尝试优化2.0版本剧本非常简单的问题</p>
-                <p>新增已抽出区域，点击剧本卡组中的干员可以将干员移动到已抽出区域</p>
-                <h2>肉鸽开局生成器2.10b：</h2>
-                <p>优化六星干员背景颜色</p>
+                <h2>肉鸽开局生成器2.10c：</h2>
+                <p>修复将已经被禁用的干员加入卡组导致被选为必须优先选择的干员的bug</p>
+                <p>优化规则，可以临时招募并不在卡组中的肉鸽四天王</p>
+                <p>优化卡组界面干员文字颜色和背景颜色</p>
             </td>
             <td id="td_notice_button">
                 <div class="div_notice_button" onclick="handle_notice(1);">好的</div>
@@ -730,12 +728,9 @@
             for (let i = 0; i < ALL_OPERATORS_DICTS_LIST.length; i++) {
                 let opr = ALL_OPERATORS_DICTS_LIST[i];
                 if (opr.star >= 3) {
-                    class_list = ['div_button_operator']
+                    class_list = [`div_button_operator`, `div_button_operator_star_${opr.star}`];
                     if (opr.star == 6 && !(current_operators_6_list.includes(opr.code_name))) {
-                        class_list.push(`div_button_operator_star_6_to_get`);
-                    }
-                    else {
-                        class_list.push(`div_button_operator_star_${opr.star}`);
+                        class_list.push(`div_button_operator_to_get`);
                     }
                     document.getElementById(`td_deck_operators_${opr.job}`).innerHTML += `
                         <div class="${class_list.join(' ')}" id="deck_${opr.code_name}" onclick="handle_deck('add', '${opr.code_name}', ${opr.star});">${opr.code_name}</div>
@@ -1302,7 +1297,8 @@
                 <p>
                     本局游戏中招募三星及以上的非预备干员时仅能选择卡组中的干员<br>
                     本局游戏中临时招募干员时仅能选择卡组中的干员<br>
-                    本局游戏中招募到所有对应职业的必须优先选择的六星干员之前，不能临时招募其他六星干员
+                    ※特别地，可以临时招募Sharp、Stormeye、Pith、和Touch<br>
+                    本局游戏中招募到对应职业的所有必须优先选择的六星干员之前，不能临时招募该职业的其他六星干员
                 </p>
             `);
             replys.push(`<p>不符合以上规则招募到的干员从本局游戏中移除</p>`);
@@ -1323,8 +1319,8 @@
                 // 额外放入box中所有六星干员
                 for (let i = 0; i < current_operators_6_list.length; i++) {
                     let opr = get_operator_by_code_name(current_operators_6_list[i]);
-                    if (opr.star == 6 && opr.job == job) {
-                        drama_box_by_job[job].push(current_operators_6_list[i]);
+                    if (opr.star == 6 && opr.job == job && !(banned_operators.includes(opr.code_name))) {
+                        drama_box_by_job[job].push(opr.code_name);
                     }
                 }
             }
