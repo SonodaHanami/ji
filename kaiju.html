@@ -250,7 +250,7 @@
                 <p style="text-indent: 0em;">如果上传包含本肉鸽开局生成器的视频，请在简介附上本肉鸽开局生成器的准确无误的链接（如下所示，点击复制），感谢。</p>
                 <p style="text-indent: 0em;"><span id="span_link" class="elm_bg_orange" onclick="handle_click_copy('span_link');" style="cursor: pointer;">https://sonodahanami.github.io/ji/kaiju.html</span><span id="span_link_copied"></span></p>
                 <hr>
-                <h2>肉鸽开局生成器</h2>
+                <h2>肉鸽开局生成器 <span id="span_version"></span></h2>
                 <p>欢迎使用肉鸽开局生成器，你可以在输入框中输入名字，点击按钮生成今天的<span class="elm_delete_line"> 专属 </span>开局或剧本。</p>
                 <p>肉鸽开局生成器将根据下列输入条件</p>
                 <ul style="margin-left: 2em;">
@@ -661,6 +661,11 @@
                 }
                 return true;
             }
+        }
+
+        function init_version() {
+            document.getElementById('span_version').innerHTML = VERSION;
+            console.log(`肉鸽开局生成器 ${VERSION} 启动！`)
         }
 
         function init_all_operators() {
@@ -1484,7 +1489,7 @@
 
 
         // 页面加载完成时执行
-        console.log(`肉鸽开局生成器 ${VERSION} 启动！`)
+        init_version();
         init_all_operators();
         init_table_box_basic();
         init_table_box_deck();
