@@ -778,6 +778,18 @@
             draw_current_deck();
         }
 
+        function handle_deck_in_drama(code_name) {
+            // Draw!
+            let draw_opr_from_deck = document.getElementsByClassName(`div_deck_in_drama_${code_name}`);
+            for (let j = 0; j < draw_opr_from_deck.length; j++) {
+                draw_opr_from_deck[j].style.display = 'none';
+            }
+            let star = get_operator_star(code_name);
+            document.getElementById('div_draw').innerHTML += `
+                <div class="div_button_operator div_button_operator_star_${star}" style="cursor: auto";>${code_name}</div>
+            `
+        }
+
         function update_current_operators(full_box=false) {
             current_operators_6 = JSON.parse(JSON.stringify(OPERATORS_STAR_6_BY_JOB));
             current_operators_6_all = OPERATORS_STAR_6_LIST.slice();
@@ -1162,7 +1174,12 @@
             for (let i = 0; i < drama_deck_list.length; i++) {
                 let code_name = drama_deck_list[i];
                 let star = get_operator_star(code_name);
-                temp_deck += `<div class="div_button_operator div_button_operator_star_${star} div_temp_deck_${code_name}">${code_name}</div>`
+                temp_deck += `
+                    <div class="div_button_operator div_button_operator_star_${star} div_deck_in_drama_${code_name}"
+                        onclick="handle_deck_in_drama('${code_name}')";>
+                        ${code_name}
+                    </div>
+                `
             }
             // 干员池重置为卡组中所有六星干员
             drama_operators_star_6 = [];
@@ -1173,9 +1190,8 @@
                 }
             }
             let drama_operators_star_6_set = new Set(drama_operators_star_6);
-            replys.push(`<p>当前卡组大小为${drama_deck_list.length}，包含${Array.from(drama_box_set).length}位不同的干员，其中有${Array.from(drama_operators_star_6_set).length}位不同的六星干员${opening_job_group_only_text}</p>`);
-            // replys.push(`<span class="elm_bg_orange" onclick="document.getElementById('div_temp_deck').style.display = '';" style="cursor: pointer;">点击显示卡组</span>`);
-            replys.push(`<div id="div_temp_deck">${temp_deck}</div>`);
+            replys.push(`<hr><p>当前卡组大小为${drama_deck_list.length}，包含${Array.from(drama_box_set).length}位不同的干员，其中有${Array.from(drama_operators_star_6_set).length}位不同的六星干员${opening_job_group_only_text}</p>`);
+            replys.push(`<div><h2>当前卡组</h2>${temp_deck}</div><hr><div id="div_draw"><h2>已抽出</h2></div><hr>`);
             replys.push(opening_result);
 
             let picks_by_job = {
@@ -1308,7 +1324,7 @@
             // // 输出结果中仅用于显示的卡组
             // // 开局 - 蓝色
             // for (let i = 0; i < 1; i++) {
-            //     let temp_deck_opening_operator = document.getElementsByClassName(`div_temp_deck_${opening_operator}`);
+            //     let temp_deck_opening_operator = document.getElementsByClassName(`div_deck_in_drama_${opening_operator}`);
             //     for (let j = 0; j < temp_deck_opening_operator.length; j++) {
             //         temp_deck_opening_operator[j].classList.add('div_button_operator_opening');
             //     }
@@ -1317,7 +1333,7 @@
             // // 禁用 - 删除线
             // for (let i = 0; i < banned_operators.length; i++) {
             //     let banned_operator = banned_operators[i]
-            //     let temp_deck_banned_operator = document.getElementsByClassName(`div_temp_deck_${banned_operator}`);
+            //     let temp_deck_banned_operator = document.getElementsByClassName(`div_deck_in_drama_${banned_operator}`);
             //     for (let j = 0; j < temp_deck_banned_operator.length; j++) {
             //         temp_deck_banned_operator[j].classList.add('div_button_operator_disabled');
             //         temp_deck_banned_operator[j].classList.add('elm_delete_line');
@@ -1334,7 +1350,7 @@
             //         }
             //     }
             //     if (waiting && opr.code_name != opening_operator && !(banned_operators.includes(opr.code_name))) {
-            //         let temp_deck_waiting_operator = document.getElementsByClassName(`div_temp_deck_${opr.code_name}`);
+            //         let temp_deck_waiting_operator = document.getElementsByClassName(`div_deck_in_drama_${opr.code_name}`);
             //         for (let j = 0; j < temp_deck_waiting_operator.length; j++) {
             //             temp_deck_waiting_operator[j].classList.add('div_button_operator_enabled_waiting');
             //         }
