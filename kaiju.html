@@ -1163,11 +1163,12 @@
                 }
             }
             let drama_operators_star_6 = [], drama_box_by_job = {};
-            // 开局干员池
+            // 开局干员池，范围为卡组中所有六星干员
             for (let i = 0; i < drama_deck_list.length; i++) {
                 let opr = get_operator_by_code_name(drama_deck_list[i]);
                 if (opr.star == 6) {
                     if (GROUPS_JOBS.includes(opening_group)) {
+                        // 职业分队开局，范围改为卡组中对应职业所有六星干员
                         if (opening_group == '突击战术分队' && (opr.job == '先锋' || opr.job == '近卫')) {
                             drama_operators_star_6.push(drama_deck_list[i]);
                         }
@@ -1235,12 +1236,11 @@
             }
             for (let job in picks_by_job) {
                 drama_box_by_job[job] = [];
+                // 卡组中所有六星干员
                 for (let i = 0; i < drama_deck_list.length; i++) {
                     let opr = get_operator_by_code_name(drama_deck_list[i]);
-                    if (opr.star == 6) {
-                        if (opr.job == job) {
-                            drama_box_by_job[job].push(drama_deck_list[i]);
-                        }
+                    if (opr.star == 6 && opr.job == job) {
+                        drama_box_by_job[job].push(drama_deck_list[i]);
                     }
                 }
             }
@@ -1262,7 +1262,7 @@
             // 处理box中某一职业没有六星的情况
             check_drama_box_by_job();
 
-            // 禁用干员（从本局游戏中移除）
+            // 禁用干员（从本局游戏中移除），范围为卡组中所有六星干员
             let banned_operators = [];
             for (let i = 0; i <= drama_level && drama_level > 0 && drama_operators_star_6.length > 0; i++) {
                 let banned_operator = drama_operators_star_6[hash_int % drama_operators_star_6.length];
@@ -1294,7 +1294,20 @@
             // 处理禁用后box中某一职业没有六星的情况
             check_drama_box_by_job();
 
-            // 选择本局游戏中各职业必须优先选择的六星干员
+            // 选择本局游戏中各职业必须优先选择的六星干员，范围为(卡组中所有六星干员 + box中所有六星干员)
+            for (let job in picks_by_job) {
+                if (!(job in drama_box_by_job)) {
+                    drama_box_by_job[job] = [];
+                }
+                // 卡组中所有六星干员，已将开局干员和禁用干员移除
+                // 额外放入box中所有六星干员
+                for (let i = 0; i < current_operators_6_list.length; i++) {
+                    let opr = get_operator_by_code_name(current_operators_6_list[i]);
+                    if (opr.star == 6 && opr.job == job) {
+                        drama_box_by_job[job].push(current_operators_6_list[i]);
+                    }
+                }
+            }
             for (let i = 1; i <= drama_level && Object.keys(drama_box_by_job).length > 0; i++) {
                 let not_picked_jobs = [];
                 for (let p in picks_count_by_job) {
