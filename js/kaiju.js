@@ -315,12 +315,15 @@ function init_table_box_deck() {
     for (let i = 0; i < ALL_OPERATORS_DICTS_LIST.length; i++) {
         let opr = ALL_OPERATORS_DICTS_LIST[i];
         if (opr.star >= 3) {
-            class_list = [`div_button_operator`, `div_button_operator_star_${opr.star}`, `div_button_operator_${opr.job}`];
+            class_list = [`div_button_operator`, `div_button_operator_star_${opr.star}`];
             if (opr.star == 6 && !(current_operators_6_list.includes(opr.code_name))) {
                 class_list.push(`div_button_operator_to_get`);
             }
             document.getElementById(`td_deck_operators_${opr.job}`).innerHTML += `
-                <div class="${class_list.join(' ')}" id="deck_${opr.code_name}" onclick="handle_deck('add', '${opr.code_name}', ${opr.star});">${opr.code_name}</div>
+                <div class="${class_list.join(' ')}" id="deck_${opr.code_name}" onclick="handle_deck('add', '${opr.code_name}', ${opr.star});">
+                    <div class="div_button_operator_${opr.job}">${opr.job.slice(0, 1)}</div>
+                    ${opr.code_name}
+                </div>
             `
         }
     }
@@ -348,9 +351,12 @@ function update_current_deck() {
         document.getElementById('td_current_deck_all').innerHTML = '';
         for (let i = 0; i < current_deck.length; i++) {
             let opr = get_operator_by_code_name(current_deck[i]);
-            class_list = [`div_button_operator`, `div_button_operator_star_${opr.star}`, `div_button_operator_${opr.job}`];
+            class_list = [`div_button_operator`, `div_button_operator_star_${opr.star}`];
             document.getElementById('td_current_deck_all').innerHTML += `
-                <div class="${class_list.join(' ')}" onclick="handle_deck('remove', '${opr.code_name}', ${opr.star});">${opr.code_name}</div>
+                <div class="${class_list.join(' ')}" onclick="handle_deck('remove', '${opr.code_name}', ${opr.star});">
+                    <div class="div_button_operator_${opr.job}">${opr.job.slice(0, 1)}</div>
+                    ${opr.code_name}
+                </div>
             `
             if (opr.star < 6) {
                 document.getElementById(`deck_${opr.code_name}`).style.display = 'none';
@@ -405,7 +411,10 @@ function draw_in_drama(code_name) {
     }
     let opr = get_operator_by_code_name(code_name);
     document.getElementById('div_draw').innerHTML += `
-        <div class="div_button_operator div_button_operator_star_${opr.star} div_button_operator_${opr.job}" style="cursor: auto";>${opr.code_name}</div>
+        <div class="div_button_operator div_button_operator_star_${opr.star} div_button_operator_${opr.job}" style="cursor: auto";>
+            <div class="div_button_operator_${opr.job}">${opr.job.slice(0, 1)}</div>
+            ${opr.code_name}
+        </div>
     `
 }
 
@@ -796,8 +805,8 @@ function get_drama_deck(drama_level) {
     for (let i = 0; i < drama_deck_list.length; i++) {
         let opr = get_operator_by_code_name(drama_deck_list[i]);
         temp_deck += `
-            <div class="div_button_operator div_button_operator_star_${opr.star} div_button_operator_${opr.job} div_deck_in_drama_${opr.code_name}"
-                onclick="draw_in_drama('${opr.code_name}')";>
+            <div class="div_button_operator div_button_operator_star_${opr.star} div_deck_in_drama_${opr.code_name}" onclick="draw_in_drama('${opr.code_name}')";>
+                <div class="div_button_operator_${opr.job}">${opr.job.slice(0, 1)}</div>
                 ${opr.code_name}
             </div>
         `

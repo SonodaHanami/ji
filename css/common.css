@@ -170,10 +170,10 @@ textarea {
     background-color: #ec9cec;
 }
 
-.div_button_operator_先锋:after, .div_button_operator_近卫:after,
-.div_button_operator_重装:after, .div_button_operator_狙击:after,
-.div_button_operator_术师:after, .div_button_operator_医疗:after,
-.div_button_operator_辅助:after, .div_button_operator_特种:after {
+.div_button_operator_先锋, .div_button_operator_近卫,
+.div_button_operator_重装, .div_button_operator_狙击,
+.div_button_operator_术师, .div_button_operator_医疗,
+.div_button_operator_辅助, .div_button_operator_特种 {
     position: absolute;
     top: 0;
     left: 0;
@@ -182,38 +182,6 @@ textarea {
     margin: 0.2em;
     color: #CCC;
     z-index: -1;
-}
-
-.div_button_operator_先锋:after {
-    content: "先";
-}
-
-.div_button_operator_近卫:after {
-    content: "近";
-}
-
-.div_button_operator_重装:after {
-    content: "重";
-}
-
-.div_button_operator_狙击:after {
-    content: "狙";
-}
-
-.div_button_operator_术师:after {
-    content: "术";
-}
-
-.div_button_operator_医疗:after {
-    content: "医";
-}
-
-.div_button_operator_辅助:after {
-    content: "辅";
-}
-
-.div_button_operator_特种:after {
-    content: "特";
 }
 
 .div_button_operator_opening {
