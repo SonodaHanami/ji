@@ -1,0 +1,280 @@
+@charset "utf-8";
+
+body {
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+    text-align: center;
+}
+
+a:link, a:visited {
+    color: #ffce77;
+    text-decoration: none;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+.table_text {
+    width: 100%;
+    text-align: left;
+    table-layout: fixed;
+}
+
+.table_text tr {
+    height: 90px;
+}
+
+.table_text th {
+    font-size: 2em;
+    padding: 10px;
+}
+
+.table_text td {
+    height: 90px;
+    font-size: 1.5em;
+    padding: 10px;
+}
+
+#table_settings {
+    background-color: #f7f7f7;
+}
+
+.tr_border_bottom {
+    border-bottom: 1px dotted #DDDDDD;
+}
+
+th input {
+    width: 80%;
+    font-size: 1.5em
+}
+
+td[id^="td_box"] span {
+    display: inline-block;
+    margin-right: 20px;
+}
+
+textarea {
+    width: 100%;
+    resize: none;
+}
+
+#textarea_bp {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    z-index: -10;
+}
+
+.div_button {
+    background-color: #F0F0F07F;
+    padding: 10px;
+    border-radius: 3px;
+    border-color: #000;
+    border-style: solid;
+    border-width: 1px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.div_button:hover, .div_button_settings:hover {
+    background-color: #2B666666;
+}
+
+#tr_notice {
+    background-color: #ffbf92;
+}
+
+#td_notice {
+    width: 80%;
+    padding-left: 10px;
+}
+
+#td_notice_button {
+    width: 20%;
+    padding-right: 10px;
+    text-align: right;
+}
+
+#tr_document {
+    background-color: #d5e4f3;
+}
+
+#tr_document p {
+    text-indent: 2em;
+}
+
+.div_notice_button {
+    width: 50px;
+    display: inline-block;
+    background-color: #F0F0F07F;
+    padding: 10px;
+    border-radius: 3px;
+    border-color: #000;
+    border-style: solid;
+    border-width: 1px;
+    text-align: center;
+}
+
+.div_button_settings {
+    width: 150px;
+    display: inline-block;
+    background-color: #F0F0F07F;
+    margin: 5px;
+    padding: 10px;
+    border-radius: 0px;
+    border-color: #000;
+    border-style: solid;
+    border-width: 1px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.div_button_operator{
+    text-shadow: -2px -2px #FFF, -2px -1px #FFF, -2px 0 #FFF, -2px 1px #FFF, -2px 2px #FFF, -1px -2px #FFF, -1px -1px #FFF, -1px 0 #FFF, -1px 1px #FFF, -1px 2px #FFF, 0 -2px #FFF, 0 -1px #FFF, 0 0 #FFF, 0 1px #FFF, 0 2px #FFF, 1px -2px #FFF, 1px -1px #FFF, 1px 0 #FFF, 1px 1px #FFF, 1px 2px #FFF, 2px -2px #FFF, 2px -1px #FFF, 2px 0 #FFF, 2px 1px #FFF, 2px 2px #FFF;
+    display: inline-block;
+    position: relative;
+    width: 150px;
+    font-size: 1.5rem;
+    padding: 10px;
+    border-radius: 3px;
+    border-color: #000;
+    border-style: solid;
+    border-width: 1px;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    z-index: 0;
+}
+
+.div_button_operator:hover {
+    outline-color: #00AAFF;
+    outline-style: solid;
+    outline-width: 3px;
+    outline-offset: -3px;
+}
+
+.div_button_operator_star_6 {
+    background-color: #cc5a5a;
+}
+
+.div_button_operator_star_5 {
+    background-color: #ecb655;
+}
+
+.div_button_operator_star_4 {
+    background-color: #ec9cec;
+}
+
+.div_button_operator_先锋:after, .div_button_operator_近卫:after,
+.div_button_operator_重装:after, .div_button_operator_狙击:after,
+.div_button_operator_术师:after, .div_button_operator_医疗:after,
+.div_button_operator_辅助:after, .div_button_operator_特种:after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: 0.8em;
+    text-shadow: none;
+    margin: 0.2em;
+    color: #CCC;
+    z-index: -1;
+}
+
+.div_button_operator_先锋:after {
+    content: "先";
+}
+
+.div_button_operator_近卫:after {
+    content: "近";
+}
+
+.div_button_operator_重装:after {
+    content: "重";
+}
+
+.div_button_operator_狙击:after {
+    content: "狙";
+}
+
+.div_button_operator_术师:after {
+    content: "术";
+}
+
+.div_button_operator_医疗:after {
+    content: "医";
+}
+
+.div_button_operator_辅助:after {
+    content: "辅";
+}
+
+.div_button_operator_特种:after {
+    content: "特";
+}
+
+.div_button_operator_opening {
+    background-color: #00AAFF;
+}
+
+.div_button_operator_to_get {
+    background-color: #aaaaaa;
+    cursor: auto;
+}
+
+.div_button_operator_enabled_waiting {
+    /* background-color: #ffaaaa; */
+    background-color: #a1e3b2;
+}
+
+.div_button_operator_disabled {
+    color: #777777;
+    background-color: #999999;
+}
+
+.div_button_operator_disabled_useless {
+    background-color: #76cb8b;
+}
+
+.elm_outline {
+    text-shadow: -2px -2px #000, -2px -1px #000, -2px 0 #000, -2px 1px #000, -2px 2px #000, -1px -2px #000, -1px -1px #000, -1px 0 #000, -1px 1px #000, -1px 2px #000, 0 -2px #000, 0 -1px #000, 0 0 #000, 0 1px #000, 0 2px #000, 1px -2px #000, 1px -1px #000, 1px 0 #000, 1px 1px #000, 1px 2px #000, 2px -2px #000, 2px -1px #000, 2px 0 #000, 2px 1px #000, 2px 2px #000;
+}
+
+.elm_white {
+    color: #ffffff;
+}
+
+.elm_orange {
+    color: #ffbf92;
+}
+
+.elm_green {
+    color: #92dd92;
+}
+
+.elm_red {
+    color: #dd9090;
+}
+
+.elm_delete_line {
+    text-decoration: line-through;
+}
+
+.elm_bg_orange {
+    background-color: #ffbf92;
+}
+
+#span_bans {
+    background-color: #eeaaaa;
+    cursor: pointer;
+    user-select: none;
+}
+
+#span_picks {
+    background-color: #aaccee;
+    cursor: pointer;
+    user-select: none;
+}
