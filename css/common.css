@@ -1,9 +1,8 @@
 @charset "utf-8";
 
 body {
-    padding-top: 10px;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
     text-align: center;
 }
 
@@ -23,18 +22,18 @@ table {
 }
 
 .table_text tr {
-    height: 90px;
+    height: 5em;
 }
 
 .table_text th {
     font-size: 2em;
-    padding: 10px;
+    padding: 0.5em;
 }
 
 .table_text td {
-    height: 90px;
+    height: 5em;
     font-size: 1.5em;
-    padding: 10px;
+    padding: 0.5em;
 }
 
 #table_settings {
@@ -47,12 +46,12 @@ table {
 
 th input {
     width: 80%;
-    font-size: 1.5em
+    font-size: 1.5em;
 }
 
 td[id^="td_box"] span {
     display: inline-block;
-    margin-right: 20px;
+    margin-right: 1em;
 }
 
 textarea {
@@ -70,8 +69,8 @@ textarea {
 
 .div_button {
     background-color: #F0F0F07F;
-    padding: 10px;
-    border-radius: 3px;
+    padding: 0.5em;
+    border-radius: 0;
     border-color: #000;
     border-style: solid;
     border-width: 1px;
@@ -90,12 +89,12 @@ textarea {
 
 #td_notice {
     width: 80%;
-    padding-left: 10px;
+    padding-left: 1em;
 }
 
 #td_notice_button {
     width: 20%;
-    padding-right: 10px;
+    padding-right: 1em;
     text-align: right;
 }
 
@@ -108,11 +107,11 @@ textarea {
 }
 
 .div_notice_button {
-    width: 50px;
+    width: 3em;
     display: inline-block;
     background-color: #F0F0F07F;
-    padding: 10px;
-    border-radius: 3px;
+    padding: 0.5em;
+    border-radius: 0;
     border-color: #000;
     border-style: solid;
     border-width: 1px;
@@ -120,12 +119,12 @@ textarea {
 }
 
 .div_button_settings {
-    width: 150px;
+    width: 6em;
     display: inline-block;
     background-color: #F0F0F07F;
-    margin: 5px;
-    padding: 10px;
-    border-radius: 0px;
+    margin: 0.25em;
+    padding: 0.5em;
+    border-radius: 0;
     border-color: #000;
     border-style: solid;
     border-width: 1px;
@@ -138,10 +137,10 @@ textarea {
     text-shadow: -2px -2px #FFF, -2px -1px #FFF, -2px 0 #FFF, -2px 1px #FFF, -2px 2px #FFF, -1px -2px #FFF, -1px -1px #FFF, -1px 0 #FFF, -1px 1px #FFF, -1px 2px #FFF, 0 -2px #FFF, 0 -1px #FFF, 0 0 #FFF, 0 1px #FFF, 0 2px #FFF, 1px -2px #FFF, 1px -1px #FFF, 1px 0 #FFF, 1px 1px #FFF, 1px 2px #FFF, 2px -2px #FFF, 2px -1px #FFF, 2px 0 #FFF, 2px 1px #FFF, 2px 2px #FFF;
     display: inline-block;
     position: relative;
-    width: 150px;
+    width: 6em;
     font-size: 1.5rem;
-    padding: 10px;
-    border-radius: 3px;
+    padding: 0.5em;
+    border-radius: 0;
     border-color: #000;
     border-style: solid;
     border-width: 1px;
@@ -154,8 +153,8 @@ textarea {
 .div_button_operator:hover {
     outline-color: #00AAFF;
     outline-style: solid;
-    outline-width: 3px;
-    outline-offset: -3px;
+    outline-width: 0.2em;
+    outline-offset: -0.2em;
 }
 
 .div_button_operator_star_6 {
