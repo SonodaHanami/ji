@@ -1,5 +1,4 @@
-
-const VERSION = '2.11';
+const VERSION = '2.11c';
 
 const question_mark = '？';
 const window_length = 10;
@@ -273,7 +272,7 @@ function load_settings() {
 
 function init_version() {
     document.getElementById('span_version').innerHTML = VERSION;
-    console.log(`肉鸽开局生成器 ${VERSION} 启动！`)
+    console.log(`肉鸽开局生成器 ${VERSION} 启动！`);
 }
 
 function init_all_operators() {

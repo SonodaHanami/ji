@@ -2,8 +2,6 @@
 <head>
     <meta charset="utf-8" />
     <title>肉鸽开局生成器</title>
-    <link type="text/css" rel="stylesheet" href="css/common.css">
-    </style>
     <!-- <link rel="icon" href="./favicon.ico"> -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-QGM58QCD7C"></script>
     <script>
@@ -13,7 +11,6 @@
         gtag('config', 'G-QGM58QCD7C');
     </script>
     <script src="https://cdn.bootcss.com/blueimp-md5/2.12.0/js/md5.min.js"></script>
-    <script src="js/kaiju.js"></script>
 </head>
 
 <body>
@@ -168,8 +165,8 @@
             <td id="td_notice">
                 <h2>肉鸽开局生成器2.0：新增卡组模式</h2>
                 <p>本次更新变动较大，建议 <a class="elm_outline" href="https://www.bilibili.com/video/BV1Ju4y1p79G/" target="_blank">观看PV</a> 并阅读文档后使用</p>
-                <h2>肉鸽开局生成器2.11b：</h2>
-                <p>必须优先选择的干员仅来自box而不在卡组中时，将其临时加入剧本卡组</p>
+                <h2>肉鸽开局生成器2.11c：</h2>
+                <p>添加时间戳，禁用浏览器缓存</p>
             </td>
             <td id="td_notice_button">
                 <div class="div_notice_button" onclick="handle_notice(1);">好的</div>
@@ -205,6 +202,11 @@
     </table>
     <textarea id="textarea_bp">用于点击复制</textarea>
 
+    <script>
+        let current_timestamp = new Date().getTime();
+        document.write(`<link type="text/css" rel="stylesheet" href="css/common.css?timestamp=${current_timestamp}">`);
+        document.write(`<script type="text/javascript" src="js/kaiju.js?timestamp=${current_timestamp}"><\/script>`);
+    </script>
     <script>
         // 页面加载完成时执行
         init_version();
