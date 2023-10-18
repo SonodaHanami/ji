@@ -411,7 +411,7 @@ function draw_in_drama(code_name) {
     }
     let opr = get_operator_by_code_name(code_name);
     document.getElementById('div_draw').innerHTML += `
-        <div class="div_button_operator div_button_operator_star_${opr.star} div_button_operator_${opr.job}" style="cursor: auto";>
+        <div class="div_button_operator div_button_operator_star_${opr.star}" style="cursor: auto";>
             <div class="div_button_operator_${opr.job}">${opr.job.slice(0, 1)}</div>
             ${opr.code_name}
         </div>
@@ -523,14 +523,14 @@ function get_drama_basic(level=1) {
         }
     }
 
-    let drama_level, replys = [], reply_picks = [];
+    let drama_level, reply_main = [], reply_picks = [];
     let operators_to_get = update_current_operators();
     if (operators_to_get.length > 0) {
-        replys.push(`<span class="elm_bg_orange" onclick="document.getElementById('span_to_get').style.display = '';" style="cursor: pointer;">${operators_to_get.length}位干员</span><span id="span_to_get" style="display: none;">（${operators_to_get.join('、')}）</span>不在box中`);
+        reply_main.push(`<span class="elm_bg_orange" onclick="document.getElementById('span_to_get').style.display = '';" style="cursor: pointer;">${operators_to_get.length}位干员</span><span id="span_to_get" style="display: none;">（${operators_to_get.join('、')}）</span>不在box中`);
     }
     if (document.getElementById('support_unit_enabled').checked) {
         update_current_operators(true);
-        replys.push('允许使用不在box中的干员开局（招募助战）');
+        reply_main.push('允许使用不在box中的干员开局（招募助战）');
     }
     let user_id = document.getElementById('user_id').value;
     let now = (new Date).toLocaleDateString("zh-CN");
@@ -550,7 +550,7 @@ function get_drama_basic(level=1) {
     let opening_group;
     if (document.getElementById('job_group_only').checked) {
         opening_group = GROUPS_JOBS[hash_int % GROUPS_JOBS.length];
-        replys.push('仅使用职业分队开局');
+        reply_main.push('仅使用职业分队开局');
     }
     else {
         if (opening_is == '傀影与猩红孤钻') {
@@ -580,10 +580,10 @@ function get_drama_basic(level=1) {
         drama_operators_star_6 = current_operators_6_list.slice();
     }
     let opening_operator = drama_operators_star_6[hash_int % drama_operators_star_6.length];
-    if (replys.length > 0) {
-        replys = [`<p>${replys.join('，')}</p>`];
+    if (reply_main.length > 0) {
+        reply_main = [`<p>${reply_main.join('，')}</p>`];
     }
-    replys.push(`<p>我掐指一算，今天 ${user_id} 适合在 ${opening_is} 用 ${opening_group} ${opening_operator} 开局</p>`);
+    reply_main.push(`<p>我掐指一算，今天 ${user_id} 适合在 ${opening_is} 用 ${opening_group} ${opening_operator} 开局</p>`);
 
     update_current_operators();
     let picks = {
@@ -665,7 +665,7 @@ function get_drama_basic(level=1) {
             }
         }
     }
-    replys.push(`<p>将以下 ${banned_operators.length} 位干员从本局游戏中移除：<span id="span_bans" onclick="handle_click_copy('span_bans');">${banned_operators.join('、')}</span> <span id="span_bans_copied" style="display: none;">已复制到剪贴板</span></p>`);
+    reply_main.push(`<p>将以下 ${banned_operators.length} 位干员从本局游戏中移除：<span id="span_bans" onclick="handle_click_copy('span_bans');">${banned_operators.join('、')}</span> <span id="span_bans_copied" style="display: none;">已复制到剪贴板</span></p>`);
     // 处理禁用后box中某一职业没有六星的情况
     check_drama_box();
     // 选择
@@ -704,7 +704,7 @@ function get_drama_basic(level=1) {
     document.getElementById('tr_drama_button_1').style.display = 'none';
     document.getElementById('tr_drama_button_2').style.display = 'none';
     document.getElementById('tr_drama_result').style.display = '';
-    document.getElementById('td_drama').innerHTML = `${replys.join('')}${picks_oneline}<p>${reply_picks.join('<br>')}</p>`;
+    document.getElementById('td_drama').innerHTML = `${reply_main.join('')}${picks_oneline}<p>${reply_picks.join('<br>')}</p>`;
 }
 
 function get_drama_deck(drama_level) {
@@ -728,7 +728,7 @@ function get_drama_deck(drama_level) {
         document.getElementById('td_drama').innerHTML = drama_text;
     }
 
-    let replys = [], reply_picks = [];
+    let reply_main = [], reply_deck = [], reply_picks = [];
     let operators_to_get = update_current_operators();
     update_current_deck();
     let drama_deck_list = current_deck.slice();
@@ -820,9 +820,8 @@ function get_drama_deck(drama_level) {
         }
     }
     let drama_operators_star_6_set = new Set(drama_operators_star_6);
-    replys.push(`<hr><p>当前卡组大小为${drama_deck_list.length}，包含${Array.from(drama_box_set).length}位不同的干员，其中有${Array.from(drama_operators_star_6_set).length}位不同的六星干员${opening_job_group_only_text}</p>`);
-    replys.push(`<div style="font-size: 0;"><h2 style="font-size: 2rem;">当前卡组</h2>${temp_deck}</div><hr><div id="div_draw" style="font-size: 0;"><h2 style="font-size: 2rem;">已抽出</h2></div><hr>`);
-    replys.push(opening_result);
+    reply_deck.push(`<hr><p>当前卡组大小为${drama_deck_list.length}，包含${Array.from(drama_box_set).length}位不同的干员，其中有${Array.from(drama_operators_star_6_set).length}位不同的六星干员${opening_job_group_only_text}</p>`);
+    reply_main.push(opening_result);
 
     let picks_by_job = {
         '先锋': [],
@@ -888,7 +887,7 @@ function get_drama_deck(drama_level) {
         }
     }
 
-    replys.push(`
+    reply_main.push(`
         <p>
             · 本局游戏中，对于各个职业，招募到本职业的所有必须优先选择的六星干员之前，不能招募（普通招募或临时招募）本职业的其他六星干员<br>
             · 本局游戏中，招募（普通招募或临时招募）三星及以上的非预备干员时仅能选择卡组中的干员<br>
@@ -896,11 +895,11 @@ function get_drama_deck(drama_level) {
             ※但是特别地，可以临时招募Sharp、Stormeye、Pith、Touch和郁金香<br>
         </p>
     `);
-    replys.push(`<p>不符合以上规则招募到的干员从本局游戏中移除</p>`);
+    reply_main.push(`<p>不符合以上规则招募到的干员从本局游戏中移除</p>`);
         // 本局游戏中临时招募干员时可以选择卡组外的干员
-    // replys.push(`<p>本局游戏中招募所有对应职业的必须优先选择的六星干员之前，可以临时招募其他六星干员，但是招募所有对应职业的必须优先选择的六星干员之后，对应的临时招募六星干员才能进入编队</p>`);
+    // reply_main.push(`<p>本局游戏中招募所有对应职业的必须优先选择的六星干员之前，可以临时招募其他六星干员，但是招募所有对应职业的必须优先选择的六星干员之后，对应的临时招募六星干员才能进入编队</p>`);
     if (banned_operators.length > 0) {
-        replys.push(`<p>将以下 ${banned_operators.length} 位干员从本局游戏中移除：<span id="span_bans" onclick="handle_click_copy('span_bans');">${banned_operators.join('、')}</span> <span id="span_bans_copied" style="display: none;">已复制到剪贴板</span></p>`);
+        reply_main.push(`<p>将以下 ${banned_operators.length} 位干员从本局游戏中移除：<span id="span_bans" onclick="handle_click_copy('span_bans');">${banned_operators.join('、')}</span> <span id="span_bans_copied" style="display: none;">已复制到剪贴板</span></p>`);
     }
     // 处理禁用后box中某一职业没有六星的情况
     check_drama_box_by_job();
@@ -931,11 +930,20 @@ function get_drama_deck(drama_level) {
         }
         let picked_job_id = hash_int % not_picked_jobs.length;
         let picked_job = not_picked_jobs[picked_job_id];
-        picked_operator = drama_box_by_job[picked_job][hash_int % drama_box_by_job[picked_job].length];
+        let picked_operator = drama_box_by_job[picked_job][hash_int % drama_box_by_job[picked_job].length];
+        let picked_opr = get_operator_by_code_name(picked_operator);
         picks_by_job[picked_job].push(picked_operator);
         picks_count_by_job[picked_job] += 1;
+        // 不在卡组中时，临时加入卡组
+        if (!(current_deck.includes(picked_operator))) {
+            temp_deck += `
+                <div class="div_button_operator div_button_operator_star_${picked_opr.star}_temp div_deck_in_drama_${picked_opr.code_name}" onclick="draw_in_drama('${picked_opr.code_name}')";>
+                    <div class="div_button_operator_${picked_opr.job}">${picked_opr.job.slice(0, 1)}</div>
+                    ${picked_opr.code_name}
+                </div>
+            `
+        }
         // 从卡组中移除所有同名干员
-        let picked_opr = get_operator_by_code_name(picked_operator);
         drama_box_set.delete(picked_operator);
         while (picked_opr.job in drama_box_by_job && drama_box_by_job[picked_opr.job].indexOf(picked_operator) > -1) {
             drama_box_by_job[picked_opr.job].splice(drama_box_by_job[picked_opr.job].indexOf(picked_operator), 1);
@@ -960,9 +968,10 @@ function get_drama_deck(drama_level) {
         }
     }
     // 输出结果
+    reply_deck.push(`<div style="font-size: 0;"><h2 style="font-size: 2rem;">当前卡组</h2>${temp_deck}</div><hr><div id="div_draw" style="font-size: 0;"><h2 style="font-size: 2rem;">已抽出</h2></div><hr>`);
     let picks_oneline = JSON.stringify(picks_by_job).replaceAll('","', '、').replaceAll('"', '').replaceAll('[', '').replaceAll(']', '').replaceAll('{', '').replaceAll('}', '').replaceAll(':', '：').replaceAll(',', ' | ');
     picks_oneline = `<p>各职业六星干员必须优先选择：<span id="span_picks" onclick="handle_click_copy('span_picks');">${picks_oneline}</span> <span id="span_picks_copied" style="display: none;">已复制到剪贴板</span></p>`;
-    output_drama(`${replys.join('')}${picks_oneline}<p>${reply_picks.join('<br>')}</p>`);
+    output_drama(`${reply_deck.join('')}${reply_main.join('')}${picks_oneline}<p>${reply_picks.join('<br>')}</p>`);
     draw_in_drama(opening_operator);
 
     // // 输出结果中仅用于显示的卡组
