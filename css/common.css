@@ -162,7 +162,7 @@ textarea {
 }
 
 .div_button_operator_star_6_temp {
-    background-color: #dd9c9c;
+    background-color: #ff9c9c;
 }
 
 .div_button_operator_star_5 {
@@ -183,7 +183,7 @@ textarea {
     font-size: 0.8em;
     text-shadow: none;
     margin: 0.2em;
-    color: #CCC;
+    color: #cccccc;
     z-index: -1;
 }
 
@@ -197,13 +197,12 @@ textarea {
 }
 
 .div_button_operator_enabled_waiting {
-    /* background-color: #ffaaaa; */
-    background-color: #a1e3b2;
+    background-color: #aaaaaa;
 }
 
 .div_button_operator_disabled {
-    color: #777777;
-    background-color: #999999;
+    color: #333333;
+    background-color: #555555;
 }
 
 .div_button_operator_disabled_useless {
@@ -239,7 +238,7 @@ textarea {
 }
 
 #span_bans {
-    background-color: #eeaaaa;
+    background-color: #bbbbbb;
     cursor: pointer;
     user-select: none;
 }

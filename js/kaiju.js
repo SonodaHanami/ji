@@ -1,4 +1,4 @@
-const VERSION = '2.11c';
+const VERSION = '2.12';
 
 const question_mark = '？';
 const window_length = 10;
@@ -182,6 +182,9 @@ const MAX_DECK_SIZE = 60;
 let current_box_mode = 2;
 let current_operators_6_list, current_operators_6_by_job;
 let current_deck = [];
+let current_temp_deck = [];
+let current_picks_by_job = [];
+let current_banned_operators = [];
 
 function save_settings() {
     if (!window.localStorage) {
@@ -320,7 +323,7 @@ function init_table_box_deck() {
             }
             document.getElementById(`td_deck_operators_${opr.job}`).innerHTML += `
                 <div class="${class_list.join(' ')}" id="deck_${opr.code_name}" onclick="handle_deck('add', '${opr.code_name}', ${opr.star});">
-                    <div class="div_button_operator_${opr.job}">${opr.job.slice(0, 1)}</div>
+                    <div class="div_button_operator_${opr.job}">${opr.job[0]}</div>
                     ${opr.code_name}
                 </div>
             `
@@ -353,7 +356,7 @@ function update_current_deck() {
             class_list = [`div_button_operator`, `div_button_operator_star_${opr.star}`];
             document.getElementById('td_current_deck_all').innerHTML += `
                 <div class="${class_list.join(' ')}" onclick="handle_deck('remove', '${opr.code_name}', ${opr.star});">
-                    <div class="div_button_operator_${opr.job}">${opr.job.slice(0, 1)}</div>
+                    <div class="div_button_operator_${opr.job}">${opr.job[0]}</div>
                     ${opr.code_name}
                 </div>
             `
@@ -410,11 +413,37 @@ function draw_in_drama(code_name) {
     }
     let opr = get_operator_by_code_name(code_name);
     document.getElementById('div_draw').innerHTML += `
-        <div class="div_button_operator div_button_operator_star_${opr.star}" style="cursor: auto";>
-            <div class="div_button_operator_${opr.job}">${opr.job.slice(0, 1)}</div>
+        <div class="div_button_operator div_button_operator_star_${opr.star}" style="cursor: auto;">
+            <div class="div_button_operator_${opr.job}">${opr.job[0]}</div>
             ${opr.code_name}
         </div>
     `
+    if (opr.job in current_picks_by_job && current_picks_by_job[opr.job][0] == opr.code_name) {
+        current_picks_by_job[opr.job].shift();
+        if (current_picks_by_job[opr.job].length == 0) {
+            delete current_picks_by_job[opr.job];
+        }
+    }
+    // 已招募到同职业所有必须优先选择的干员而解除选择限制的干员，改为红色，添加点击事件
+    for (let i = 0; i < current_temp_deck.length; i++) {
+        let opr = get_operator_by_code_name(current_temp_deck[i]);
+        if (opr.star < 6) {
+            continue;
+        }
+        // 判断是否已招募到这位干员同职业所有必须优先选择的干员，且这位干员没有被禁用
+        // 或者这位干员就是该职业最近一位必须优先选择的干员
+        // 如果是，那么可以招募这位干员
+        if (!(current_banned_operators.includes(opr.code_name))) {
+            if ((!(opr.job in current_picks_by_job)) || (opr.job in current_picks_by_job && current_picks_by_job[opr.job][0] == opr.code_name)) {
+                let temp_deck_free_operator = document.getElementsByClassName(`div_deck_in_drama_${opr.code_name}`);
+                for (let j = 0; j < temp_deck_free_operator.length; j++) {
+                    temp_deck_free_operator[j].classList.remove('div_button_operator_enabled_waiting');
+                    temp_deck_free_operator[j].style.cursor = 'pointer';
+                    temp_deck_free_operator[j].onclick = () => {draw_in_drama(opr.code_name)};
+                }
+            }
+        }
+    }
 }
 
 function update_current_operators(full_box=false) {
@@ -800,15 +829,10 @@ function get_drama_deck(drama_level) {
     // 确定开局干员
     let opening_operator = drama_operators_star_6[hash_int % drama_operators_star_6.length];
     let opening_result = `<p>我掐指一算，今天 ${user_id} 适合在 ${opening_is} 用 ${opening_group} ${opening_operator} 开局</p>`;
-    let temp_deck = '';
+    let temp_deck = [];
     for (let i = 0; i < drama_deck_list.length; i++) {
         let opr = get_operator_by_code_name(drama_deck_list[i]);
-        temp_deck += `
-            <div class="div_button_operator div_button_operator_star_${opr.star} div_deck_in_drama_${opr.code_name}" onclick="draw_in_drama('${opr.code_name}')";>
-                <div class="div_button_operator_${opr.job}">${opr.job.slice(0, 1)}</div>
-                ${opr.code_name}
-            </div>
-        `
+        temp_deck.push(drama_deck_list[i]);
     }
     // 干员池重置为卡组中所有六星干员
     drama_operators_star_6 = [];
@@ -855,7 +879,7 @@ function get_drama_deck(drama_level) {
 
     // 开局干员
     let opening_opr = get_operator_by_code_name(opening_operator);
-    picks_by_job[opening_opr.job].push(`${opening_operator}（开局）`)
+    picks_by_job[opening_opr.job].push(`${opening_operator}`)
     picks_count_by_job[opening_opr.job] += 1
     reply_picks.push(`<input type="checkbox" id="operator_pick_0"><label for="operator_pick_0">第 ${picks_count_by_job[opening_opr.job]} 位 六星${opening_opr.job}干员 选择 ${opening_operator}（开局）</label>`);
     // 从卡组中移除所有同名干员
@@ -935,12 +959,9 @@ function get_drama_deck(drama_level) {
         picks_count_by_job[picked_job] += 1;
         // 不在卡组中时，临时加入卡组
         if (!(current_deck.includes(picked_operator))) {
-            temp_deck += `
-                <div class="div_button_operator div_button_operator_star_${picked_opr.star}_temp div_deck_in_drama_${picked_opr.code_name}" onclick="draw_in_drama('${picked_opr.code_name}')";>
-                    <div class="div_button_operator_${picked_opr.job}">${picked_opr.job.slice(0, 1)}</div>
-                    ${picked_opr.code_name}
-                </div>
-            `
+            drama_deck_list.push(picked_operator);
+            drama_operators_star_6_set.add(picked_operator);
+            temp_deck.push(picked_operator);
         }
         // 从卡组中移除所有同名干员
         drama_box_set.delete(picked_operator);
@@ -967,47 +988,65 @@ function get_drama_deck(drama_level) {
         }
     }
     // 输出结果
-    reply_deck.push(`<div style="font-size: 0;"><h2 style="font-size: 2rem;">当前卡组</h2>${temp_deck}</div><hr><div id="div_draw" style="font-size: 0;"><h2 style="font-size: 2rem;">已抽出</h2></div><hr>`);
+    reply_deck.push(`<p>将剧本中不在卡组中的必须优先选择的干员临时加入卡组后，卡组大小为${drama_deck_list.length}，包含${Array.from(new Set(drama_deck_list)).length}位不同的干员，其中有${Array.from(drama_operators_star_6_set).length}位不同的六星干员${opening_job_group_only_text}</p>`);
+    reply_deck.push(`<div style="font-size: 0;"><h2 style="font-size: 2rem;">当前卡组</h2>`);
+    for (let i = 0; i < temp_deck.length; i++) {
+        opr = get_operator_by_code_name(temp_deck[i]);
+        class_list = [`div_button_operator`, `div_deck_in_drama_${opr.code_name}`];
+        if (current_deck.includes(opr.code_name)) {
+            class_list.push(`div_button_operator_star_${opr.star}`);
+        }
+        else{
+            class_list.push(`div_button_operator_star_${opr.star}_temp`);
+        }
+        reply_deck.push(`
+            <div class="${class_list.join(' ')}" onclick="draw_in_drama('${opr.code_name}');">
+                <div class="div_button_operator_${opr.job}">${opr.job[0]}</div>
+                ${opr.code_name}
+            </div>
+        `);
+    }
+    reply_deck.push(`</div><hr><div id="div_draw" style="font-size: 0;"><h2 style="font-size: 2rem;">已抽出</h2></div><hr>`);
     let picks_oneline = JSON.stringify(picks_by_job).replaceAll('","', '、').replaceAll('"', '').replaceAll('[', '').replaceAll(']', '').replaceAll('{', '').replaceAll('}', '').replaceAll(':', '：').replaceAll(',', ' | ');
     picks_oneline = `<p>各职业六星干员必须优先选择：<span id="span_picks" onclick="handle_click_copy('span_picks');">${picks_oneline}</span> <span id="span_picks_copied" style="display: none;">已复制到剪贴板</span></p>`;
     output_drama(`${reply_deck.join('')}${reply_main.join('')}${picks_oneline}<p>${reply_picks.join('<br>')}</p>`);
-    draw_in_drama(opening_operator);
 
-    // // 输出结果中仅用于显示的卡组
-    // // 开局 - 蓝色
-    // for (let i = 0; i < 1; i++) {
-    //     let temp_deck_opening_operator = document.getElementsByClassName(`div_deck_in_drama_${opening_operator}`);
-    //     for (let j = 0; j < temp_deck_opening_operator.length; j++) {
-    //         temp_deck_opening_operator[j].classList.add('div_button_operator_opening');
-    //     }
-    // }
-    // // 优先选择 - 默认红色
-    // // 禁用 - 删除线
-    // for (let i = 0; i < banned_operators.length; i++) {
-    //     let banned_operator = banned_operators[i]
-    //     let temp_deck_banned_operator = document.getElementsByClassName(`div_deck_in_drama_${banned_operator}`);
-    //     for (let j = 0; j < temp_deck_banned_operator.length; j++) {
-    //         temp_deck_banned_operator[j].classList.add('div_button_operator_disabled');
-    //         temp_deck_banned_operator[j].classList.add('elm_delete_line');
-    //     }
-    // }
-    // // 其他正在等待 - 淡红色
-    // for (let i = 0; i < current_deck.length; i++){
-    //     let opr = get_operator_by_code_name(current_deck[i]);
-    //     if (opr.star < 6) continue;
-    //     waiting = true;
-    //     for (let jid = 0; jid < JOBS.length; jid++) {
-    //         if (picks_by_job[JOBS[jid]].includes(opr.code_name)) {
-    //             waiting = false;
-    //         }
-    //     }
-    //     if (waiting && opr.code_name != opening_operator && !(banned_operators.includes(opr.code_name))) {
-    //         let temp_deck_waiting_operator = document.getElementsByClassName(`div_deck_in_drama_${opr.code_name}`);
-    //         for (let j = 0; j < temp_deck_waiting_operator.length; j++) {
-    //             temp_deck_waiting_operator[j].classList.add('div_button_operator_enabled_waiting');
-    //         }
-    //     }
-    // }
+    // 当前临时卡组，剧本生成后用于在游戏中抽出招募到的干员
+    current_temp_deck = temp_deck.slice();
+    current_picks_by_job = JSON.parse(JSON.stringify(picks_by_job));
+    current_banned_operators = banned_operators.slice();
+    // 直接抽出开局干员
+    draw_in_drama(opening_operator);
+    // 各职业最近一位必须优先选择的干员无需修改，保持默认红色
+    // 禁用干员，改为灰色加删除线，移除点击事件
+    for (let i = 0; i < current_banned_operators.length; i++) {
+        let banned_operator = current_banned_operators[i];
+        let temp_deck_banned_operator = document.getElementsByClassName(`div_deck_in_drama_${banned_operator}`);
+        for (let j = 0; j < temp_deck_banned_operator.length; j++) {
+            temp_deck_banned_operator[j].classList.add('div_button_operator_disabled');
+            temp_deck_banned_operator[j].classList.add('elm_delete_line');
+            temp_deck_banned_operator[j].style.cursor = 'auto';
+            temp_deck_banned_operator[j].removeAttribute('onclick');
+        }
+    }
+    // 未招募到同职业所有必须优先选择的干员而正在排队等待的干员，改为淡红色，移除点击事件
+    for (let i = 0; i < current_temp_deck.length; i++) {
+        let opr = get_operator_by_code_name(current_temp_deck[i]);
+        if (opr.star < 6) {
+            continue;
+        }
+        // 判断这位干员是否满足条件：同职业仍有必须优先选择的干员未招募，且是该职业最近一位必须优先选择的干员
+        // 如果不是，那么这位干员可能正在排队等待或已经被禁用
+        let is_waiting = (opr.job in current_picks_by_job && current_picks_by_job[opr.job][0] != opr.code_name);
+        if (is_waiting && opr.code_name != opening_operator && !(current_banned_operators.includes(opr.code_name))) {
+            let temp_deck_waiting_operator = document.getElementsByClassName(`div_deck_in_drama_${opr.code_name}`);
+            for (let j = 0; j < temp_deck_waiting_operator.length; j++) {
+                temp_deck_waiting_operator[j].classList.add('div_button_operator_enabled_waiting');
+                temp_deck_waiting_operator[j].style.cursor = 'auto';
+                temp_deck_waiting_operator[j].removeAttribute('onclick');
+            }
+        }
+    }
 }
 
 function handle_text_animation(element, full_text) {
