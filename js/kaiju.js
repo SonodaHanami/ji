@@ -1,4 +1,4 @@
-const VERSION = '2.12';
+const VERSION = '2.12b';
 
 const question_mark = '？';
 const window_length = 10;
@@ -407,21 +407,27 @@ function handle_full_deck(deck=[]) {
 
 function draw_in_drama(code_name) {
     // Draw!
+    let draw_opr = get_operator_by_code_name(code_name);
+    // 从剧本临时卡组移动到已抽出区域
     let draw_opr_from_deck = document.getElementsByClassName(`div_deck_in_drama_${code_name}`);
     for (let j = 0; j < draw_opr_from_deck.length; j++) {
         draw_opr_from_deck[j].style.display = 'none';
     }
-    let opr = get_operator_by_code_name(code_name);
     document.getElementById('div_draw').innerHTML += `
-        <div class="div_button_operator div_button_operator_star_${opr.star}" style="cursor: auto;">
-            <div class="div_button_operator_${opr.job}">${opr.job[0]}</div>
-            ${opr.code_name}
+        <div class="div_button_operator div_button_operator_star_${draw_opr.star}" style="cursor: auto;">
+            <div class="div_button_operator_${draw_opr.job}">${draw_opr.job[0]}</div>
+            ${draw_opr.code_name}
         </div>
     `
-    if (opr.job in current_picks_by_job && current_picks_by_job[opr.job][0] == opr.code_name) {
-        current_picks_by_job[opr.job].shift();
-        if (current_picks_by_job[opr.job].length == 0) {
-            delete current_picks_by_job[opr.job];
+    // 勾选选择框
+    if (document.getElementById(`checkbox_${draw_opr.code_name}`) != null) {
+        document.getElementById(`checkbox_${draw_opr.code_name}`).checked = true;
+    }
+    // 从必须优先选择的干员列表中移除
+    if (draw_opr.job in current_picks_by_job && current_picks_by_job[draw_opr.job][0] == draw_opr.code_name) {
+        current_picks_by_job[draw_opr.job].shift();
+        if (current_picks_by_job[draw_opr.job].length == 0) {
+            delete current_picks_by_job[draw_opr.job];
         }
     }
     // 已招募到同职业所有必须优先选择的干员而解除选择限制的干员，改为红色，添加点击事件
@@ -660,7 +666,7 @@ function get_drama_basic(level=1) {
         if (OPERATORS_STAR_6_BY_JOB[job].includes(opening_operator)) {
             picks[job].push(`${opening_operator}（开局）`)
             picks_count[job] += 1
-            reply_picks.push(`<input type="checkbox" id="operator_pick_-1"><label for="operator_pick_-1">第 ${picks_count[job]} 位 六星${job}干员 选择 ${opening_operator}（开局）</label>`);
+            reply_picks.push(`<input type="checkbox" id="checkbox_${opening_operator}"><label for="checkbox_${opening_operator}">第 ${picks_count[job]} 位 六星${job}干员 选择 ${opening_operator}（开局）</label>`);
             if (job in drama_box && drama_box[job].indexOf(opening_operator) > -1) {
                 drama_box[job].splice(drama_box[job].indexOf(opening_operator), 1);
             }
@@ -697,7 +703,7 @@ function get_drama_basic(level=1) {
     // 处理禁用后box中某一职业没有六星的情况
     check_drama_box();
     // 选择
-    for (let i = 0; i < drama_level && Object.keys(drama_box).length > 0; i++) {
+    for (let i = 1; i <= drama_level && Object.keys(drama_box).length > 0; i++) {
         let not_picked_jobs = [];
         for (let p in picks_count) {
             if (picks_count[p] < Math.max(...Object.values(picks_count))) {
@@ -712,7 +718,7 @@ function get_drama_basic(level=1) {
         operator = drama_box[job].splice(hash_int % drama_box[job].length, 1)[0]
         picks[job].push(operator);
         picks_count[job] += 1;
-        reply_picks.push(`<input type="checkbox" id="operator_pick_${i}"><label for="operator_pick_${i}">第 ${picks_count[job]} 位 六星${job}干员 选择 ${operator}</label>`);
+        reply_picks.push(`<input type="checkbox" id="checkbox_${operator}"><label for="checkbox_${operator}">第 ${picks_count[job]} 位 六星${job}干员 选择 ${operator}</label>`);
         if (drama_box[job].length == 0) {
             delete drama_box[job];
             delete picks_count[job];
@@ -881,7 +887,7 @@ function get_drama_deck(drama_level) {
     let opening_opr = get_operator_by_code_name(opening_operator);
     picks_by_job[opening_opr.job].push(`${opening_operator}`)
     picks_count_by_job[opening_opr.job] += 1
-    reply_picks.push(`<input type="checkbox" id="operator_pick_0"><label for="operator_pick_0">第 ${picks_count_by_job[opening_opr.job]} 位 六星${opening_opr.job}干员 选择 ${opening_operator}（开局）</label>`);
+    reply_picks.push(`<input type="checkbox" id="checkbox_${opening_operator}"><label for="checkbox_${opening_operator}">第 ${picks_count_by_job[opening_opr.job]} 位 六星${opening_opr.job}干员 选择 ${opening_operator}（开局）</label>`);
     // 从卡组中移除所有同名干员
     drama_box_set.delete(opening_operator);
     while (opening_opr.job in drama_box_by_job && drama_box_by_job[opening_opr.job].indexOf(opening_operator) > -1) {
@@ -971,7 +977,7 @@ function get_drama_deck(drama_level) {
         while (drama_operators_star_6.includes(picked_operator)) {
             drama_operators_star_6.splice(drama_operators_star_6.indexOf(picked_operator), 1);
         }
-        reply_picks.push(`<input type="checkbox" id="operator_pick_${i}"><label for="operator_pick_${i}">第 ${picks_count_by_job[picked_job]} 位 六星${picked_job}干员 选择 ${picked_operator}</label>`);
+        reply_picks.push(`<input type="checkbox" id="checkbox_${picked_operator}"><label for="checkbox_${picked_operator}">第 ${picks_count_by_job[picked_job]} 位 六星${picked_job}干员 选择 ${picked_operator}</label>`);
         // 处理选择后box中某一职业没有六星的情况
         check_drama_box_by_job();
     }
@@ -1006,10 +1012,10 @@ function get_drama_deck(drama_level) {
             </div>
         `);
     }
-    reply_deck.push(`</div><hr><div id="div_draw" style="font-size: 0;"><h2 style="font-size: 2rem;">已抽出</h2></div><hr>`);
+    reply_deck.push(`</div><hr><div id="div_draw" style="font-size: 0;"><h2 style="font-size: 2rem;">已抽出</h2></div>`);
     let picks_oneline = JSON.stringify(picks_by_job).replaceAll('","', '、').replaceAll('"', '').replaceAll('[', '').replaceAll(']', '').replaceAll('{', '').replaceAll('}', '').replaceAll(':', '：').replaceAll(',', ' | ');
     picks_oneline = `<p>各职业六星干员必须优先选择：<span id="span_picks" onclick="handle_click_copy('span_picks');">${picks_oneline}</span> <span id="span_picks_copied" style="display: none;">已复制到剪贴板</span></p>`;
-    output_drama(`${reply_deck.join('')}${reply_main.join('')}${picks_oneline}<p>${reply_picks.join('<br>')}</p>`);
+    output_drama(`${reply_main.join('')}${picks_oneline}<p>${reply_picks.join('<br>')}${reply_deck.join('')}</p>`);
 
     // 当前临时卡组，剧本生成后用于在游戏中抽出招募到的干员
     current_temp_deck = temp_deck.slice();
