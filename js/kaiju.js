@@ -331,6 +331,14 @@ function init_table_box_deck() {
     }
 }
 
+function update_current_datetime() {
+    let now = new Date();
+    let new_datetime = `${now.toLocaleDateString("zh-CN")} ${now.toLocaleTimeString("zh-CN").slice(0, 5)}`;
+    if (document.getElementById('div_current_datetime').innerHTML != new_datetime) {
+        document.getElementById('div_current_datetime').innerHTML = new_datetime;
+    }
+}
+
 function update_current_deck() {
     console.time('update_current_deck');
     update_current_operators();
@@ -1085,7 +1093,7 @@ function handle_input_keypress(event) {
 
 function handle_click_copy(target) {
     console.log('点击复制');
-    let input = document.getElementById('textarea_bp');
+    let input = document.getElementById('textarea_copy');
     let text = document.getElementById(target).innerText;
     input.value = text; // 修改文本框的内容
     input.select(); // 选中文本
@@ -1111,14 +1119,17 @@ function handle_notice(code) {
 function handle_button_settings() {
     if (document.getElementById('table_settings').style.display == 'none') {
         document.getElementById('table_settings').style.display = '';
-        document.getElementById('div_button_settings_main').innerHTML = "收起设置";
+        // document.getElementById('div_button_settings_main').innerHTML = "收起设置";
+        document.getElementById('div_button_settings_main').style.backgroundColor = '#cdcdcd';
         // 文档
         document.getElementById('tr_document').style.display = 'none';
-        document.getElementById('div_button_document').innerHTML = '文档';
+        // document.getElementById('div_button_document').innerHTML = '文档';
+        document.getElementById('div_button_document').style.removeProperty('background-color');
     }
     else {
         document.getElementById('table_settings').style.display = 'none';
-        document.getElementById('div_button_settings_main').innerHTML = '设置';
+        // document.getElementById('div_button_settings_main').innerHTML = '设置';
+        document.getElementById('div_button_settings_main').style.removeProperty('background-color');
         document.getElementById('table_box_basic').style.display = 'none';
         document.getElementById('table_box_deck').style.display = 'none';
         document.getElementById('div_button_settings_box').innerHTML = '展开box';
@@ -1126,19 +1137,33 @@ function handle_button_settings() {
 }
 
 function handle_button_document() {
+    // 首次点击时加载文档
+    if (document.getElementById('td_document').innerHTML == '') {
+        fetch("document_kaiju.html")
+            .then(response => response.text())
+            .then(doc => {
+                document.getElementById('td_document').innerHTML = doc;
+            })
+            .catch(err => {
+                console.error(err);
+            });
+    }
     if (document.getElementById('tr_document').style.display == 'none') {
         document.getElementById('tr_document').style.display = '';
-        document.getElementById('div_button_document').innerHTML = "收起文档";
+        // document.getElementById('div_button_document').innerHTML = "收起文档";
+        document.getElementById('div_button_document').style.backgroundColor = '#d5e4f3';
         // 设置
         document.getElementById('table_settings').style.display = 'none';
-        document.getElementById('div_button_settings_main').innerHTML = '设置';
+        // document.getElementById('div_button_settings_main').innerHTML = '设置';
+        document.getElementById('div_button_settings_main').style.removeProperty('background-color');
         document.getElementById('table_box_basic').style.display = 'none';
         document.getElementById('table_box_deck').style.display = 'none';
         document.getElementById('div_button_settings_box').innerHTML = '展开box';
     }
     else {
         document.getElementById('tr_document').style.display = 'none';
-        document.getElementById('div_button_document').innerHTML = '文档';
+        // document.getElementById('div_button_document').innerHTML = '文档';
+        document.getElementById('div_button_document').style.removeProperty('background-color');
     }
 }
 

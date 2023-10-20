@@ -22,7 +22,7 @@ table {
 }
 
 .table_text tr {
-    height: 5em;
+    height: 3em;
 }
 
 .table_text th {
@@ -36,8 +36,27 @@ table {
     padding: 0.5em;
 }
 
+#table_navbar {
+    table-layout: auto;
+}
+
+#table_navbar td {
+    width: 1em;
+    height: 2em;
+    padding: 0;
+}
+
+#table_navbar td div{
+    border: 0 solid #000;
+    background-color: #00000000;
+}
+
+#table_navbar .div_button:hover{
+    background-color: #00AAFF;
+}
+
 #table_settings {
-    background-color: #f7f7f7;
+    background-color: #cdcdcd;
 }
 
 .tr_border_bottom {
@@ -59,7 +78,7 @@ textarea {
     resize: none;
 }
 
-#textarea_bp {
+#textarea_copy {
     position: absolute;
     top: 0;
     left: 0;
