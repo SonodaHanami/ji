@@ -20,16 +20,21 @@
                 <div class="div_button" id="div_button_settings_main" onclick="handle_button_settings();">⚙</div>
             </td>
             <td>
-                <div class="div_button" id="div_button_document" onclick="handle_button_document();">⚠</div>
+                <div class="div_red_spot" id="div_red_spot_update_log"></div>
+                <div class="div_button" id="div_button_update_log" onclick="handle_button_update_log();">⚠</div>
             </td>
             <td>
-                <div class="div_button" onclick="location.reload();">✉</div>
+                <div class="div_red_spot" id="div_red_spot_mail"></div>
+                <div class="div_button" id="div_button_mail" onclick="handle_button_mail();">✉</div>
+            </td>
+            <td>
+                <div class="div_button" id="div_button_document" onclick="handle_button_document();">❔</div>
             </td>
             <td>
                 <div class="div_button" onclick="location.reload();" style="display:none;">📅</div>
             </td>
-            <td style="width: auto;">　</td>
-            <td style="width: 10em; text-align: right;">
+            <td style="width: auto;">&nbsp;</td>
+            <td style="width: 10em; text-align: right; padding-right: 1em;">
                 <div id="div_current_datetime"></div>
             </td>
             <td>

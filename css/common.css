@@ -38,21 +38,40 @@ table {
 
 #table_navbar {
     table-layout: auto;
+    border: 0;
 }
 
 #table_navbar td {
+    position: relative;
     width: 1em;
     height: 2em;
     padding: 0;
 }
 
 #table_navbar td div{
-    border: 0 solid #000;
     background-color: #00000000;
+    border: 0 solid #000;
+}
+
+#table_navbar .div_button {
+    font-size: 2em;
 }
 
 #table_navbar .div_button:hover{
     background-color: #00AAFF;
+}
+
+#table_navbar .div_red_spot {
+    position: absolute;
+    top: 0.75em;
+    right: 0.25em;
+    width: 1em;
+    height: 1em;
+    font-size: 0.8em;
+    text-shadow: none;
+    margin: 0.2em;
+    background-color: #ff3d3d;
+    border-radius: 1em;
 }
 
 #table_settings {
@@ -117,8 +136,9 @@ textarea {
     text-align: right;
 }
 
-#tr_document {
+#table_document {
     background-color: #d5e4f3;
+    border: 0;
 }
 
 #tr_document p {
