@@ -1,14 +1,51 @@
 @charset "utf-8";
 
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
 body {
     padding-left: 0.5em;
     padding-right: 0.5em;
     text-align: center;
+    overflow: auto;
 }
 
 a:link, a:visited {
     color: #ffce77;
     text-decoration: none;
+}
+
+*::-webkit-scrollbar {
+    display: block;
+    width: 16px;
+}
+
+*::-webkit-scrollbar-button {
+    display: none;
+}
+
+*::-webkit-scrollbar-track {
+    background-color: #00000000;
+}
+
+*::-webkit-scrollbar-track-piece {
+    background-color: #00000000;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: #00000000;
+    border: 5px solid transparent;
+    /* border-radius: 24px; */
+    box-shadow: 4px 0px 0px 4px #00000040 inset;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: #00000040;
+    border: 0px solid transparent;
+    box-shadow: none;
 }
 
 table {
@@ -27,18 +64,111 @@ table {
 
 .table_text th {
     font-size: 2em;
-    padding: 0.5em;
+    padding: 0.5em 1em;
 }
 
 .table_text td {
-    height: 5em;
+    height: 3em;
     font-size: 1.5em;
     padding: 0.5em;
+}
+
+#div_overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1002;
+    background-color: #00000066;
+    backdrop-filter: blur(6px);
+
+    #div_overlay_container {
+        height: 100%;
+        /* margin-top: 7rem; */
+        padding-left: 2em;
+        padding-right: 2em;
+        color: #000000;
+        background-color: #dddd;
+        font-size: 1.5em;
+        text-align: left;
+        /* overflow-x: auto; */
+        /* overflow-y: scroll; */
+        display: flex;
+        flex-flow: column;
+    }
+}
+
+#div_overlay_header {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+}
+
+#table_overlay_header {
+    table-layout: auto;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    flex: 0 1 auto;
+}
+
+#td_overlay_header_back {
+    width: 8em;
+    padding: 1em 1.5em 1em 1.5em;
+}
+
+#div_overlay_header_back {
+    padding: 0.5em;
+    color: #000000;
+    background-color: #FFFFFF;
+}
+
+#th_overlay_header_title {
+    width: 8em;
+    padding: 0.5em 1em;
+    font-size: 2em;
+    color: #000000;
+    background-color: #FFFFFF;
+}
+
+#span_overlay_header_title {
+    margin-left: 1em;
+}
+
+#tr_overlay_dividing_line {
+    height: 0.5em;
+}
+
+#td_overlay_dividing_line {
+    font-size: 0;
+    height: 0.5em;
+    background-color: #FFFFFF;
+}
+
+#div_overlay_content {
+    flex: 1 1 auto;
+    margin-top: 6em;
+    overflow-y: scroll;
 }
 
 #table_navbar {
     table-layout: auto;
     border: 0;
+    background-color: #FFFFFF;
+    box-shadow: #00000011 0 2px 4px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1001;
 }
 
 #table_navbar td {
@@ -72,6 +202,11 @@ table {
     margin: 0.2em;
     background-color: #ff3d3d;
     border-radius: 1em;
+}
+
+#div_background {
+    height: 100%;
+    overflow: auto;
 }
 
 #table_settings {
@@ -136,13 +271,11 @@ textarea {
     text-align: right;
 }
 
-#table_document {
-    background-color: #d5e4f3;
-    border: 0;
-}
-
-#tr_document p {
-    text-indent: 2em;
+#table_main {
+    position: absolute;
+    top: 8em;
+    left: 0;
+    z-index: 1000;
 }
 
 .div_notice_button {
@@ -266,6 +399,10 @@ textarea {
 
 .elm_red {
     color: #dd9090;
+}
+
+.elm_indent p {
+    text-indent: 2em;
 }
 
 .elm_delete_line {

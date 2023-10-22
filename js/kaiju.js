@@ -185,6 +185,8 @@ let current_deck = [];
 let current_temp_deck = [];
 let current_picks_by_job = [];
 let current_banned_operators = [];
+let current_overlay_content = '';
+
 
 function save_settings() {
     if (!window.localStorage) {
@@ -273,6 +275,18 @@ function load_settings() {
     }
 }
 
+function load_document() {
+    console.log('load_document()');
+    fetch("kaiju/document.html")
+    .then(response => response.text())
+    .then(doc => {
+        document.getElementById('div_document').innerHTML = doc;
+    })
+    .catch(err => {
+        console.error(err);
+    });
+}
+
 function init_version() {
     document.getElementById('span_version').innerHTML = VERSION;
     console.log(`肉鸽开局生成器 ${VERSION} 启动！`);
@@ -310,7 +324,7 @@ function init_table_box_basic() {
 }
 
 function init_table_box_deck() {
-    document.getElementById('td_current_deck_all').innerHTML = '当前卡组为空';
+    document.getElementById('td_current_deck_all').innerHTML = '<span style="font-size: 2rem">当前卡组为空</span>';
     for (let i = 0; i < JOBS.length; i++) {
         document.getElementById(`td_deck_operators_${JOBS[i]}`).innerHTML = '';
     }
@@ -1103,6 +1117,27 @@ function handle_click_copy(target) {
     console.log('复制成功');
 }
 
+function handle_overlay() {
+    if (document.getElementById('div_overlay').style.display == 'none') {
+        document.getElementById('div_overlay').style.display = '';
+    }
+    else {
+        document.getElementById('div_overlay').style.display = 'none';
+        document.body.style.overflow = 'auto';
+        if (current_overlay_content == 'settings') {
+            document.getElementById('div_settings').innerHTML = document.getElementById('div_overlay_content').innerHTML;
+            document.getElementById('div_overlay_content').innerHTML = '';
+            current_overlay_content = '';
+        }
+        if (current_overlay_content == 'document') {
+            document.getElementById('div_document').innerHTML = document.getElementById('div_overlay_content').innerHTML;
+            document.getElementById('div_overlay_content').classList.remove('elm_indent');
+            document.getElementById('div_overlay_content').innerHTML = '';
+            current_overlay_content = '';
+        }
+    }
+}
+
 function handle_notice(code) {
     let storage = window.localStorage;
     if (code == 1) {
@@ -1117,17 +1152,24 @@ function handle_notice(code) {
 }
 
 function handle_button_settings() {
-    if (document.getElementById('table_settings').style.display == 'none') {
+    if (document.getElementById('div_settings').style.display == 'none') {
         document.getElementById('table_settings').style.display = '';
+        document.getElementById('div_overlay').style.display = '';
+        document.getElementById('div_overlay_content').innerHTML = document.getElementById('div_settings').innerHTML;
+        document.getElementById('div_settings').innerHTML = '';
+        current_overlay_content = 'settings';
+        document.getElementById('span_overlay_header_icon').innerHTML = '⚙';
+        document.getElementById('span_overlay_header_title').innerHTML = '设置';
         // document.getElementById('div_button_settings_main').innerHTML = "收起设置";
-        document.getElementById('div_button_settings_main').style.backgroundColor = '#cdcdcd';
+        // document.getElementById('div_button_settings_main').style.backgroundColor = '#cdcdcd';
+        document.body.style.overflow = 'hidden';
         // 文档
-        document.getElementById('tr_document').style.display = 'none';
+        document.getElementById('div_document').style.display = 'none';
         // document.getElementById('div_button_document').innerHTML = '文档';
         document.getElementById('div_button_document').style.removeProperty('background-color');
     }
     else {
-        document.getElementById('table_settings').style.display = 'none';
+        document.getElementById('div_settings').style.display = 'none';
         // document.getElementById('div_button_settings_main').innerHTML = '设置';
         document.getElementById('div_button_settings_main').style.removeProperty('background-color');
         document.getElementById('table_box_basic').style.display = 'none';
@@ -1137,32 +1179,28 @@ function handle_button_settings() {
 }
 
 function handle_button_document() {
-    // 首次点击时加载文档
-    if (document.getElementById('td_document').innerHTML == '') {
-        fetch("document_kaiju.html")
-            .then(response => response.text())
-            .then(doc => {
-                document.getElementById('td_document').innerHTML = doc;
-            })
-            .catch(err => {
-                console.error(err);
-            });
-    }
-    if (document.getElementById('tr_document').style.display == 'none') {
-        document.getElementById('tr_document').style.display = '';
-        // document.getElementById('div_button_document').innerHTML = "收起文档";
-        document.getElementById('div_button_document').style.backgroundColor = '#d5e4f3';
+    if (document.getElementById('div_document').style.display == 'none') {
+        // document.getElementById('tr_document').style.display = '';
+        document.getElementById('div_overlay').style.display = '';
+        document.getElementById('div_overlay_content').innerHTML = document.getElementById('div_document').innerHTML;
+        document.getElementById('div_overlay_content').classList.add('elm_indent');
+        document.getElementById('div_document').innerHTML = '';
+        current_overlay_content = 'document';
+        document.getElementById('span_overlay_header_icon').innerHTML = '📖';
+        document.getElementById('span_overlay_header_title').innerHTML = '文档';
+        // document.getElementById('div_button_document').style.backgroundColor = '#d5e4f3';
+        // document.getElementById('div_background').style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
         // 设置
         document.getElementById('table_settings').style.display = 'none';
-        // document.getElementById('div_button_settings_main').innerHTML = '设置';
         document.getElementById('div_button_settings_main').style.removeProperty('background-color');
         document.getElementById('table_box_basic').style.display = 'none';
         document.getElementById('table_box_deck').style.display = 'none';
         document.getElementById('div_button_settings_box').innerHTML = '展开box';
     }
     else {
-        document.getElementById('tr_document').style.display = 'none';
-        // document.getElementById('div_button_document').innerHTML = '文档';
+        document.getElementById('div_document').style.display = 'none';
+        document.getElementById('div_overlay').style.display = 'none';
         document.getElementById('div_button_document').style.removeProperty('background-color');
     }
 }
