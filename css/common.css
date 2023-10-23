@@ -13,7 +13,7 @@ body {
     overflow: auto;
 }
 
-a:link, a:visited {
+a, a:link, a:visited {
     color: #ffce77;
     text-decoration: none;
 }
@@ -87,27 +87,15 @@ table {
 
     #div_overlay_container {
         height: 100%;
-        /* margin-top: 7rem; */
         padding-left: 2em;
         padding-right: 2em;
         color: #000000;
         background-color: #dddd;
         font-size: 1.5em;
         text-align: left;
-        /* overflow-x: auto; */
-        /* overflow-y: scroll; */
         display: flex;
         flex-flow: column;
     }
-}
-
-#div_overlay_header {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
 }
 
 #table_overlay_header {
@@ -119,6 +107,7 @@ table {
     right: 0;
     width: 100%;
     flex: 0 1 auto;
+    border-bottom: 0.5em solid #FFFFFF;
 }
 
 #td_overlay_header_back {
@@ -156,7 +145,7 @@ table {
 
 #div_overlay_content {
     flex: 1 1 auto;
-    margin-top: 6em;
+    margin-top: 5em;
     overflow-y: scroll;
 }
 
@@ -198,6 +187,19 @@ table {
     width: 1em;
     height: 1em;
     font-size: 0.8em;
+    text-shadow: none;
+    margin: 0.2em;
+    background-color: #ff3d3d;
+    border-radius: 1em;
+}
+
+#div_version .div_red_spot {
+    position: absolute;
+    top: -0.5em;
+    right: -1em;
+    width: 1em;
+    height: 1em;
+    font-size: 0.4em;
     text-shadow: none;
     margin: 0.2em;
     background-color: #ff3d3d;
@@ -276,6 +278,19 @@ textarea {
     top: 8em;
     left: 0;
     z-index: 1000;
+}
+
+#div_title {
+    font-size: 2em;
+    text-align: center;
+    display: flex;
+    flex-flow: row;
+    justify-content: center;
+}
+
+#div_version {
+    position: relative;
+    margin-left: 0.5em;
 }
 
 .div_notice_button {
@@ -382,6 +397,8 @@ textarea {
 }
 
 .elm_outline {
+    margin-left: 0.2em;
+    margin-right: 0.2em;
     text-shadow: -2px -2px #000, -2px -1px #000, -2px 0 #000, -2px 1px #000, -2px 2px #000, -1px -2px #000, -1px -1px #000, -1px 0 #000, -1px 1px #000, -1px 2px #000, 0 -2px #000, 0 -1px #000, 0 0 #000, 0 1px #000, 0 2px #000, 1px -2px #000, 1px -1px #000, 1px 0 #000, 1px 1px #000, 1px 2px #000, 2px -2px #000, 2px -1px #000, 2px 0 #000, 2px 1px #000, 2px 2px #000;
 }
 

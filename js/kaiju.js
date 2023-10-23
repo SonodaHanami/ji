@@ -2,6 +2,24 @@ const VERSION = '2.12b';
 
 const question_mark = '？';
 const window_length = 10;
+const CONTENTS = {
+    'settings': {
+        'icon': '⚙',
+        'title': '设置',
+    },
+    'update_log': {
+        'icon': '⚠',
+        'title': '更新日志',
+    },
+    'mail': {
+        'icon': '✉',
+        'title': '邮件',
+    },
+    'document': {
+        'icon': '📖',
+        'title': '文档',
+    },
+}
 
 const IS = [
     '傀影与猩红孤钻',
@@ -179,6 +197,9 @@ const DEFAULT_DECK = [
 const MIN_DECK_SIZE = 40;
 const MAX_DECK_SIZE = 60;
 
+let last_checked_version = '';
+let last_checked_mail = '';
+
 let current_box_mode = 2;
 let current_operators_6_list, current_operators_6_by_job;
 let current_deck = [];
@@ -190,10 +211,10 @@ let current_overlay_content = '';
 
 function save_settings() {
     if (!window.localStorage) {
-        console.error("浏览器不支持localStorage");
+        console.error('浏览器不支持localStorage');
     }
     else {
-        console.log("save_settings()");
+        console.log('保存设置');
         let storage = window.localStorage;
         // 选中的集成战略
         let enabled_is = [];
@@ -215,6 +236,8 @@ function save_settings() {
             }
         }
         let data_to_save = {
+            'last_checked_version': last_checked_version,
+            'last_checked_mail': last_checked_mail,
             'box_mode': current_box_mode,
             'enabled_is': enabled_is,
             'job_group_only': document.getElementById('job_group_only').checked,
@@ -232,12 +255,19 @@ function load_settings() {
         console.error("浏览器不支持localStorage");
     }
     else {
-        console.log("load_settings()");
+        console.log('加载已保存的设置');
         if (!('data_ji_kaiju' in window.localStorage)) {
-            console.log("没有找到已保存的设置");
+            console.log('没有找到已保存的设置');
             return false;
         }
         let data = JSON.parse(window.localStorage['data_ji_kaiju']);
+        // 最后确认过的版本号和邮件
+        if ('last_checked_version' in data) {
+            last_checked_version = data['last_checked_version'];
+        }
+        if ('last_checked_mail' in data) {
+            last_checked_mail = data['last_checked_mail'];
+        }
         // 选中的集成战略
         if ('enabled_is' in data) {
             document.getElementById('is_2').checked = data['enabled_is'].includes(2);
@@ -275,16 +305,19 @@ function load_settings() {
     }
 }
 
-function load_document() {
-    console.log('load_document()');
-    fetch("kaiju/document.html")
-    .then(response => response.text())
-    .then(doc => {
-        document.getElementById('div_document').innerHTML = doc;
-    })
-    .catch(err => {
-        console.error(err);
-    });
+function load_contents() {
+    let contents = ['document', 'update_log', 'mail'];
+    for (let i = 0; i < contents.length; i++) {
+        console.log(`加载内容 ${CONTENTS[contents[i]]['title']}`);
+        fetch(`kaiju/${contents[i]}.html`)
+        .then(response => response.text())
+        .then(doc => {
+            document.getElementById(`div_${contents[i]}`).innerHTML = doc;
+        })
+        .catch(err => {
+            console.error(err);
+        });
+    }
 }
 
 function init_version() {
@@ -345,6 +378,26 @@ function init_table_box_deck() {
     }
 }
 
+function handle_red_spot() {
+    if (last_checked_version != VERSION) {
+        console.log('检测到未确认过的新版本');
+        document.getElementById('div_red_spot_version').style.display = '';
+        document.getElementById('div_red_spot_update_log').style.display = '';
+        document.getElementById('div_version').onclick = () => {handle_overlay('update_log');}
+        document.getElementById('div_version').style.cursor = 'pointer';
+    }
+    else {
+        document.getElementById('div_red_spot_version').style.display = 'none';
+        document.getElementById('div_red_spot_update_log').style.display = 'none';
+        document.getElementById('div_version').onclick = null;
+        document.getElementById('div_version').style.cursor = 'auto';
+    }
+}
+
+function update_last_checked_version() {
+    last_checked_version = VERSION;
+}
+
 function update_current_datetime() {
     let now = new Date();
     let new_datetime = `${now.toLocaleDateString("zh-CN")} ${now.toLocaleTimeString("zh-CN").slice(0, 5)}`;
@@ -354,7 +407,7 @@ function update_current_datetime() {
 }
 
 function update_current_deck() {
-    console.time('update_current_deck');
+    console.time('更新当前卡组');
     update_current_operators();
     // 按星级-职业-实装顺序排序
     let new_deck = [];
@@ -392,7 +445,7 @@ function update_current_deck() {
         }
     }
     document.getElementById('td_deck_count').innerHTML = `${current_deck.length}`;
-    console.timeEnd('update_current_deck');
+    console.timeEnd('更新当前卡组');
 }
 
 function get_operator_by_code_name(code_name) {
@@ -466,8 +519,8 @@ function draw_in_drama(code_name) {
                 let temp_deck_free_operator = document.getElementsByClassName(`div_deck_in_drama_${opr.code_name}`);
                 for (let j = 0; j < temp_deck_free_operator.length; j++) {
                     temp_deck_free_operator[j].classList.remove('div_button_operator_enabled_waiting');
-                    temp_deck_free_operator[j].style.cursor = 'pointer';
                     temp_deck_free_operator[j].onclick = () => {draw_in_drama(opr.code_name)};
+                    temp_deck_free_operator[j].style.cursor = 'pointer';
                 }
             }
         }
@@ -1054,7 +1107,8 @@ function get_drama_deck(drama_level) {
             temp_deck_banned_operator[j].classList.add('div_button_operator_disabled');
             temp_deck_banned_operator[j].classList.add('elm_delete_line');
             temp_deck_banned_operator[j].style.cursor = 'auto';
-            temp_deck_banned_operator[j].removeAttribute('onclick');
+            // temp_deck_banned_operator[j].removeAttribute('onclick');
+            temp_deck_banned_operator[j].onclick = null;
         }
     }
     // 未招募到同职业所有必须优先选择的干员而正在排队等待的干员，改为淡红色，移除点击事件
@@ -1071,7 +1125,8 @@ function get_drama_deck(drama_level) {
             for (let j = 0; j < temp_deck_waiting_operator.length; j++) {
                 temp_deck_waiting_operator[j].classList.add('div_button_operator_enabled_waiting');
                 temp_deck_waiting_operator[j].style.cursor = 'auto';
-                temp_deck_waiting_operator[j].removeAttribute('onclick');
+                // temp_deck_waiting_operator[j].removeAttribute('onclick');
+                temp_deck_waiting_operator[j].onclick = null;
             }
         }
     }
@@ -1117,24 +1172,30 @@ function handle_click_copy(target) {
     console.log('复制成功');
 }
 
-function handle_overlay() {
-    if (document.getElementById('div_overlay').style.display == 'none') {
+function handle_overlay(name) {
+    if (name != undefined && document.getElementById('div_overlay').style.display == 'none') {
+        console.log(`打开 ${name}`);
+        current_overlay_content = name;
+        document.body.style.overflow = 'hidden';
         document.getElementById('div_overlay').style.display = '';
+        document.getElementById('div_overlay_content').innerHTML = document.getElementById(`div_${name}`).innerHTML;
+        document.getElementById(`div_${name}`).innerHTML = '';
+        document.getElementById('span_overlay_header_icon').innerHTML = CONTENTS[name]['icon'];
+        document.getElementById('span_overlay_header_title').innerHTML = CONTENTS[name]['title'];
+        if (name == 'update_log') {
+            console.log('已确认最新版本');
+            update_last_checked_version();
+            save_settings();
+        }
     }
     else {
+        console.log(`关闭 ${current_overlay_content}`);
         document.getElementById('div_overlay').style.display = 'none';
+        document.getElementById(`div_${current_overlay_content}`).innerHTML = document.getElementById('div_overlay_content').innerHTML;
+        document.getElementById('div_overlay_content').innerHTML = '';
         document.body.style.overflow = 'auto';
-        if (current_overlay_content == 'settings') {
-            document.getElementById('div_settings').innerHTML = document.getElementById('div_overlay_content').innerHTML;
-            document.getElementById('div_overlay_content').innerHTML = '';
-            current_overlay_content = '';
-        }
-        if (current_overlay_content == 'document') {
-            document.getElementById('div_document').innerHTML = document.getElementById('div_overlay_content').innerHTML;
-            document.getElementById('div_overlay_content').classList.remove('elm_indent');
-            document.getElementById('div_overlay_content').innerHTML = '';
-            current_overlay_content = '';
-        }
+        current_overlay_content = '';
+        handle_red_spot();
     }
 }
 
@@ -1148,60 +1209,6 @@ function handle_notice(code) {
     if (storage['data_ji_kaiju_last_checked_notice'] == document.getElementById('td_notice').innerHTML.trim()) {
         // 一致时隐藏提示
         document.getElementById('tr_notice').style.display = 'none';
-    }
-}
-
-function handle_button_settings() {
-    if (document.getElementById('div_settings').style.display == 'none') {
-        document.getElementById('table_settings').style.display = '';
-        document.getElementById('div_overlay').style.display = '';
-        document.getElementById('div_overlay_content').innerHTML = document.getElementById('div_settings').innerHTML;
-        document.getElementById('div_settings').innerHTML = '';
-        current_overlay_content = 'settings';
-        document.getElementById('span_overlay_header_icon').innerHTML = '⚙';
-        document.getElementById('span_overlay_header_title').innerHTML = '设置';
-        // document.getElementById('div_button_settings_main').innerHTML = "收起设置";
-        // document.getElementById('div_button_settings_main').style.backgroundColor = '#cdcdcd';
-        document.body.style.overflow = 'hidden';
-        // 文档
-        document.getElementById('div_document').style.display = 'none';
-        // document.getElementById('div_button_document').innerHTML = '文档';
-        document.getElementById('div_button_document').style.removeProperty('background-color');
-    }
-    else {
-        document.getElementById('div_settings').style.display = 'none';
-        // document.getElementById('div_button_settings_main').innerHTML = '设置';
-        document.getElementById('div_button_settings_main').style.removeProperty('background-color');
-        document.getElementById('table_box_basic').style.display = 'none';
-        document.getElementById('table_box_deck').style.display = 'none';
-        document.getElementById('div_button_settings_box').innerHTML = '展开box';
-    }
-}
-
-function handle_button_document() {
-    if (document.getElementById('div_document').style.display == 'none') {
-        // document.getElementById('tr_document').style.display = '';
-        document.getElementById('div_overlay').style.display = '';
-        document.getElementById('div_overlay_content').innerHTML = document.getElementById('div_document').innerHTML;
-        document.getElementById('div_overlay_content').classList.add('elm_indent');
-        document.getElementById('div_document').innerHTML = '';
-        current_overlay_content = 'document';
-        document.getElementById('span_overlay_header_icon').innerHTML = '📖';
-        document.getElementById('span_overlay_header_title').innerHTML = '文档';
-        // document.getElementById('div_button_document').style.backgroundColor = '#d5e4f3';
-        // document.getElementById('div_background').style.overflow = 'hidden';
-        document.body.style.overflow = 'hidden';
-        // 设置
-        document.getElementById('table_settings').style.display = 'none';
-        document.getElementById('div_button_settings_main').style.removeProperty('background-color');
-        document.getElementById('table_box_basic').style.display = 'none';
-        document.getElementById('table_box_deck').style.display = 'none';
-        document.getElementById('div_button_settings_box').innerHTML = '展开box';
-    }
-    else {
-        document.getElementById('div_document').style.display = 'none';
-        document.getElementById('div_overlay').style.display = 'none';
-        document.getElementById('div_button_document').style.removeProperty('background-color');
     }
 }
 

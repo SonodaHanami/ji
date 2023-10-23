@@ -16,18 +16,15 @@
 <body>
     <div id="div_overlay" style="display:none">
         <div id="div_overlay_container">
-            <!-- <div id="div_overlay_header"> -->
-                <table class="table_text" id="table_overlay_header">
-                    <tr>
-                        <td id="td_overlay_header_back">
-                            <div id="div_overlay_header_back" onclick="handle_overlay();">＜</div>
-                        </td>
-                        <th id="th_overlay_header_title"><span id="span_overlay_header_icon">⚙</span><span id="span_overlay_header_title">设置</span></th>
-                        <td>&nbsp;</td>
-                    </tr>
-                    <tr id="tr_overlay_dividing_line"><td id="td_overlay_dividing_line" colspan="3">&nbsp;</td></tr>
-                </table>
-            <!-- </div> -->
+            <table class="table_text" id="table_overlay_header">
+                <tr>
+                    <td id="td_overlay_header_back">
+                        <div id="div_overlay_header_back" onclick="handle_overlay();">＜</div>
+                    </td>
+                    <th id="th_overlay_header_title"><span id="span_overlay_header_icon">⚙</span><span id="span_overlay_header_title">设置</span></th>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
             <div id="div_overlay_content"></div>
         </div>
     </div>
@@ -35,21 +32,21 @@
         <table class="table_text" id="table_navbar">
             <tr>
                 <td>
-                    <div class="div_button" id="div_button_settings_main" onclick="handle_button_settings();">⚙</div>
+                    <div class="div_button" id="div_navbar_button_settings" onclick="handle_overlay('settings');">⚙</div>
                 </td>
                 <td>
-                    <div class="div_red_spot" id="div_red_spot_update_log"></div>
-                    <div class="div_button" id="div_button_update_log" onclick="handle_button_update_log();">⚠</div>
+                    <div class="div_red_spot" id="div_red_spot_update_log" style="display: none;"></div>
+                    <div class="div_button" id="div_navbar_button_update_log" onclick="handle_overlay('update_log');">⚠</div>
                 </td>
                 <td>
-                    <div class="div_red_spot" id="div_red_spot_mail"></div>
-                    <div class="div_button" id="div_button_mail" onclick="handle_button_mail();">✉</div>
+                    <div class="div_red_spot" id="div_red_spot_mail" style="display: none;"></div>
+                    <div class="div_button" id="div_navbar_button_mail" onclick="handle_overlay('mail');">✉</div>
                 </td>
                 <td>
-                    <div class="div_button" id="div_button_document" onclick="handle_button_document();">📖</div>
+                    <div class="div_button" id="div_navbar_button_document" onclick="handle_overlay('document');">📖</div>
                 </td>
                 <td>
-                    <div class="div_button" onclick="location.reload();" style="display:none;">📅</div>
+                    <div class="div_button" onclick="location.reload();" style="display: none;">📅</div>
                 </td>
                 <td style="width: auto;">&nbsp;</td>
                 <td style="width: 10em; text-align: right; padding-right: 1em;">
@@ -62,7 +59,7 @@
         </table>
         <div id="div_document" style="display: none;"></div>
         <div id="div_settings" style="display: none;">
-            <table class="table_text" id="table_settings" onclick="save_settings();" style="display: none;">
+            <table class="table_text" id="table_settings" onclick="save_settings();">
                 <tr id="tr_mode_1"><th colspan="4"><div class="div_button" onclick="handle_box_mode(2);">当前为基础模式，点击切换到卡组模式</div></th></tr>
                 <tr id="tr_mode_2"><th colspan="4"><div class="div_button" onclick="handle_box_mode(1);">当前为卡组模式，点击切换到基础模式</div></th></tr>
                 <tr>
@@ -134,25 +131,19 @@
                 <tr class="tr_border_bottom"><th>特种</th><td colspan="3" id="td_deck_operators_特种" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
             </table>
         </div>
-        <table class="table_text">
-            <tr id="tr_notice">
-                <td id="td_notice">
-                    <h2>肉鸽开局生成器2.0：新增卡组模式</h2>
-                    <p>本次更新变动较大，建议 <a class="elm_outline" href="https://www.bilibili.com/video/BV1Ju4y1p79G/" target="_blank">观看PV</a> 并阅读文档后使用</p>
-                    <h2>肉鸽开局生成器2.12：</h2>
-                    <p>优化剧本临时卡组的显示和点击效果</p>
-                    <h2>肉鸽开局生成器2.12b：</h2>
-                    <p>调整剧本临时卡组位置，从中抽出干员时自动勾选选择框</p>
-                </td>
-                <td id="td_notice_button">
-                    <div class="div_notice_button" onclick="handle_notice(1);">好的</div>
-                </td>
-            </tr>
-        </table>
+        <div id="div_update_log" style="display: none;"></div>
+        <div id="div_mail" style="display: none;"></div>
         <table class="table_text" id="table_main">
-            <tr class="elm_outline elm_white" style="font-size: 2em; text-align: center;">
-                <th colspan="2" id="th_title">
-                    肉鸽开局生成器 <span id="span_version"></span>
+            <tr>
+                <th colspan="2">
+                    <div class="elm_outline elm_white" id="div_title">
+                        肉鸽开局生成器
+                        <div id="div_version">
+                            <div class="div_red_spot" id="div_red_spot_version" style="display: none;"></div>
+                            <span id="span_version"></span>
+                        </div>
+
+                    </div>
                 </th>
             </tr>
             <tr style="user-select: none;">
@@ -194,8 +185,8 @@
         load_settings();
         handle_box_mode(current_box_mode);
         update_current_deck();
-        load_document();
-        handle_notice();
+        load_contents();
+        handle_red_spot();
         update_current_datetime();
         setInterval(update_current_datetime, 1000);
     </script>
