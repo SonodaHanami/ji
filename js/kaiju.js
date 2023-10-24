@@ -287,6 +287,7 @@ function load_settings() {
         // 不在box中的干员
         if ('to_get' in data) {
             operators_star_6_to_get = data['to_get'];
+            update_current_box();
         }
         if ('deck' in data) {
             current_deck = data['deck'];
@@ -1230,7 +1231,7 @@ function handle_overlay(name) {
         document.getElementById(`div_${name}`).innerHTML = '';
         document.getElementById('span_overlay_header_icon').innerHTML = CONTENTS[name]['icon'];
         document.getElementById('span_overlay_header_title').innerHTML = CONTENTS[name]['title'];
-        update_current_box();
+        load_settings();
         if (name == 'update_log') {
             console.log('已确认最新版本');
             update_last_checked_version();
