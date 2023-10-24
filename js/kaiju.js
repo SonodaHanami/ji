@@ -1,4 +1,4 @@
-const VERSION = '2.13';
+const VERSION = '2.13b';
 
 const question_mark = '？';
 const window_length = 10;
