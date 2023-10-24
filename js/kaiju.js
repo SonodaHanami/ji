@@ -197,6 +197,7 @@ const DEFAULT_DECK = [
 const MIN_DECK_SIZE = 40;
 const MAX_DECK_SIZE = 60;
 
+let operators_star_6_to_get = [];
 let last_checked_version = '';
 let mail_checked = [];
 
@@ -228,7 +229,7 @@ function save_settings() {
             enabled_is.push(4)
         }
         // 不在box中的干员
-        let operators_star_6_to_get = [];
+        operators_star_6_to_get = [];
         for (let idx = 0; idx < OPERATORS_STAR_6_LIST.length; idx++) {
             let code_name = OPERATORS_STAR_6_LIST[idx];
             if (document.getElementById(`box_${code_name}`).checked == false) {
@@ -285,18 +286,7 @@ function load_settings() {
         }
         // 不在box中的干员
         if ('to_get' in data) {
-            current_operators_6_by_job = JSON.parse(JSON.stringify(OPERATORS_STAR_6_BY_JOB));
-            current_operators_6_list = OPERATORS_STAR_6_LIST.slice();
-            for (let job in OPERATORS_STAR_6_BY_JOB) {
-                for (let idx = 0; idx < OPERATORS_STAR_6_BY_JOB[job].length; idx++) {
-                    let code_name = OPERATORS_STAR_6_BY_JOB[job][idx];
-                    if (data['to_get'].includes(code_name)) {
-                        document.getElementById(`box_${code_name}`).checked = false;
-                        current_operators_6_list.splice(current_operators_6_list.indexOf(code_name), 1);
-                        current_operators_6_by_job[job].splice(current_operators_6_by_job[job].indexOf(code_name), 1);
-                    }
-                }
-            }
+            operators_star_6_to_get = data['to_get'];
         }
         if ('deck' in data) {
             current_deck = data['deck'];
@@ -446,6 +436,21 @@ function update_current_datetime() {
     let new_datetime = `${now.toLocaleDateString("zh-CN")} ${now.toLocaleTimeString("zh-CN").slice(0, 5)}`;
     if (document.getElementById('div_current_datetime').innerHTML != new_datetime) {
         document.getElementById('div_current_datetime').innerHTML = new_datetime;
+    }
+}
+
+function update_current_box() {
+    current_operators_6_by_job = JSON.parse(JSON.stringify(OPERATORS_STAR_6_BY_JOB));
+    current_operators_6_list = OPERATORS_STAR_6_LIST.slice();
+    for (let job in OPERATORS_STAR_6_BY_JOB) {
+        for (let idx = 0; idx < OPERATORS_STAR_6_BY_JOB[job].length; idx++) {
+            let code_name = OPERATORS_STAR_6_BY_JOB[job][idx];
+            if (operators_star_6_to_get.includes(code_name)) {
+                document.getElementById(`box_${code_name}`).checked = false;
+                current_operators_6_list.splice(current_operators_6_list.indexOf(code_name), 1);
+                current_operators_6_by_job[job].splice(current_operators_6_by_job[job].indexOf(code_name), 1);
+            }
+        }
     }
 }
 
@@ -1225,6 +1230,7 @@ function handle_overlay(name) {
         document.getElementById(`div_${name}`).innerHTML = '';
         document.getElementById('span_overlay_header_icon').innerHTML = CONTENTS[name]['icon'];
         document.getElementById('span_overlay_header_title').innerHTML = CONTENTS[name]['title'];
+        update_current_box();
         if (name == 'update_log') {
             console.log('已确认最新版本');
             update_last_checked_version();
