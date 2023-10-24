@@ -86,7 +86,7 @@ a, a:link, a:visited {
     right: 0;
     width: 100%;
     height: 100%;
-    z-index: 1002;
+    z-index: 3;
     background-color: var(--tm66);
     backdrop-filter: blur(6px);
 
@@ -98,6 +98,7 @@ a, a:link, a:visited {
         text-align: left;
         display: flex;
         flex-flow: column;
+        position: relative;
     }
 }
 
@@ -107,6 +108,7 @@ a, a:link, a:visited {
     flex: 0 1 auto;
     border-bottom: 0.5em solid #FFFFFF;
     box-shadow: var(--tm66) 0 0 6em 0;
+    z-index: 1;
 }
 
 #td_overlay_header_back {
@@ -147,7 +149,7 @@ a, a:link, a:visited {
     position: fixed;
     top: 0;
     left: 0;
-    z-index: 1001;
+    z-index: 2;
 }
 
 #table_navbar td {
@@ -246,6 +248,110 @@ textarea {
 
 .div_button:hover, .div_button_settings:hover {
     background-color: #2B666666;
+}
+
+#div_mail_overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    background-color: var(--tm66);
+    backdrop-filter: blur(6px);
+
+    #div_mail_overlay_detail {
+        position: relative;
+        height: 100%;
+    }
+
+    #div_mail_overlay_recieve {
+        width: 100%;
+        height: 100%;
+        color: #000;
+        background-color: #9999;
+        vertical-align: center;
+
+    }
+}
+
+#table_mail_overlay_detail {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: #6666 0 0 1em;
+}
+
+#tr_mail_title {
+    background-color: #FFFFFFee;
+    display: flex;
+    flex-flow: row;
+}
+
+#tr_mail_title div{
+    display: inline-block;
+}
+
+#div_mail_title {
+    font-size: 2em;
+    padding-left: 6em;
+}
+
+#div_mail_close {
+    font-size: 2em;
+    width: 1.6em;
+    height: 1.6em;
+    color: #FFF;
+    text-align: center;
+    background-color: #222;
+}
+
+#tr_mail_content {
+    background-color: #FFFFFFcc;
+    position: relative;
+    height: 36em;
+
+    .div_mail_face_in_detail {
+        top: -3em;
+        left: 0.5em;
+        width: 10em;
+        height: 10em;
+        box-shadow: #6666 0 0 1em;
+    }
+
+    .div_mail_from {
+        margin-top: -11.4em;
+        margin-left: 8em;
+    }
+
+    .div_mail_date {
+        color: var(--blue);
+        margin-top: -9.6em;
+        margin-left: 8em;
+        float: unset;
+    }
+
+    .div_mail_content {
+        font-size: 1.5em;
+        margin-top: 2em;
+        margin-left: 2em;
+    }
+}
+
+
+
+#table_recieve {
+    height: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    color: #DDD;
+}
+
+#td_mail_attachment {
+    position: relative;
 }
 
 #table_mail_background {
@@ -353,6 +459,23 @@ textarea {
     background-size: contain;
 }
 
+.div_mail_attachment_name {
+    font-size: 1.5em;
+    position: absolute;
+    display: inline-block;
+    top: 8em;
+    left: 2em;
+    right: 2em;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 0.5em;
+    height: 1.5em;
+    text-align: center;
+    color: #FFF;
+    background-color: var(--tm99);
+    box-shadow: #FF07 0 0 1em;
+}
+
 .div_mail_attachment_value {
     font-size: 1.5em;
     position: absolute;
@@ -379,7 +502,7 @@ textarea {
     position: absolute;
     top: 8em;
     left: 0;
-    z-index: 1000;
+    z-index: 1;
 }
 
 #div_title {

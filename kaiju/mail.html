@@ -1,23 +1,63 @@
-<div id="div_mail_overlay" style="display:none">
-    <div id="div_mail_overlay_container">
-        <table class="table_text" id="table_overlay_header">
-            <tr>
-                <td id="td_overlay_header_back">
-                    <div id="div_overlay_header_back" onclick="handle_overlay();">＜</div>
+<div id="div_mail_overlay" style="display: none;">
+    <div id="div_mail_overlay_detail" style="display: none;">
+        <table id="table_mail_overlay_detail">
+            <tr style="height: 6em;"></tr>
+            <tr id="tr_mail_title">
+                <td style="width: 100%;">
+                    <div id="div_mail_title">来自羽波的信息</div>
+                    <div id="div_mail_close" style="float: right;" onclick="handle_show_mail_detail();">×</div>
+                    <div style="font-size:1.5em; float: right; margin-top: 0.4em; margin-right: 1em;">29日后过期</div>
                 </td>
-                <th id="th_overlay_header_title"><span id="span_overlay_header_icon">⚙</span><span id="span_overlay_header_title">设置</span></th>
-                <td>&nbsp;</td>
+            </tr>
+            <tr id="tr_mail_content">
+                <td style="width: 100%;">
+                    <div class="div_mail_face div_mail_face_in_detail" style="background-image: url(&quot;https://wsrv.nl/?url=https://github.com/identicons/sonodahanami.png&quot;);"></div>
+                    <div class="div_mail_from">来自<span>羽波</span></div>
+                    <div class="div_mail_date">2023/10/24</div>
+                    <div class="div_mail_content elm_indent">
+                        <p style="text-indent: 0;">尊敬的博士：</p>
+                        <p>感谢您对肉鸽开局生成器的支持与喜爱。</p>
+                        <p style="text-indent: 0;">羽波</p>
+                    </div>
+
+                </td>
             </tr>
         </table>
         <div id="div_overlay_content"></div>
+    </div>
+    <div id="div_mail_overlay_recieve" onclick="handle_recieve_attachment();">
+        <table id="table_recieve">
+            <tr style="height: 40%;">
+                <td style="font-size: 2em">
+                    获得物资
+                </td>
+            </tr>
+            <tr style="height: 30%;">
+                <td class="td_mail_attachment" style="background-color: unset;">
+                    <div class="div_recieve_attachment">
+                        <div class="div_mail_attachment_background" style="box-shadow: #FF07 0 0 2em;">
+                            <div class="div_mail_attachment_image" style="background-image: url(&quot;https://wsrv.nl/?url=https://prts.wiki/images/a/a9/%E9%9B%86%E6%88%90%E6%88%98%E7%95%A5_%E9%81%93%E5%85%B7_%E6%BA%90%E7%9F%B3%E9%94%AD.png&quot;);"></div>
+                        </div>
+                        <div class="div_mail_attachment_logo"  style="background-image: url(&quot;https://wsrv.nl/?url=https://prts.wiki/images/4/40/%E5%9B%BE%E6%A0%87_%E6%BA%90%E7%9F%B3%E9%94%AD.png&quot;);"></div>
+                        <div class="div_mail_attachment_value">600</div>
+                        <div class="div_mail_attachment_name">源石锭</div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td style="font-size: 1.5em">
+                    ✅
+                </td>
+            </tr>
+        </table>
     </div>
 </div>
 <table id="table_mail_background">
     <tr id="tr_mail_0">
         <td>
             <table class="table_mail" id="table_mail_0">
-                <tr>
-                    <td class="td_mail_face" rowspan="3" onclick="handle_mail_overlay(0);">
+                <tr onclick="handle_show_mail_detail();">
+                    <td class="td_mail_face" rowspan="3">
                         <div class="div_mail_face" style="background-image: url(&quot;https://wsrv.nl/?url=https://github.com/identicons/sonodahanami.png&quot;);"></div>
                     </td>
                     <td class="td_mail_info" rowspan="2">
@@ -35,11 +75,11 @@
                     </td>
                 </tr>
                 <tr>
-                    <td class="td_mail_buttons" rowspan="2">
+                    <td class="td_mail_buttons td_mail_buttons_recieve" rowspan="2" onclick="handle_recieve_attachment();">
                         <div class="div_mail_button_recieve">收取</div>
                     </td>
                 </tr>
-                <tr>
+                <tr onclick="handle_show_mail_detail();">
                     <td>
                         <div class="div_mail_from">来自<span>羽波</span></div>
                         <div class="div_mail_date">

@@ -1,4 +1,4 @@
-const VERSION = '2.12b';
+const VERSION = '2.13';
 
 const question_mark = '？';
 const window_length = 10;
@@ -198,7 +198,7 @@ const MIN_DECK_SIZE = 40;
 const MAX_DECK_SIZE = 60;
 
 let last_checked_version = '';
-let last_checked_mail = '';
+let mail_checked = [];
 
 let current_box_mode = 2;
 let current_operators_6_list, current_operators_6_by_job;
@@ -237,7 +237,7 @@ function save_settings() {
         }
         let data_to_save = {
             'last_checked_version': last_checked_version,
-            'last_checked_mail': last_checked_mail,
+            'mail_checked': mail_checked,
             'box_mode': current_box_mode,
             'enabled_is': enabled_is,
             'job_group_only': document.getElementById('job_group_only').checked,
@@ -265,8 +265,8 @@ function load_settings() {
         if ('last_checked_version' in data) {
             last_checked_version = data['last_checked_version'];
         }
-        if ('last_checked_mail' in data) {
-            last_checked_mail = data['last_checked_mail'];
+        if ('mail_checked' in data) {
+            mail_checked = data['mail_checked'];
         }
         // 选中的集成战略
         if ('enabled_is' in data) {
@@ -379,23 +379,66 @@ function init_table_box_deck() {
 }
 
 function handle_red_spot() {
-    if (last_checked_version != VERSION) {
+    // 更新日志
+    if (last_checked_version == VERSION) {
+        document.getElementById('div_red_spot_version').style.display = 'none';
+        document.getElementById('div_red_spot_update_log').style.display = 'none';
+        document.getElementById('div_version').onclick = null;
+        document.getElementById('div_version').style.cursor = 'auto';
+    }
+    else {
         console.log('检测到未确认过的新版本');
         document.getElementById('div_red_spot_version').style.display = '';
         document.getElementById('div_red_spot_update_log').style.display = '';
         document.getElementById('div_version').onclick = () => {handle_overlay('update_log');}
         document.getElementById('div_version').style.cursor = 'pointer';
     }
-    else {
-        document.getElementById('div_red_spot_version').style.display = 'none';
-        document.getElementById('div_red_spot_update_log').style.display = 'none';
-        document.getElementById('div_version').onclick = null;
-        document.getElementById('div_version').style.cursor = 'auto';
+    // 邮件
+    if (mail_checked.includes(0)) {
+        document.getElementById('div_red_spot_mail').style.display = 'none';
     }
+    else {
+        document.getElementById('div_red_spot_mail').style.display = '';
+    }
+}
+
+function handle_show_mail_detail() {
+    if (document.getElementById('div_mail_overlay').style.display == 'none') {
+        document.getElementById('div_mail_overlay').style.display = '';
+        document.getElementById('div_mail_overlay_detail').style.display = '';
+        document.getElementById('div_mail_overlay_recieve').style.display = 'none';
+    }
+    else {
+        document.getElementById('div_mail_overlay').style.display = 'none';
+    }
+}
+
+function handle_recieve_attachment() {
+    if (document.getElementById('div_mail_overlay').style.display == 'none') {
+        document.getElementById('div_mail_overlay').style.display = '';
+        document.getElementById('div_mail_overlay_recieve').style.display = '';
+        document.getElementById('div_mail_overlay_detail').style.display = 'none';
+    }
+    else {
+        document.getElementById('div_mail_overlay').style.display = 'none';
+    }
+    let recieve_buttons = document.getElementsByClassName(`td_mail_buttons_recieve`);
+    for (let j = 0; j < recieve_buttons.length; j++) {
+        recieve_buttons[j].style.color = '#AAA';
+        recieve_buttons[j].onclick = null;
+    }
+    update_mail_checked(0);
+    save_settings();
 }
 
 function update_last_checked_version() {
     last_checked_version = VERSION;
+}
+
+function update_mail_checked(mail_id) {
+    if (!(mail_checked.includes(mail_id))) {
+        mail_checked.push(mail_id);
+    }
 }
 
 function update_current_datetime() {
