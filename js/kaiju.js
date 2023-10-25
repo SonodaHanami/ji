@@ -385,7 +385,7 @@ function handle_red_spot() {
         document.getElementById('div_version').style.cursor = 'pointer';
     }
     // 邮件
-    if (mail_checked.includes(0)) {
+    if (mail_checked.includes(1)) {
         document.getElementById('div_red_spot_mail').style.display = 'none';
     }
     else {
@@ -404,7 +404,7 @@ function handle_show_mail_detail() {
     }
 }
 
-function handle_recieve_attachment() {
+function handle_recieve_attachment(mail_id) {
     if (document.getElementById('div_mail_overlay').style.display == 'none') {
         document.getElementById('div_mail_overlay').style.display = '';
         document.getElementById('div_mail_overlay_recieve').style.display = '';
@@ -418,7 +418,7 @@ function handle_recieve_attachment() {
         recieve_buttons[j].style.color = '#AAA';
         recieve_buttons[j].onclick = null;
     }
-    update_mail_checked(0);
+    update_mail_checked(mail_id);
     save_settings();
 }
 
@@ -440,6 +440,27 @@ function update_current_datetime() {
     }
 }
 
+function update_current_box() {
+    current_operators_6_by_job = JSON.parse(JSON.stringify(OPERATORS_STAR_6_BY_JOB));
+    current_operators_6_list = OPERATORS_STAR_6_LIST.slice();
+    for (let job in OPERATORS_STAR_6_BY_JOB) {
+        for (let idx = 0; idx < OPERATORS_STAR_6_BY_JOB[job].length; idx++) {
+            let code_name = OPERATORS_STAR_6_BY_JOB[job][idx];
+            if (operators_star_6_to_get.includes(code_name)) {
+                document.getElementById(`box_${code_name}`).checked = false;
+                current_operators_6_list.splice(current_operators_6_list.indexOf(code_name), 1);
+                current_operators_6_by_job[job].splice(current_operators_6_by_job[job].indexOf(code_name), 1);
+            }
+            else {
+                document.getElementById(`box_${code_name}`).checked = true;
+            }
+        }
+    }
+    document.getElementById('td_box_count_total').innerHTML = OPERATORS_STAR_6_LIST.length;
+    document.getElementById('td_box_count_in_box').innerHTML = current_operators_6_list.length;
+    document.getElementById('td_box_count_to_get').innerHTML = operators_star_6_to_get.length;
+}
+
 function update_current_operators(full_box=false) {
     current_operators_6_by_job = JSON.parse(JSON.stringify(OPERATORS_STAR_6_BY_JOB));
     current_operators_6_list = OPERATORS_STAR_6_LIST.slice();
@@ -458,21 +479,6 @@ function update_current_operators(full_box=false) {
         }
     }
     return operators_to_get;
-}
-
-function update_current_box() {
-    current_operators_6_by_job = JSON.parse(JSON.stringify(OPERATORS_STAR_6_BY_JOB));
-    current_operators_6_list = OPERATORS_STAR_6_LIST.slice();
-    for (let job in OPERATORS_STAR_6_BY_JOB) {
-        for (let idx = 0; idx < OPERATORS_STAR_6_BY_JOB[job].length; idx++) {
-            let code_name = OPERATORS_STAR_6_BY_JOB[job][idx];
-            if (operators_star_6_to_get.includes(code_name)) {
-                document.getElementById(`box_${code_name}`).checked = false;
-                current_operators_6_list.splice(current_operators_6_list.indexOf(code_name), 1);
-                current_operators_6_by_job[job].splice(current_operators_6_by_job[job].indexOf(code_name), 1);
-            }
-        }
-    }
 }
 
 function update_current_deck() {
@@ -523,9 +529,19 @@ function get_operator_by_code_name(code_name) {
     }
 }
 
-
 function get_operator_star(code_name) {
     return ALL_OPERATORS_DICTS_LIST[ALL_OPERATORS_LIST.indexOf(code_name)]['star'];
+}
+
+function handle_full_box(flag) {
+    if (flag == 'full') {
+        operators_star_6_to_get = [];
+        update_current_box();
+    }
+    if (flag == 'empty') {
+        operators_star_6_to_get = OPERATORS_STAR_6_LIST.slice();
+        update_current_box();
+    }
 }
 
 function handle_deck(action, code_name, star) {
@@ -544,9 +560,15 @@ function handle_deck(action, code_name, star) {
     update_current_deck();
 }
 
-function handle_full_deck(deck=[]) {
-    current_deck = deck.slice();
-    update_current_deck();
+function handle_full_deck(flag) {
+    if (flag == 'default') {
+        current_deck = DEFAULT_DECK.slice();
+        update_current_deck();
+    }
+    if (flag == 'empty') {
+        current_deck = [];
+        update_current_deck();
+    }
 }
 
 function draw_in_drama(code_name) {
@@ -784,7 +806,7 @@ function get_drama_basic(level=1) {
         }
     }
     drama_operators_star_6.splice(drama_operators_star_6.indexOf(opening_operator), 1);
-    // 处理box中某一职业没有六星的情况
+    // 处理box中某一职业没有六星干员的情况
     check_drama_box();
     for (let job in OPERATORS_STAR_6_BY_JOB) {
         if (OPERATORS_STAR_6_BY_JOB[job].includes(opening_operator)) {
@@ -824,7 +846,7 @@ function get_drama_basic(level=1) {
         }
     }
     reply_main.push(`<p>将以下 ${banned_operators.length} 位干员从本局游戏中移除：<span id="span_bans" onclick="handle_click_copy('span_bans');">${banned_operators.join('、')}</span> <span id="span_bans_copied" style="display: none;">已复制到剪贴板</span></p>`);
-    // 处理禁用后box中某一职业没有六星的情况
+    // 处理禁用后box中某一职业没有六星干员的情况
     check_drama_box();
     // 选择
     for (let i = 1; i <= drama_level && Object.keys(drama_box).length > 0; i++) {
@@ -848,6 +870,11 @@ function get_drama_basic(level=1) {
             delete picks_count[job];
         }
     }
+    // 处理box中所有六星干员提前抽完的情况
+    if (drama_level + 1 > reply_picks.length) {
+        reply_picks.push(`box中已经没有更多六星干员了`);
+    }
+    // 移除没有必须优先选择的六星干员的职业
     let picks_keys = Object.keys(picks);
     for (let i = 0; i < picks_keys.length; i++) {
         let job = picks_keys[i];
@@ -1021,7 +1048,7 @@ function get_drama_deck(drama_level) {
         drama_operators_star_6.splice(drama_operators_star_6.indexOf(opening_operator), 1);
     }
 
-    // 处理box中某一职业没有六星的情况
+    // 处理box中某一职业没有六星干员的情况
     check_drama_box_by_job();
 
     // 禁用干员（从本局游戏中移除），范围为卡组中所有六星干员
@@ -1054,7 +1081,7 @@ function get_drama_deck(drama_level) {
     if (banned_operators.length > 0) {
         reply_main.push(`<p>将以下 ${banned_operators.length} 位干员从本局游戏中移除：<span id="span_bans" onclick="handle_click_copy('span_bans');">${banned_operators.join('、')}</span> <span id="span_bans_copied" style="display: none;">已复制到剪贴板</span></p>`);
     }
-    // 处理禁用后box中某一职业没有六星的情况
+    // 处理禁用后box中某一职业没有六星干员的情况
     check_drama_box_by_job();
 
     // 选择本局游戏中各职业必须优先选择的六星干员，范围为(卡组中所有六星干员 + box中所有六星干员)
@@ -1102,10 +1129,10 @@ function get_drama_deck(drama_level) {
             drama_operators_star_6.splice(drama_operators_star_6.indexOf(picked_operator), 1);
         }
         reply_picks.push(`<input type="checkbox" id="checkbox_${picked_operator}"><label for="checkbox_${picked_operator}">第 ${picks_count_by_job[picked_job]} 位 六星${picked_job}干员 选择 ${picked_operator}</label>`);
-        // 处理选择后box中某一职业没有六星的情况
+        // 处理选择后box中某一职业没有六星干员的情况
         check_drama_box_by_job();
     }
-    // 处理box中所有六星提前抽完的情况
+    // 处理卡组中所有六星干员提前抽完的情况
     if (drama_level + 1 > reply_picks.length) {
         reply_picks.push(`卡组中已经没有更多六星干员了`);
     }

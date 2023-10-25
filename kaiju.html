@@ -72,7 +72,14 @@
                             </td>
                         </tr>
                     </table>
-                    <table class="table_text" id="table_box_basic" onclick="update_current_deck(); save_settings();" style="display: none; table-layout: auto; border: 1px solid #CCCCCC; user-select: none;">
+                    <table class="table_text" id="table_box_basic" onclick="update_current_deck(); save_settings(); update_current_box();" style="display: none; table-layout: auto; border: 1px solid #CCCCCC; user-select: none;">
+                        <tr>
+                            <td colspan="2">
+                                共有<span id="td_box_count_total">80</span>位六星干员，<span id="td_box_count_in_box">80</span>位在box中，<span id="td_box_count_to_get">0</span>位不在box中
+                                <div class="div_button" style="display: inline-block;" onclick="handle_full_box('full');">全选</div>
+                                <div class="div_button" style="display: inline-block;" onclick="handle_full_box('empty');">全不选</div>
+                            </td>
+                        </tr>
                         <tr><th style="width: 80px;">先锋</th><td style="width: auto;" id="td_box_operators_star_6_先锋"></td></tr>
                         <tr><th style="width: 80px;">近卫</th><td style="width: auto;" id="td_box_operators_star_6_近卫"></td></tr>
                         <tr><th style="width: 80px;">重装</th><td style="width: auto;" id="td_box_operators_star_6_重装"></td></tr>
@@ -85,8 +92,8 @@
                     <table class="table_text" id="table_box_deck" onclick="save_settings();" style="display: none; border: 1px solid #CCCCCC; user-select: none;">
                         <tr>
                             <td>当前 <span id="td_deck_count">0</span>，下限 40，上限 60</td>
-                            <th><div class="div_button" onclick="handle_full_deck();">清空当前卡组</div></th>
-                            <th><div class="div_button" onclick="handle_full_deck(DEFAULT_DECK);">使用默认卡组</div></th>
+                            <th><div class="div_button" onclick="handle_full_deck('empty');">清空当前卡组</div></th>
+                            <th><div class="div_button" onclick="handle_full_deck('default');">使用默认卡组</div></th>
                         </tr>
                         <tr class="tr_border_bottom"><td colspan="4" id="td_current_deck_all" style="font-size: 0; padding: 1rem;">当前卡组为空</td></tr>
                         <tr class="tr_border_bottom"><th>先锋</th><td colspan="3" id="td_deck_operators_先锋" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
