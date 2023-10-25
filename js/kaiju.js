@@ -440,6 +440,26 @@ function update_current_datetime() {
     }
 }
 
+function update_current_operators(full_box=false) {
+    current_operators_6_by_job = JSON.parse(JSON.stringify(OPERATORS_STAR_6_BY_JOB));
+    current_operators_6_list = OPERATORS_STAR_6_LIST.slice();
+    let operators_to_get = [];
+    if (full_box) {
+        return operators_to_get;
+    }
+    for (let job in OPERATORS_STAR_6_BY_JOB) {
+        for (let idx = 0; idx < OPERATORS_STAR_6_BY_JOB[job].length; idx++) {
+            let code_name = OPERATORS_STAR_6_BY_JOB[job][idx];
+            if (document.getElementById(`box_${code_name}`).checked == false) {
+                operators_to_get.push(code_name);
+                current_operators_6_list.splice(current_operators_6_list.indexOf(code_name), 1);
+                current_operators_6_by_job[job].splice(current_operators_6_by_job[job].indexOf(code_name), 1);
+            }
+        }
+    }
+    return operators_to_get;
+}
+
 function update_current_box() {
     current_operators_6_by_job = JSON.parse(JSON.stringify(OPERATORS_STAR_6_BY_JOB));
     current_operators_6_list = OPERATORS_STAR_6_LIST.slice();
@@ -574,26 +594,6 @@ function draw_in_drama(code_name) {
             }
         }
     }
-}
-
-function update_current_operators(full_box=false) {
-    current_operators_6_by_job = JSON.parse(JSON.stringify(OPERATORS_STAR_6_BY_JOB));
-    current_operators_6_list = OPERATORS_STAR_6_LIST.slice();
-    let operators_to_get = [];
-    if (full_box) {
-        return operators_to_get;
-    }
-    for (let job in OPERATORS_STAR_6_BY_JOB) {
-        for (let idx = 0; idx < OPERATORS_STAR_6_BY_JOB[job].length; idx++) {
-            let code_name = OPERATORS_STAR_6_BY_JOB[job][idx];
-            if (document.getElementById(`box_${code_name}`).checked == false) {
-                current_operators_6_list.splice(current_operators_6_list.indexOf(code_name), 1);
-                current_operators_6_by_job[job].splice(current_operators_6_by_job[job].indexOf(code_name), 1);
-                operators_to_get.push(code_name);
-            }
-        }
-    }
-    return operators_to_get;
 }
 
 function get_opening_today() {
@@ -1227,11 +1227,9 @@ function handle_overlay(name) {
         current_overlay_content = name;
         document.body.style.overflow = 'hidden';
         document.getElementById('div_overlay').style.display = '';
-        document.getElementById('div_overlay_content').innerHTML = document.getElementById(`div_${name}`).innerHTML;
-        document.getElementById(`div_${name}`).innerHTML = '';
+        document.getElementById(`div_${name}`).style.display = '';
         document.getElementById('span_overlay_header_icon').innerHTML = CONTENTS[name]['icon'];
         document.getElementById('span_overlay_header_title').innerHTML = CONTENTS[name]['title'];
-        load_settings();
         if (name == 'update_log') {
             console.log('已确认最新版本');
             update_last_checked_version();
@@ -1241,8 +1239,7 @@ function handle_overlay(name) {
     else {
         console.log(`关闭 ${current_overlay_content}`);
         document.getElementById('div_overlay').style.display = 'none';
-        document.getElementById(`div_${current_overlay_content}`).innerHTML = document.getElementById('div_overlay_content').innerHTML;
-        document.getElementById('div_overlay_content').innerHTML = '';
+        document.getElementById(`div_${current_overlay_content}`).style.display = 'none';
         document.body.style.overflow = 'auto';
         current_overlay_content = '';
         handle_red_spot();
@@ -1294,22 +1291,26 @@ function handle_box_mode(box_mode) {
         current_box_mode = box_mode;
         document.getElementById('tr_mode_1').style.display = '';
         document.getElementById('tr_mode_2').style.display = 'none';
-        document.getElementById('div_button_settings_box').innerHTML = '展开box';
-        document.getElementById('table_box_basic').style.display = 'none';
-        document.getElementById('table_box_deck').style.display = 'none';
+        document.getElementById('div_button_settings_deck').style.display = 'none';
         document.getElementById('support_unit_enabled').disabled = false;
         document.getElementById('support_unit_disabled_in_deck_mode').innerHTML= '';
     }
     else if (box_mode == 2) {
-        current_box_mode = box_mode;
         document.getElementById('tr_mode_1').style.display = 'none';
         document.getElementById('tr_mode_2').style.display = '';
-        document.getElementById('div_button_settings_box').innerHTML = '展开box';
-        document.getElementById('table_box_basic').style.display = 'none';
-        document.getElementById('table_box_deck').style.display = 'none';
+        document.getElementById('div_button_settings_deck').style.display = '';
         document.getElementById('support_unit_enabled').disabled = true;
         document.getElementById('support_unit_disabled_in_deck_mode').innerHTML= '※在卡组模式下不可用';
     }
+    else {
+        return;
+    }
+    current_box_mode = box_mode;
+    document.getElementById('div_button_settings_box').innerHTML = '展开box';
+    document.getElementById('div_button_settings_box').innerHTML = '展开box';
+    document.getElementById('div_button_settings_deck').innerHTML = '展开卡组';
+    document.getElementById('table_box_basic').style.display = 'none';
+    document.getElementById('table_box_deck').style.display = 'none';
 }
 
 function reset_opening_today_4() {

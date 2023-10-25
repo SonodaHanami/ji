@@ -25,7 +25,84 @@
                     <td>&nbsp;</td>
                 </tr>
             </table>
-            <div id="div_overlay_content"></div>
+            <div id="div_overlay_content">
+                <div id="div_settings" style="display: none;">
+                    <table class="table_text" id="table_settings" onclick="save_settings();">
+                        <tr id="tr_mode_1"><th colspan="4"><div class="div_button" onclick="handle_box_mode(2);">当前为基础模式，点击切换到卡组模式</div></th></tr>
+                        <tr id="tr_mode_2"><th colspan="4"><div class="div_button" onclick="handle_box_mode(1);">当前为卡组模式，点击切换到基础模式</div></th></tr>
+                        <tr>
+                            <td>
+                                集成战略：
+                            </td>
+                            <td>
+                                <input id="is_4" type="checkbox" checked><label for="is_4">探索者的银凇止境</label>
+                            </td>
+                            <td>
+                                <input id="is_3" type="checkbox"><label for="is_3">水月与深蓝之树</label>
+                            </td>
+                            <td>
+                                <input id="is_2" type="checkbox"><label for="is_2">傀影与猩红孤钻</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                允许使用不在box中的干员开局（招募助战）<span id="support_unit_disabled_in_deck_mode"></span>
+                            </td>
+                            <td>
+                                <input id="support_unit_enabled" type="checkbox"><label for="support_unit_enabled">开启</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                仅使用职业分队开局
+                            </td>
+                            <td>
+                                <input id="job_group_only" type="checkbox"><label for="job_group_only">开启</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                自定义box
+                            </td>
+                            <td>
+                                <div class="div_button_settings" id="div_button_settings_box" onclick="handle_box_settings(1);" style="width: 80%;">展开box</div>
+                            </td>
+                            <td>
+                                <div class="div_button_settings" id="div_button_settings_deck" onclick="handle_box_settings(2);" style="width: 80%;">展开卡组</div>
+                            </td>
+                        </tr>
+                    </table>
+                    <table class="table_text" id="table_box_basic" onclick="update_current_deck(); save_settings();" style="display: none; table-layout: auto; border: 1px solid #CCCCCC; user-select: none;">
+                        <tr><th style="width: 80px;">先锋</th><td style="width: auto;" id="td_box_operators_star_6_先锋"></td></tr>
+                        <tr><th style="width: 80px;">近卫</th><td style="width: auto;" id="td_box_operators_star_6_近卫"></td></tr>
+                        <tr><th style="width: 80px;">重装</th><td style="width: auto;" id="td_box_operators_star_6_重装"></td></tr>
+                        <tr><th style="width: 80px;">狙击</th><td style="width: auto;" id="td_box_operators_star_6_狙击"></td></tr>
+                        <tr><th style="width: 80px;">术师</th><td style="width: auto;" id="td_box_operators_star_6_术师"></td></tr>
+                        <tr><th style="width: 80px;">医疗</th><td style="width: auto;" id="td_box_operators_star_6_医疗"></td></tr>
+                        <tr><th style="width: 80px;">辅助</th><td style="width: auto;" id="td_box_operators_star_6_辅助"></td></tr>
+                        <tr><th style="width: 80px;">特种</th><td style="width: auto;" id="td_box_operators_star_6_特种"></td></tr>
+                    </table>
+                    <table class="table_text" id="table_box_deck" onclick="save_settings();" style="display: none; border: 1px solid #CCCCCC; user-select: none;">
+                        <tr>
+                            <td>当前 <span id="td_deck_count">0</span>，下限 40，上限 60</td>
+                            <th><div class="div_button" onclick="handle_full_deck();">清空当前卡组</div></th>
+                            <th><div class="div_button" onclick="handle_full_deck(DEFAULT_DECK);">使用默认卡组</div></th>
+                        </tr>
+                        <tr class="tr_border_bottom"><td colspan="4" id="td_current_deck_all" style="font-size: 0; padding: 1rem;">当前卡组为空</td></tr>
+                        <tr class="tr_border_bottom"><th>先锋</th><td colspan="3" id="td_deck_operators_先锋" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
+                        <tr class="tr_border_bottom"><th>近卫</th><td colspan="3" id="td_deck_operators_近卫" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
+                        <tr class="tr_border_bottom"><th>重装</th><td colspan="3" id="td_deck_operators_重装" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
+                        <tr class="tr_border_bottom"><th>狙击</th><td colspan="3" id="td_deck_operators_狙击" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
+                        <tr class="tr_border_bottom"><th>术师</th><td colspan="3" id="td_deck_operators_术师" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
+                        <tr class="tr_border_bottom"><th>医疗</th><td colspan="3" id="td_deck_operators_医疗" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
+                        <tr class="tr_border_bottom"><th>辅助</th><td colspan="3" id="td_deck_operators_辅助" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
+                        <tr class="tr_border_bottom"><th>特种</th><td colspan="3" id="td_deck_operators_特种" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
+                    </table>
+                </div>
+                <div id="div_update_log" style="display: none;"></div>
+                <div id="div_mail" style="display: none;"></div>
+                <div id="div_document" style="display: none;"></div>
+            </div>
         </div>
     </div>
     <div id="div_background">
@@ -45,9 +122,6 @@
                 <td>
                     <div class="div_button" id="div_navbar_button_document" onclick="handle_overlay('document');">📖</div>
                 </td>
-                <td>
-                    <div class="div_button" onclick="location.reload();" style="display: none;">📅</div>
-                </td>
                 <td style="width: auto;">&nbsp;</td>
                 <td style="width: 10em; text-align: right; padding-right: 1em;">
                     <div id="div_current_datetime"></div>
@@ -57,82 +131,6 @@
                 </td>
             </tr>
         </table>
-        <div id="div_document" style="display: none;"></div>
-        <div id="div_settings" style="display: none;">
-            <table class="table_text" id="table_settings" onclick="save_settings();">
-                <tr id="tr_mode_1"><th colspan="4"><div class="div_button" onclick="handle_box_mode(2);">当前为基础模式，点击切换到卡组模式</div></th></tr>
-                <tr id="tr_mode_2"><th colspan="4"><div class="div_button" onclick="handle_box_mode(1);">当前为卡组模式，点击切换到基础模式</div></th></tr>
-                <tr>
-                    <td>
-                        集成战略：
-                    </td>
-                    <td>
-                        <input id="is_4" type="checkbox" checked><label for="is_4">探索者的银凇止境</label>
-                    </td>
-                    <td>
-                        <input id="is_3" type="checkbox"><label for="is_3">水月与深蓝之树</label>
-                    </td>
-                    <td>
-                        <input id="is_2" type="checkbox"><label for="is_2">傀影与猩红孤钻</label>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        允许使用不在box中的干员开局（招募助战）<span id="support_unit_disabled_in_deck_mode"></span>
-                    </td>
-                    <td>
-                        <input id="support_unit_enabled" type="checkbox"><label for="support_unit_enabled">开启</label>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        仅使用职业分队开局
-                    </td>
-                    <td>
-                        <input id="job_group_only" type="checkbox"><label for="job_group_only">开启</label>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        自定义box
-                    </td>
-                    <td>
-                        <div class="div_button_settings" id="div_button_settings_box" onclick="handle_box_settings(1);" style="width: 80%;">展开box</div>
-                    </td>
-                    <td>
-                        <div class="div_button_settings" id="div_button_settings_deck" onclick="handle_box_settings(2);" style="width: 80%;">展开卡组</div>
-                    </td>
-                </tr>
-            </table>
-            <table class="table_text" id="table_box_basic" onclick="update_current_deck(); save_settings();" style="display: none; table-layout: auto; border: 1px solid #CCCCCC; user-select: none;">
-                <tr><th style="width: 80px;">先锋</th><td style="width: auto;" id="td_box_operators_star_6_先锋"></td></tr>
-                <tr><th style="width: 80px;">近卫</th><td style="width: auto;" id="td_box_operators_star_6_近卫"></td></tr>
-                <tr><th style="width: 80px;">重装</th><td style="width: auto;" id="td_box_operators_star_6_重装"></td></tr>
-                <tr><th style="width: 80px;">狙击</th><td style="width: auto;" id="td_box_operators_star_6_狙击"></td></tr>
-                <tr><th style="width: 80px;">术师</th><td style="width: auto;" id="td_box_operators_star_6_术师"></td></tr>
-                <tr><th style="width: 80px;">医疗</th><td style="width: auto;" id="td_box_operators_star_6_医疗"></td></tr>
-                <tr><th style="width: 80px;">辅助</th><td style="width: auto;" id="td_box_operators_star_6_辅助"></td></tr>
-                <tr><th style="width: 80px;">特种</th><td style="width: auto;" id="td_box_operators_star_6_特种"></td></tr>
-            </table>
-            <table class="table_text" id="table_box_deck" onclick="save_settings();" style="display: none; border: 1px solid #CCCCCC; user-select: none;">
-                <tr>
-                    <td>当前 <span id="td_deck_count">0</span>，下限 40，上限 60</td>
-                    <th><div class="div_button" onclick="handle_full_deck();">清空当前卡组</div></th>
-                    <th><div class="div_button" onclick="handle_full_deck(DEFAULT_DECK);">使用默认卡组</div></th>
-                </tr>
-                <tr class="tr_border_bottom"><td colspan="4" id="td_current_deck_all" style="font-size: 0; padding: 1rem;">当前卡组为空</td></tr>
-                <tr class="tr_border_bottom"><th>先锋</th><td colspan="3" id="td_deck_operators_先锋" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
-                <tr class="tr_border_bottom"><th>近卫</th><td colspan="3" id="td_deck_operators_近卫" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
-                <tr class="tr_border_bottom"><th>重装</th><td colspan="3" id="td_deck_operators_重装" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
-                <tr class="tr_border_bottom"><th>狙击</th><td colspan="3" id="td_deck_operators_狙击" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
-                <tr class="tr_border_bottom"><th>术师</th><td colspan="3" id="td_deck_operators_术师" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
-                <tr class="tr_border_bottom"><th>医疗</th><td colspan="3" id="td_deck_operators_医疗" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
-                <tr class="tr_border_bottom"><th>辅助</th><td colspan="3" id="td_deck_operators_辅助" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
-                <tr class="tr_border_bottom"><th>特种</th><td colspan="3" id="td_deck_operators_特种" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
-            </table>
-        </div>
-        <div id="div_update_log" style="display: none;"></div>
-        <div id="div_mail" style="display: none;"></div>
         <table class="table_text" id="table_main">
             <tr>
                 <th colspan="2">
