@@ -620,66 +620,11 @@ function draw_in_drama(code_name) {
 
 function get_opening_today() {
     if (current_box_mode == 1) {
-        get_opening_basic();
+        get_drama_basic(0);
     }
     else if (current_box_mode == 2) {
         get_drama_deck(0);
     }
-}
-
-function get_opening_basic() {
-    update_current_operators(document.getElementById('support_unit_enabled').checked);
-    let user_id = document.getElementById('user_id').value;
-    let now = (new Date).toLocaleDateString("zh-CN");
-    let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16);
-
-    let is_pool = [];
-    if (document.getElementById('is_2').checked) {
-        is_pool.push('傀影与猩红孤钻')
-    }
-    if (document.getElementById('is_3').checked) {
-        is_pool.push('水月与深蓝之树')
-    }
-    if (document.getElementById('is_4').checked) {
-        is_pool.push('探索者的银凇止境')
-    }
-    let opening_is = is_pool[hash_int % is_pool.length];
-    let opening_group;
-    if (document.getElementById('job_group_only').checked) {
-        opening_group = GROUPS_JOBS[hash_int % GROUPS_JOBS.length];
-    }
-    else {
-        if (opening_is == '傀影与猩红孤钻') {
-            opening_group = GROUPS_2[hash_int % GROUPS_2.length];
-        }
-        if (opening_is == '水月与深蓝之树') {
-            opening_group = GROUPS_3[hash_int % GROUPS_3.length];
-        }
-        if (opening_is == '探索者的银凇止境') {
-            opening_group = GROUPS_4[hash_int % GROUPS_4.length];
-        }
-    }
-    let operators;
-    if (opening_group == '突击战术分队') {
-        operators = current_operators_6_by_job['先锋'].concat(current_operators_6_by_job['近卫']);
-    }
-    else if (opening_group == '堡垒战术分队') {
-        operators = current_operators_6_by_job['重装'].concat(current_operators_6_by_job['辅助']);
-    }
-    else if (opening_group == '远程战术分队') {
-        operators = current_operators_6_by_job['狙击'].concat(current_operators_6_by_job['医疗']);
-    }
-    else if (opening_group == '破坏战术分队') {
-        operators = current_operators_6_by_job['术师'].concat(current_operators_6_by_job['特种']);
-    }
-    else {
-        operators = current_operators_6_list;
-    }
-    let opening_operator = operators[hash_int % operators.length];
-    let result = `我掐指一算，今天 ${user_id} 适合在 ${opening_is} 用 ${opening_group} ${opening_operator} 开局`;
-    document.getElementById('tr_today_button').style.display = 'none';
-    document.getElementById('tr_today_result').style.display = '';
-    handle_text_animation('td_today', result);
 }
 
 function get_drama_today(level) {
@@ -691,7 +636,7 @@ function get_drama_today(level) {
     }
 }
 
-function get_drama_basic(level=1) {
+function get_drama_basic(drama_level=7) {
     function check_drama_box() {
         let keys = Object.keys(drama_box);
         for (let i = 0; i < keys.length; i++) {
@@ -703,7 +648,7 @@ function get_drama_basic(level=1) {
         }
     }
 
-    let drama_level, reply_main = [], reply_picks = [];
+    let reply_main = [], reply_picks = [];
     let operators_to_get = update_current_operators();
     if (operators_to_get.length > 0) {
         reply_main.push(`<span class="elm_bg_orange" onclick="document.getElementById('span_to_get').style.display = '';" style="cursor: pointer;">${operators_to_get.length}位干员</span><span id="span_to_get" style="display: none;">（${operators_to_get.join('、')}）</span>不在box中`);
@@ -763,7 +708,8 @@ function get_drama_basic(level=1) {
     if (reply_main.length > 0) {
         reply_main = [`<p>${reply_main.join('，')}</p>`];
     }
-    reply_main.push(`<p>我掐指一算，今天 ${user_id} 适合在 ${opening_is} 用 ${opening_group} ${opening_operator} 开局</p>`);
+    let opening_result = `我掐指一算，今天 ${user_id} 适合在 ${opening_is} 用 ${opening_group} ${opening_operator} 开局`
+    reply_main.push(`<p>${opening_result}</p>`);
 
     update_current_operators();
     let picks = {
@@ -819,22 +765,9 @@ function get_drama_basic(level=1) {
             break;
         }
     }
-    switch (level) {
-        case 3:
-            drama_level = 3;
-            break;
-        case 7:
-            drama_level = 7;
-            break;
-        case 15:
-            drama_level = 15;
-            break;
-        default:
-            drama_level = 7;
-    }
     // 禁用（从本局游戏中移除）
     let banned_operators = []
-    for (let i = 0; i <= drama_level && drama_operators_star_6.length > 0; i++) {
+    for (let i = 0; i <= drama_level && drama_level > 0 && drama_operators_star_6.length > 0; i++) {
         let banned_operator = drama_operators_star_6[hash_int % drama_operators_star_6.length];
         banned_operators.push(banned_operator);
         drama_operators_star_6.splice(drama_operators_star_6.indexOf(banned_operator), 1);
@@ -845,7 +778,9 @@ function get_drama_basic(level=1) {
             }
         }
     }
-    reply_main.push(`<p>将以下 ${banned_operators.length} 位干员从本局游戏中移除：<span id="span_bans" onclick="handle_click_copy('span_bans');">${banned_operators.join('、')}</span> <span id="span_bans_copied" style="display: none;">已复制到剪贴板</span></p>`);
+    if (banned_operators.length > 0) {
+        reply_main.push(`<p>将以下 ${banned_operators.length} 位干员从本局游戏中移除：<span id="span_bans" onclick="handle_click_copy('span_bans');">${banned_operators.join('、')}</span> <span id="span_bans_copied" style="display: none;">已复制到剪贴板</span></p>`);
+    }
     // 处理禁用后box中某一职业没有六星干员的情况
     check_drama_box();
     // 选择
@@ -882,14 +817,22 @@ function get_drama_basic(level=1) {
             delete picks[job];
         }
     }
-    let picks_oneline = JSON.stringify(picks).replaceAll('","', '、').replaceAll('"', '').replaceAll('[', '').replaceAll(']', '').replaceAll('{', '').replaceAll('}', '').replaceAll(':', '：').replaceAll(',', ' | ');
-    picks_oneline = `<p>各职业六星干员必须优先选择：<span id="span_picks" onclick="handle_click_copy('span_picks');">${picks_oneline}</span> <span id="span_picks_copied" style="display: none;">已复制到剪贴板</span></p>`;
-    document.getElementById('tr_today_button').style.display = 'none';
-    document.getElementById('tr_today_result').style.display = 'none';
-    document.getElementById('tr_drama_button_1').style.display = 'none';
-    document.getElementById('tr_drama_button_2').style.display = 'none';
-    document.getElementById('tr_drama_result').style.display = '';
-    document.getElementById('td_drama').innerHTML = `${reply_main.join('')}${picks_oneline}<p>${reply_picks.join('<br>')}</p>`;
+    // 输出结果
+    if (drama_level == 0) {
+        document.getElementById('tr_today_button').style.display = 'none';
+        document.getElementById('tr_today_result').style.display = '';
+        handle_text_animation('td_today', opening_result);
+    }
+    else {
+        let picks_oneline = JSON.stringify(picks).replaceAll('","', '、').replaceAll('"', '').replaceAll('[', '').replaceAll(']', '').replaceAll('{', '').replaceAll('}', '').replaceAll(':', '：').replaceAll(',', ' | ');
+        picks_oneline = `<p>各职业六星干员必须优先选择：<span id="span_picks" onclick="handle_click_copy('span_picks');">${picks_oneline}</span> <span id="span_picks_copied" style="display: none;">已复制到剪贴板</span></p>`;
+        document.getElementById('tr_today_button').style.display = 'none';
+        document.getElementById('tr_today_result').style.display = 'none';
+        document.getElementById('tr_drama_button_1').style.display = 'none';
+        document.getElementById('tr_drama_button_2').style.display = 'none';
+        document.getElementById('tr_drama_result').style.display = '';
+        document.getElementById('td_drama').innerHTML = `${reply_main.join('')}${picks_oneline}<p>${reply_picks.join('<br>')}</p>`;
+    }
 }
 
 function get_drama_deck(drama_level) {
