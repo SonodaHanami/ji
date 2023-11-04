@@ -1,4 +1,4 @@
-const VERSION = '2.13b';
+const VERSION = '2.13c';
 
 const question_mark = '？';
 const window_length = 10;
@@ -6,18 +6,27 @@ const CONTENTS = {
     'settings': {
         'icon': '⚙',
         'title': '设置',
+        'file_path': 'kaiju/settings.html',
     },
     'update_log': {
         'icon': '⚠',
         'title': '更新日志',
+        'file_path': 'kaiju/update_log.html',
     },
     'mail': {
         'icon': '✉',
         'title': '邮件',
+        'file_path': 'kaiju/mail.html',
+    },
+    'mail_list': {
+        'icon': '✉',
+        'title': '邮件列表',
+        'file_path': 'kaiju/mail_list.json',
     },
     'document': {
         'icon': '📖',
         'title': '文档',
+        'file_path': 'kaiju/document.html',
     },
 }
 
@@ -199,7 +208,7 @@ const MAX_DECK_SIZE = 60;
 
 let operators_star_6_to_get = [];
 let last_checked_version = '';
-let mail_checked = [];
+let mail_received = [];
 
 let current_box_mode = 2;
 let current_operators_6_list, current_operators_6_by_job;
@@ -207,6 +216,7 @@ let current_deck = [];
 let current_temp_deck = [];
 let current_picks_by_job = [];
 let current_banned_operators = [];
+let current_mail_list = [];
 let current_overlay_content = '';
 
 
@@ -238,7 +248,7 @@ function save_settings() {
         }
         let data_to_save = {
             'last_checked_version': last_checked_version,
-            'mail_checked': mail_checked,
+            'mail_received': mail_received,
             'box_mode': current_box_mode,
             'enabled_is': enabled_is,
             'job_group_only': document.getElementById('job_group_only').checked,
@@ -266,8 +276,8 @@ function load_settings() {
         if ('last_checked_version' in data) {
             last_checked_version = data['last_checked_version'];
         }
-        if ('mail_checked' in data) {
-            mail_checked = data['mail_checked'];
+        if ('mail_received' in data) {
+            mail_received = data['mail_received'];
         }
         // 选中的集成战略
         if ('enabled_is' in data) {
@@ -297,18 +307,49 @@ function load_settings() {
 }
 
 function load_contents() {
-    let contents = ['document', 'update_log', 'mail'];
-    for (let i = 0; i < contents.length; i++) {
-        console.log(`加载内容 ${CONTENTS[contents[i]]['title']}`);
-        fetch(`kaiju/${contents[i]}.html`)
-        .then(response => response.text())
-        .then(doc => {
-            document.getElementById(`div_${contents[i]}`).innerHTML = doc;
+    console.log('开始加载文档');
+    console.time('加载文档');
+    fetch(CONTENTS['document']['file_path'])
+    .then(response => response.text())
+    .then(doc => {
+        document.getElementById('div_document').innerHTML = doc;
+        console.timeEnd('加载文档');
+    })
+    .catch(err => {
+        console.error(err);
+    });
+
+    console.log('开始加载更新日志');
+    console.time('加载更新日志');
+    fetch(CONTENTS['update_log']['file_path'])
+    .then(response => response.text())
+    .then(doc => {
+        document.getElementById('div_update_log').innerHTML = doc;
+        handle_red_spot('update_log');
+        console.timeEnd('加载更新日志');
+    })
+    .catch(err => {
+        console.error(err);
+    });
+
+    console.log('开始加载邮件页面和邮件列表');
+    console.time('加载邮件页面和邮件列表');
+    fetch(CONTENTS['mail']['file_path'])
+    .then(response => response.text())
+    .then(doc => {
+        document.getElementById('div_mail').innerHTML = doc;
+        fetch(CONTENTS['mail_list']['file_path'])
+        .then(response => response.json())
+        .then(mail_list => {
+            current_mail_list = mail_list.slice();
+            handle_mail_load_all();
+            handle_red_spot('mail_list');
+            console.timeEnd('加载邮件页面和邮件列表');
         })
-        .catch(err => {
-            console.error(err);
-        });
-    }
+    })
+    .catch(err => {
+        console.error(err);
+    });
 }
 
 function init_version() {
@@ -369,56 +410,165 @@ function init_table_box_deck() {
     }
 }
 
-function handle_red_spot() {
-    // 更新日志
-    if (last_checked_version == VERSION) {
-        document.getElementById('div_red_spot_version').style.display = 'none';
-        document.getElementById('div_red_spot_update_log').style.display = 'none';
-        document.getElementById('div_version').onclick = null;
-        document.getElementById('div_version').style.cursor = 'auto';
+function handle_red_spot(name) {
+    if (name == 'update_log') {
+        // 更新日志
+        if (last_checked_version == VERSION) {
+            document.getElementById('div_red_spot_version').style.display = 'none';
+            document.getElementById('div_red_spot_update_log').style.display = 'none';
+            document.getElementById('div_version').onclick = null;
+            document.getElementById('div_version').style.cursor = 'auto';
+        }
+        else {
+            console.log('在更新日志中检测到未确认过的新版本');
+            document.getElementById('div_red_spot_version').style.display = '';
+            document.getElementById('div_red_spot_update_log').style.display = '';
+            document.getElementById('div_version').onclick = () => {handle_overlay('update_log');}
+            document.getElementById('div_version').style.cursor = 'pointer';
+        }
     }
-    else {
-        console.log('检测到未确认过的新版本');
-        document.getElementById('div_red_spot_version').style.display = '';
-        document.getElementById('div_red_spot_update_log').style.display = '';
-        document.getElementById('div_version').onclick = () => {handle_overlay('update_log');}
-        document.getElementById('div_version').style.cursor = 'pointer';
-    }
-    // 邮件
-    if (mail_checked.includes(1)) {
-        document.getElementById('div_red_spot_mail').style.display = 'none';
-    }
-    else {
-        document.getElementById('div_red_spot_mail').style.display = '';
+    if (name == 'mail' || name == 'mail_list') {
+        // 邮件列表
+        let mail_not_received = 0;
+        for (let mail_idx = 0; mail_idx < current_mail_list.length; mail_idx++) {
+            if (!(mail_received.includes(current_mail_list[mail_idx]['timestamp']))) {
+                mail_not_received++;
+            }
+        }
+        if (mail_not_received > 0) {
+            console.log(`在邮件列表中检测到 ${mail_not_received} 封未收取的邮件`);
+            document.getElementById('div_red_spot_mail').style.display = '';
+        }
+        else {
+            document.getElementById('div_red_spot_mail').style.display = 'none';
+        }
     }
 }
 
-function handle_show_mail_detail() {
+// 邮件时间戳同时作为ID使用
+// 过期邮件自动删除，不再保存到已收取邮件列表中
+// 之后更新时再手动删除邮件
+
+function handle_mail_load_all() {
+    document.getElementById('table_mail_background').innerHTML = '';
+    for (let mail_idx = 0; mail_idx < current_mail_list.length; mail_idx++) {
+        let mail = current_mail_list[mail_idx];
+        let now = new Date();
+        let mail_date_str = new Date(mail['timestamp']).toLocaleDateString("zh-CN");
+        let rest_expiration = mail['expiration'] - now.getTime();
+        if (rest_expiration <= 0) {
+            continue;
+        }
+        let rest_expiration_str = '';
+        if (rest_expiration > 86400000) {
+            rest_expiration_str = `${Math.floor(rest_expiration / 86400000)}日后`;
+        }
+        else if (rest_expiration > 3600000) {
+            rest_expiration_str = `${Math.floor(rest_expiration / 3600000)}小时后`;
+        }
+        else if (rest_expiration > 60000) {
+            rest_expiration_str = `${Math.floor(rest_expiration / 60000)}分钟后`;
+        }
+        else {
+            rest_expiration_str = `1分钟内`;
+        }
+        current_mail_list[mail_idx]['date'] = mail_date_str;
+        current_mail_list[mail_idx]['expiration_str'] = `${rest_expiration_str}过期`;
+        td_mail_receive_class_list = ['td_mail_buttons']
+        td_mail_receive_onclick = `onclick="handle_mail_receive_attachment(${mail_idx})`;
+        td_mail_receive_text = '收取';
+        if (mail_received.includes(mail['timestamp'])) {
+            td_mail_receive_class_list.push('td_mail_buttons_received');
+            td_mail_receive_onclick = '';
+            td_mail_receive_text = '已收取';
+        }
+        document.getElementById('table_mail_background').innerHTML += `
+            <tr id="tr_mail_${mail_idx}">
+                <td>
+                    <table class="table_mail" id="table_mail_${mail_idx}">
+                        <tr onclick="handle_mail_show_detail(${mail_idx});">
+                            <td class="td_mail_face" rowspan="3">
+                                <div class="div_mail_face" style="background-image: url(&quot;https://wsrv.nl/?url=${mail['author']['face_image']}&quot;);"></div>
+                            </td>
+                            <td class="td_mail_title" rowspan="2">
+                                <div>${mail['message']['title']}</div>
+                            </td>
+                            <td class="td_mail_attachment" rowspan="3">
+                                <div class="div_mail_attachment_background">
+                                    <div class="div_mail_attachment_image" style="background-image: url(&quot;https://wsrv.nl/?url=${mail['attachments'][0]['full_image']}&quot;);"></div>
+                                </div>
+                                <div class="div_mail_attachment_icon"  style="background-image: url(&quot;https://wsrv.nl/?url=${mail['attachments'][0]['icon_image']}&quot;);"></div>
+                                <div class="div_mail_attachment_count">${mail['attachments'][0]['count']}</div>
+                            </td>
+                            <td class="td_mail_buttons">
+                                <div class="div_mail_button_show">查看</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td id="td_mail_receive_${mail_idx}" class="${td_mail_receive_class_list.join(' ')}" rowspan="2" ${td_mail_receive_onclick};">
+                                <div class="div_mail_button_receive">${td_mail_receive_text}</div>
+                            </td>
+                        </tr>
+                        <tr onclick="handle_mail_show_detail(${mail_idx});">
+                            <td>
+                                <div class="div_mail_from">来自<span>${mail['author']['name']}</span></div>
+                                <div class="div_mail_date">
+                                    <span class="span_mail_date">${mail_date_str}</span>
+                                    <span class="span_mail_time_left">${rest_expiration_str}</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        `
+    }
+}
+
+function handle_mail_show_detail(mail_idx) {
     if (document.getElementById('div_mail_overlay').style.display == 'none') {
+        // 加载内容
+        document.getElementById('div_mail_detail_title').innerHTML = current_mail_list[mail_idx]['message']['title'];
+        document.getElementById('div_mail_detail_expiration').innerHTML = current_mail_list[mail_idx]['expiration_str'];
+        document.getElementById('div_mail_detail_face').style.backgroundImage = `url(https://wsrv.nl/?url=${current_mail_list[mail_idx]['author']['face_image']})`;
+        document.getElementById('div_mail_detail_from').innerHTML = `来自<span>${current_mail_list[mail_idx]['author']['name']}</span>`;
+        document.getElementById('div_mail_detail_date').innerHTML = current_mail_list[mail_idx]['date'];
+        document.getElementById('p_mail_detail_message_header').innerHTML = current_mail_list[mail_idx]['message']['header'];
+        document.getElementById('p_mail_detail_message_body').innerHTML = current_mail_list[mail_idx]['message']['body'];
+        document.getElementById('p_mail_detail_message_signing').innerHTML = current_mail_list[mail_idx]['message']['signing'];
+        // 显示
         document.getElementById('div_mail_overlay').style.display = '';
         document.getElementById('div_mail_overlay_detail').style.display = '';
-        document.getElementById('div_mail_overlay_recieve').style.display = 'none';
+        document.getElementById('div_mail_overlay_receive').style.display = 'none';
+        document.getElementById('p_mail_detail_message_header').style.display = (current_mail_list[mail_idx]['message']['header'].length == 0) ? 'none' : '';
+        document.getElementById('p_mail_detail_message_signing').style.display = (current_mail_list[mail_idx]['message']['signing'].length == 0) ? 'none' : '';
     }
     else {
         document.getElementById('div_mail_overlay').style.display = 'none';
     }
 }
 
-function handle_recieve_attachment(mail_id) {
+function handle_mail_receive_attachment(mail_idx) {
+    console.log('收取邮件', current_mail_list[mail_idx]['timestamp']);
     if (document.getElementById('div_mail_overlay').style.display == 'none') {
+        // 加载内容
+        document.getElementById('div_mail_attachment_image').style.backgroundImage = `url(https://wsrv.nl/?url=${current_mail_list[mail_idx]['attachments'][0]['full_image']})`;
+        document.getElementById('div_mail_attachment_icon').style.backgroundImage = `url(https://wsrv.nl/?url=${current_mail_list[mail_idx]['attachments'][0]['icon_image']})`;
+        document.getElementById('div_mail_attachment_count').innerHTML = current_mail_list[mail_idx]['attachments'][0]['count'];
+        document.getElementById('div_mail_attachment_name').innerHTML = current_mail_list[mail_idx]['attachments'][0]['name'];
+        document.getElementById('div_mail_overlay_receive').onclick = () => {handle_mail_receive_attachment(mail_idx);};
+        // 显示
         document.getElementById('div_mail_overlay').style.display = '';
-        document.getElementById('div_mail_overlay_recieve').style.display = '';
+        document.getElementById('div_mail_overlay_receive').style.display = '';
         document.getElementById('div_mail_overlay_detail').style.display = 'none';
     }
     else {
         document.getElementById('div_mail_overlay').style.display = 'none';
     }
-    let recieve_buttons = document.getElementsByClassName(`td_mail_buttons_recieve`);
-    for (let j = 0; j < recieve_buttons.length; j++) {
-        recieve_buttons[j].style.color = '#AAA';
-        recieve_buttons[j].onclick = null;
-    }
-    update_mail_checked(mail_id);
+    document.getElementById(`td_mail_receive_${mail_idx}`).innerHTML = `<div class="div_mail_button_receive">已收取</div>`;
+    document.getElementById(`td_mail_receive_${mail_idx}`).classList.add('td_mail_buttons_received');
+    document.getElementById(`td_mail_receive_${mail_idx}`).onclick = null;
+    update_mail_received(current_mail_list[mail_idx]['timestamp']);
     save_settings();
 }
 
@@ -426,9 +576,9 @@ function update_last_checked_version() {
     last_checked_version = VERSION;
 }
 
-function update_mail_checked(mail_id) {
-    if (!(mail_checked.includes(mail_id))) {
-        mail_checked.push(mail_id);
+function update_mail_received(mail_timestamp) {
+    if (!(mail_received.includes(mail_timestamp))) {
+        mail_received.push(mail_timestamp);
     }
 }
 
@@ -1208,11 +1358,11 @@ function handle_overlay(name) {
     }
     else {
         console.log(`关闭 ${current_overlay_content}`);
+        handle_red_spot(current_overlay_content);
         document.getElementById('div_overlay').style.display = 'none';
         document.getElementById(`div_${current_overlay_content}`).style.display = 'none';
         document.body.style.overflow = 'auto';
         current_overlay_content = '';
-        handle_red_spot();
     }
 }
 

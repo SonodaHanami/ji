@@ -1,0 +1,46 @@
+[
+    {
+        "timestamp": 1698228000000,
+        "expiration": 1700820000000,
+        "author": {
+            "name": "坎诺特",
+            "face_image": "https://i0.hdslb.com/bfs/face/bedbca4020bb23eac6f27cf4655bc41d5e915915.jpg"
+        },
+        "message": {
+            "title": "来自坎诺特的信息",
+            "header": "",
+            "body": "bug是羽波写的，为什么是我来发200源石锭？",
+            "signing": ""
+        },
+        "attachments": [
+            {
+                "name": "源石锭",
+                "count": 200,
+                "full_image": "https://prts.wiki/images/a/a9/%E9%9B%86%E6%88%90%E6%88%98%E7%95%A5_%E9%81%93%E5%85%B7_%E6%BA%90%E7%9F%B3%E9%94%AD.png",
+                "icon_image": "https://prts.wiki/images/4/40/%E5%9B%BE%E6%A0%87_%E6%BA%90%E7%9F%B3%E9%94%AD.png"
+            }
+        ]
+    },
+    {
+        "timestamp": 1698143400000,
+        "expiration": 1700735400000,
+        "author": {
+            "name": "羽波",
+            "face_image": "https://github.com/identicons/sonodahanami.png"
+        },
+        "message": {
+            "title": "来自羽波的信息",
+            "header": "尊敬的博士",
+            "body": "感谢您对肉鸽开局生成器的支持与喜爱。",
+            "signing": "羽波"
+        },
+        "attachments": [
+            {
+                "name": "源石锭",
+                "count": 600,
+                "full_image": "https://prts.wiki/images/a/a9/%E9%9B%86%E6%88%90%E6%88%98%E7%95%A5_%E9%81%93%E5%85%B7_%E6%BA%90%E7%9F%B3%E9%94%AD.png",
+                "icon_image": "https://prts.wiki/images/4/40/%E5%9B%BE%E6%A0%87_%E6%BA%90%E7%9F%B3%E9%94%AD.png"
+            }
+        ]
+    }
+]
