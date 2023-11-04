@@ -472,8 +472,9 @@ function handle_mail_load_all() {
         else {
             rest_expiration_str = `1分钟内`;
         }
+        rest_expiration_str += `过期`;
+        current_mail_list[mail_idx]['expiration_str'] = rest_expiration_str;
         current_mail_list[mail_idx]['date'] = mail_date_str;
-        current_mail_list[mail_idx]['expiration_str'] = `${rest_expiration_str}过期`;
         td_mail_receive_class_list = ['td_mail_buttons']
         td_mail_receive_onclick = `onclick="handle_mail_receive_attachment(${mail_idx})`;
         td_mail_receive_text = '收取';
