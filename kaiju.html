@@ -11,6 +11,43 @@
         gtag('config', 'G-QGM58QCD7C');
     </script>
     <script src="https://cdn.bootcss.com/blueimp-md5/2.12.0/js/md5.min.js"></script>
+    <style>
+        /* CSSFX, Copyright (c) 2019 Jonathan Olaleye, Licensed under MIT License */
+        /* https://github.com/jolaleye/cssfx/blob/master/LICENSE */
+        .balls {
+            width: 3.5em;
+            display: flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .balls div {
+            width: 0.8em;
+            height: 0.8em;
+            border-radius: 50%;
+            background-color: #fc2f70;
+            transform: translateY(-100%);
+            animation: wave 0.8s ease-in-out alternate infinite;
+        }
+
+        .balls div:nth-of-type(1) {
+            animation-delay: -0.4s;
+        }
+
+        .balls div:nth-of-type(2) {
+            animation-delay: -0.2s;
+        }
+
+        @keyframes wave {
+            from {
+                transform: translateY(-100%);
+            }
+            to {
+                transform: translateY(100%);
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -112,7 +149,7 @@
             </div>
         </div>
     </div>
-    <div id="div_background">
+    <div id="div_background" style="display: none;">
         <table class="table_text" id="table_navbar">
             <tr>
                 <td>
@@ -174,25 +211,67 @@
         </table>
         <textarea id="textarea_copy">作者：羽波</textarea>
     </div>
+    <div id="div_loading" style="text-align: left;">
+        <p id="p_loading">加载中，请稍候</p>
+        <div id="div_balls" class="balls">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
 
     <script>
         let current_timestamp = new Date().getTime();
-        document.write(`<link type="text/css" rel="stylesheet" href="css/common.css?timestamp=${current_timestamp}">`);
-        document.write(`<script type="text/javascript" src="js/kaiju.js?timestamp=${current_timestamp}"><\/script>`);
-    </script>
-    <script>
-        // 页面加载完成时执行
-        init_version();
-        init_all_operators();
-        init_table_box_basic();
-        update_current_operators();
-        init_table_box_deck();
-        load_settings();
-        handle_box_mode(current_box_mode);
-        update_current_deck();
-        load_contents();
-        update_current_datetime();
-        setInterval(update_current_datetime, 1000);
+        let head = document.head || document.getElementsByTagName("head")[0];
+        fetch(`js/kaiju.js?timestamp=${current_timestamp}`)
+        .then(response => {
+            if (response.status == 200) {
+                return response.text();
+            }
+            else {
+                throw ['kaiju.js', response.status];
+            }
+        })
+        .then(data => {
+            let node = document.createElement('script');
+            node.innerHTML = data;
+            head.appendChild(node);
+            return fetch(`css/common.css?timestamp=${current_timestamp}`);
+        })
+        .then(response => {
+            if (response.status == 200) {
+                return response.text();
+            }
+            else {
+                throw ['common.css', response.status];
+            }
+        })
+        .then(data => {
+            let node = document.createElement('style');
+            node.innerHTML = data;
+            head.appendChild(node);
+        })
+        .then(nothing => {
+            // 页面加载完成时执行
+            document.getElementById('div_loading').style.display = 'none';
+            document.getElementById('div_background').style.display = '';
+            init_version();
+            update_current_datetime();
+            init_all_operators();
+            init_table_box_basic();
+            update_current_operators();
+            init_table_box_deck();
+            load_settings();
+            handle_box_mode(current_box_mode);
+            update_current_deck();
+            load_contents();
+        })
+        .catch(exception => {
+            error_message = `加载 ${exception[0]} 时遇到错误 ${exception[1]}，请重试`;
+            console.log(error_message);
+            document.getElementById('p_loading').innerHTML = error_message;
+            document.getElementById('div_balls').style.display = 'none';
+        });
     </script>
 </body>
 </html>
