@@ -15,9 +15,9 @@ html, body {
 }
 
 body {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-    text-align: center;
+    /* padding-left: 0.5em; */
+    /* padding-right: 0.5em; */
+    /* text-align: center; */
     overflow: auto;
 }
 
@@ -95,54 +95,32 @@ a, a:link, a:visited {
     text-align: left;
     table-layout: fixed;
     border-collapse: collapse;
-}
 
-.table_text tr {
-    height: 3em;
-}
+    tr {
+        height: 3em;
+    }
 
-.table_text th {
-    font-size: 2em;
-    padding: 0.5em 1em;
-}
+    th {
+        font-size: 2em;
+        padding: 0.5em 1em;
+    }
 
-.table_text td {
-    font-size: 1.5em;
-    height: 3em;
-    padding: 0.5em 1em;
-}
-
-#div_overlay {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 3;
-    background-color: var(--tm66);
-    backdrop-filter: blur(6px);
-
-    #div_overlay_container {
+    td {
         font-size: 1.5em;
-        height: 100%;
-        color: #000;
-        background-color: #dddd;
-        text-align: left;
-        display: flex;
-        flex-flow: column;
-        position: relative;
+        height: 3em;
+        padding: 0.5em 1em;
     }
 }
 
-#table_overlay_header {
+#table_sub_content_header {
+    position: fixed;
+    background-color: #DDD;
     table-layout: auto;
     width: 100%;
     flex: 0 1 auto;
     border-bottom: 0.5em solid #FFFFFF;
     box-shadow: var(--tm66) 0 0 6em 0;
-    z-index: 1;
+    z-index: 2;
 }
 
 #td_overlay_header_back {
@@ -168,14 +146,27 @@ a, a:link, a:visited {
     margin-left: 1em;
 }
 
-#div_overlay_content {
-    flex: 1 1 auto;
+#div_contents {
+    position: absolute;
+    top: 8em;
+    left: 0;
+    right: 0;
+    z-index: 1;
     padding-left: 2em;
     padding-right: 2em;
-    overflow-y: scroll;
+
+    .div_sub_contents {
+        font-size: 1.5em;
+        height: 100%;
+        color: #000;
+        text-align: left;
+        display: flex;
+        flex-flow: column;
+        position: relative;
+    }
 }
 
-#table_navbar {
+#table_main_navbar {
     table-layout: auto;
     border: 0;
     background-color: #FFFFFF;
@@ -184,52 +175,39 @@ a, a:link, a:visited {
     top: 0;
     left: 0;
     z-index: 2;
-}
 
-#table_navbar td {
-    position: relative;
-    width: 1em;
-    height: 2em;
-    padding: 0;
-}
+    td {
+        position: relative;
+        width: 1em;
+        height: 2em;
+        padding: 0;
+    }
 
-#table_navbar td div{
-    background-color: var(--tm);
-    border: 0 solid #000;
-}
+    td div{
+        background-color: var(--tm);
+        border: 0 solid #000;
+    }
 
-#table_navbar .div_button {
-    font-size: 2em;
-}
+    .div_button {
+        font-size: 2em;
+    }
 
-#table_navbar .div_button:hover{
-    background-color: var(--blue);
-}
+    .div_button:hover{
+        background-color: var(--blue);
+    }
 
-#table_navbar .div_red_spot {
-    font-size: 0.8em;
-    position: absolute;
-    top: 0.75em;
-    right: 0.25em;
-    width: 1em;
-    height: 1em;
-    text-shadow: none;
-    margin: 0.2em;
-    background-color: #ff3d3d;
-    border-radius: 1em;
-}
-
-#div_version .div_red_spot {
-    font-size: 0.4em;
-    position: absolute;
-    top: -0.5em;
-    right: -1em;
-    width: 1em;
-    height: 1em;
-    text-shadow: none;
-    margin: 0.2em;
-    background-color: #ff3d3d;
-    border-radius: 1em;
+    .div_red_spot {
+        font-size: 0.8em;
+        position: absolute;
+        top: 0.75em;
+        right: 0.25em;
+        width: 1em;
+        height: 1em;
+        text-shadow: none;
+        margin: 0.2em;
+        background-color: #ff3d3d;
+        border-radius: 1em;
+    }
 }
 
 #div_background {
@@ -382,8 +360,6 @@ textarea {
         margin-left: 2em;
     }
 }
-
-
 
 #table_receive {
     height: 100%;
@@ -547,13 +523,6 @@ textarea {
     cursor: auto;
 }
 
-#table_main {
-    position: absolute;
-    top: 8em;
-    left: 0;
-    z-index: 1;
-}
-
 #div_title {
     font-size: 2em;
     text-align: center;
@@ -565,6 +534,19 @@ textarea {
 #div_version {
     position: relative;
     margin-left: 0.5em;
+
+    .div_red_spot {
+        font-size: 0.4em;
+        position: absolute;
+        top: -0.5em;
+        right: -1em;
+        width: 1em;
+        height: 1em;
+        text-shadow: none;
+        margin: 0.2em;
+        background-color: #ff3d3d;
+        border-radius: 1em;
+    }
 }
 
 .div_notice_button {
@@ -684,4 +666,14 @@ textarea {
     background-color: #aaccee;
     cursor: pointer;
     user-select: none;
+}
+
+#div_link {
+    font-size: 2em;
+    font-weight: bold;
+    color: #2226;
+    position: fixed;
+    bottom: 0.2em;
+    right: 0.2em;
+    z-index: 6;
 }

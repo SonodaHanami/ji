@@ -1,4 +1,4 @@
-const VERSION = '2.13d';
+const VERSION = '2.13e';
 
 const question_mark = '？';
 const window_length = 10;
@@ -6,27 +6,27 @@ const CONTENTS = {
     'settings': {
         'icon': '⚙',
         'title': '设置',
-        'file_path': 'kaiju/settings.html',
+        'file_path': 'settings.html',
     },
     'update_log': {
         'icon': '⚠',
         'title': '更新日志',
-        'file_path': 'kaiju/update_log.html',
+        'file_path': 'update_log.html',
     },
-    'mail': {
-        'icon': '✉',
-        'title': '邮件',
-        'file_path': 'kaiju/mail.html',
-    },
-    'mail_list': {
-        'icon': '✉',
-        'title': '邮件列表',
-        'file_path': 'kaiju/mail_list.json',
-    },
+    // 'mail': {
+    //     'icon': '✉',
+    //     'title': '邮件',
+    //     'file_path': 'mail.html',
+    // },
+    // 'mail_list': {
+    //     'icon': '✉',
+    //     'title': '邮件列表',
+    //     'file_path': 'mail_list.json',
+    // },
     'document': {
         'icon': '📖',
         'title': '文档',
-        'file_path': 'kaiju/document.html',
+        'file_path': 'document.html',
     },
 }
 
@@ -191,13 +191,14 @@ const OPERATORS_BY_STAR = {
 }
 
 const DEFAULT_DECK = [
-    '琴柳', '伊内丝', '缪尔赛思',
-    '锏', '史尔特尔', '耀骑士临光', '百炼嘉维尔', '玛恩纳', '玛恩纳', '玛恩纳', '仇白',
+    '伊内丝', '琴柳', '缪尔赛思',
+    '锏', '锏', '玛恩纳', '玛恩纳', '玛恩纳', '史尔特尔', '仇白', '耀骑士临光', '百炼嘉维尔',
     '星熊', '黍', '涤火杰西卡',
     '莱伊', '提丰',
     '艾雅法拉', '莫斯提马', '异客', '澄闪', '林',
-    '夜莺', '焰影苇草', '纯烬艾雅法拉',
-    '铃兰', '浊心斯卡蒂', '多萝西', '缄默德克萨斯', '缄默德克萨斯', '麒麟R夜刀', '麒麟R夜刀', '琳琅诗怀雅',
+    '纯烬艾雅法拉', '焰影苇草', '夜莺',
+    '铃兰', '浊心斯卡蒂',
+    '缄默德克萨斯', '缄默德克萨斯', '麒麟R夜刀', '麒麟R夜刀', '艾拉',
     '极境', '四月', '阿米娅', '雪绒', '白面鸮', '赫默', '华法琳', '巫恋',
     '桃金娘', '蛇屠箱',
     '芬', '玫兰莎', '泡普卡', '卡缇', '米格鲁', '斑点',
@@ -217,7 +218,7 @@ let current_temp_deck = [];
 let current_picks_by_job = [];
 let current_banned_operators = [];
 let current_mail_list = [];
-let current_overlay_content = '';
+let current_sub_content = '';
 
 
 function save_settings() {
@@ -307,9 +308,10 @@ function load_settings() {
 }
 
 function load_contents() {
+    let current_timestamp = new Date().getTime();
     console.log('开始加载文档');
     console.time('加载文档');
-    fetch(CONTENTS['document']['file_path'])
+    fetch(`${CONTENTS['document']['file_path']}?t=${current_timestamp}`)
     .then(response => response.text())
     .then(doc => {
         document.getElementById('div_document').innerHTML = doc;
@@ -321,7 +323,7 @@ function load_contents() {
 
     console.log('开始加载更新日志');
     console.time('加载更新日志');
-    fetch(CONTENTS['update_log']['file_path'])
+    fetch(`${CONTENTS['update_log']['file_path']}?t=${current_timestamp}`)
     .then(response => response.text())
     .then(doc => {
         document.getElementById('div_update_log').innerHTML = doc;
@@ -332,24 +334,24 @@ function load_contents() {
         console.error(err);
     });
 
-    console.log('开始加载邮件页面和邮件列表');
-    console.time('加载邮件页面和邮件列表');
-    fetch(CONTENTS['mail']['file_path'])
-    .then(response => response.text())
-    .then(doc => {
-        document.getElementById('div_mail').innerHTML = doc;
-        fetch(CONTENTS['mail_list']['file_path'])
-        .then(response => response.json())
-        .then(mail_list => {
-            current_mail_list = mail_list.slice();
-            handle_mail_load_all();
-            handle_red_spot('mail_list');
-            console.timeEnd('加载邮件页面和邮件列表');
-        })
-    })
-    .catch(err => {
-        console.error(err);
-    });
+    // console.log('开始加载邮件页面和邮件列表');
+    // console.time('加载邮件页面和邮件列表');
+    // fetch(CONTENTS['mail']['file_path'])
+    // .then(response => response.text())
+    // .then(doc => {
+    //     document.getElementById('div_mail').innerHTML = doc;
+    //     fetch(`${CONTENTS['mail_list']['file_path']}?t=${current_timestamp}`)
+    //     .then(response => response.json())
+    //     .then(mail_list => {
+    //         current_mail_list = mail_list.slice();
+    //         handle_mail_load_all();
+    //         handle_red_spot('mail_list');
+    //         console.timeEnd('加载邮件页面和邮件列表');
+    //     })
+    // })
+    // .catch(err => {
+    //     console.error(err);
+    // });
 }
 
 function init_version() {
@@ -423,7 +425,7 @@ function handle_red_spot(name) {
             console.log('在更新日志中检测到未确认过的新版本');
             document.getElementById('div_red_spot_version').style.display = '';
             document.getElementById('div_red_spot_update_log').style.display = '';
-            document.getElementById('div_version').onclick = () => {handle_overlay('update_log');}
+            document.getElementById('div_version').onclick = () => {handle_sub_content('update_log');}
             document.getElementById('div_version').style.cursor = 'pointer';
         }
     }
@@ -1342,15 +1344,19 @@ function handle_click_copy(target) {
     console.log('复制成功');
 }
 
-function handle_overlay(name) {
-    if (name != undefined && document.getElementById('div_overlay').style.display == 'none') {
+function handle_sub_content(name) {
+    if (name != undefined && current_sub_content == '') {
         console.log(`打开 ${name}`);
-        current_overlay_content = name;
-        document.body.style.overflow = 'hidden';
-        document.getElementById('div_overlay').style.display = '';
+        current_sub_content = name;
+        // document.body.style.overflow = 'hidden';
+        document.body.style.backgroundColor = '#dddd';
+        document.getElementById('table_sub_content_header').style.display = '';
         document.getElementById(`div_${name}`).style.display = '';
+        document.getElementById(`table_main_navbar`).style.display = 'none';
+        document.getElementById(`div_main`).style.display = 'none';
         document.getElementById('span_overlay_header_icon').innerHTML = CONTENTS[name]['icon'];
         document.getElementById('span_overlay_header_title').innerHTML = CONTENTS[name]['title'];
+
         if (name == 'update_log') {
             console.log('已确认最新版本');
             update_last_checked_version();
@@ -1358,12 +1364,15 @@ function handle_overlay(name) {
         }
     }
     else {
-        console.log(`关闭 ${current_overlay_content}`);
-        handle_red_spot(current_overlay_content);
-        document.getElementById('div_overlay').style.display = 'none';
-        document.getElementById(`div_${current_overlay_content}`).style.display = 'none';
-        document.body.style.overflow = 'auto';
-        current_overlay_content = '';
+        console.log(`关闭 ${current_sub_content}`);
+        handle_red_spot(current_sub_content);
+        document.body.style.backgroundColor = '#FFF';
+        document.getElementById('table_sub_content_header').style.display = 'none';
+        document.getElementById(`div_${current_sub_content}`).style.display = 'none';
+        document.getElementById(`table_main_navbar`).style.display = '';
+        document.getElementById(`div_main`).style.display = '';
+        // document.body.style.overflow = 'auto';
+        current_sub_content = '';
     }
 }
 
