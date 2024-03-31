@@ -591,6 +591,7 @@ function update_current_datetime() {
     if (document.getElementById('div_current_datetime').innerHTML != new_datetime) {
         document.getElementById('div_current_datetime').innerHTML = new_datetime;
     }
+    setTimeout(update_current_datetime, 1000);
 }
 
 function update_current_box() {

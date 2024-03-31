@@ -223,6 +223,12 @@ a, a:link, a:visited {
     border-bottom: 1px dotted #DDDDDD;
 }
 
+.td_border {
+    border-width: 1px;
+    border-style: solid;
+    border-color: #000;
+}
+
 th input {
     width: 80%;
     font-size: 1.5em;

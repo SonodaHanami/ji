@@ -1,16 +1,14 @@
 <html>
 <head>
-    <meta charset="utf-8" />
-    <title>肉鸽开局生成器</title>
-    <!-- <link rel="icon" href="./favicon.ico"> -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-QGM58QCD7C"></script>
+    <meta charset="utf-8">
+    <title>干员二分器</title>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MZCWWQJQQT"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
-        gtag('config', 'G-QGM58QCD7C');
+        gtag('config', 'G-MZCWWQJQQT');
     </script>
-    <script src="https://cdn.bootcss.com/blueimp-md5/2.12.0/js/md5.min.js"></script>
     <style>
         /* CSSFX, Copyright (c) 2019 Jonathan Olaleye, Licensed under MIT License */
         /* https://github.com/jolaleye/cssfx/blob/master/LICENSE */
@@ -49,7 +47,6 @@
         }
     </style>
 </head>
-
 <body>
     <div id="div_0" style="display: none;">
         <table class="table_text" id="table_main_navbar">
@@ -89,10 +86,10 @@
         <div id="div_contents">
             <div id="div_main">
                 <table class="table_text" id="table_main">
-                    <tr>
-                        <th colspan="2">
+                    <tr id="tr_title">
+                        <th colspan="7">
                             <div class="elm_outline elm_white" id="div_title">
-                                肉鸽开局生成器
+                                干员二分器
                                 <div id="div_version">
                                     <div class="div_red_spot" id="div_red_spot_version" style="display: none;"></div>
                                     <span id="span_version"></span>
@@ -100,29 +97,48 @@
                             </div>
                         </th>
                     </tr>
-                    <tr style="user-select: none;">
-                        <th colspan="1">我是 <input type="text" id="user_id" onkeypress="handle_input_keypress(event);"></th>
-                        <th colspan="1"><div class="div_button" onclick="reset_opening_today_4();">重置</div></th>
+                    <tr style="user-select: none; text-align: center;">
+                        <th colspan="3" id="th_type_a" class="td_border" onclick="handle_filter('type', 'a');">ABCDEFGHIJKLM</th>
+                        <th colspan="3" id="th_type_b" class="td_border" onclick="handle_filter('type', 'b');">NOPQRSTUVWXYZ</th> 
+                        <th colspan="1" id="th_job_先锋" class="td_border" onclick="handle_filter('job', '先锋');">先锋</th> 
                     </tr>
-                    <tr id="tr_today_button">
-                        <th colspan="2"><div class="div_button elm_outline elm_white" onclick="get_opening_today();">今日开局！</div></th>
+                    <tr style="user-select: none; text-align: center;">
+                        <th colspan="2" id="th_star_6" class="td_border" onclick="handle_filter('star', '6');">6⭐</th>
+                        <th colspan="2" id="th_star_5" class="td_border" onclick="handle_filter('star', '5');">5⭐</th> 
+                        <th colspan="2" id="th_star_4321" class="td_border" onclick="handle_filter('star', '4321');">4/3/2/1⭐</th> 
+                        <th colspan="1" id="th_job_近卫" class="td_border" onclick="handle_filter('job', '近卫');">近卫</th>
                     </tr>
-                    <tr id="tr_today_result" style="display: none;">
-                        <td colspan="2" id="td_today"></td>
+                    <tr style="user-select: none; text-align: center;">
+                        <td colspan="6" rowspan="6" id="td_current_operators" class="td_border" style="user-select: auto; text-align: left;">
+                            <p>这里显示干员</p>
+                        </td>
+                        <th colspan="1" id="th_job_重装" class="td_border" onclick="handle_filter('job', '重装');">重装</th>
                     </tr>
-                    <tr id="tr_drama_button_1">
-                        <th colspan="2" style="color: #ffbf92;"><div class="div_button elm_outline elm_orange" onclick="get_drama_today(7);">今日剧本！</div></th>
+                    <tr style="user-select: none; text-align: center;">
+                        <th colspan="1" id="th_job_狙击" class="td_border" onclick="handle_filter('job', '狙击');">狙击</th>
                     </tr>
-                    <tr id="tr_drama_button_2">
-                        <th colspan="1"><div class="div_button elm_outline elm_green" onclick="get_drama_today(3);">今日剧本青春版！</div></th>
-                        <th colspan="1"><div class="div_button elm_outline elm_red" onclick="get_drama_today(15);">今日剧本+！</div></th>
+                    <tr style="user-select: none; text-align: center;">
+                        <th colspan="1" id="th_job_术师" class="td_border" onclick="handle_filter('job', '术师');">术师</th>
                     </tr>
-                    <tr id="tr_drama_result" style="display: none;">
-                        <td colspan="2" id="td_drama"></td>
+                    <tr style="user-select: none; text-align: center;">
+                        <th colspan="1" id="th_job_医疗" class="td_border" onclick="handle_filter('job', '医疗');">医疗</th>
+                    </tr>
+                    <tr style="user-select: none; text-align: center;">
+                        <th colspan="1" id="th_job_辅助" class="td_border" onclick="handle_filter('job', '辅助');">辅助</th>
+                    </tr>
+                    <tr style="user-select: none; text-align: center;">
+                        <th colspan="1" id="th_job_特种" class="td_border" onclick="handle_filter('job', '特种');">特种</th>
+                    </tr>
+                    <tr>
+                        <td colspan="7">
+                        </td>
                     </tr>
                 </table>
             </div>
+
             <div id="div_settings" class="div_sub_contents" style="display: none;">
+                暂时没有设置喵
+                <!--
                 <table class="table_text" id="table_settings" onclick="save_settings();">
                     <tr id="tr_mode_1"><th colspan="4"><div class="div_button" onclick="handle_box_mode(2);">当前为基础模式，点击切换到卡组模式</div></th></tr>
                     <tr id="tr_mode_2"><th colspan="4"><div class="div_button" onclick="handle_box_mode(1);">当前为卡组模式，点击切换到基础模式</div></th></tr>
@@ -205,14 +221,14 @@
                     <tr></tr>
                     <tr></tr>
                 </table>
+                -->
             </div>
             <div id="div_update_log" class="div_sub_contents" style="display: none;"></div>
-            <div id="div_mail" class="div_sub_contents" style="display: none;"></div>
             <div id="div_document" class="div_sub_contents" style="display: none;"></div>
         </div>
         <div id="div_link">
-            <a href="https://yubo.run/kaiju" style="color: #2222;">
-                yubo.run/kaiju
+            <a href="https://yubo.run/erfen" style="color: #2222;">
+                yubo.run/erfen
             </a>
         </div>
         <textarea id="textarea_copy">作者：羽波</textarea>
@@ -229,13 +245,13 @@
     <script>
         let current_timestamp = new Date().getTime();
         let head = document.head || document.getElementsByTagName("head")[0];
-        fetch(`../js/kaiju.js?t=${current_timestamp}`)
+        fetch(`../js/dichotomy.js?t=${current_timestamp}`)
         .then(response => {
             if (response.status == 200) {
                 return response.text();
             }
             else {
-                throw ['kaiju.js', response.status];
+                throw ['dichotomy.js', response.status];
             }
         })
         .then(data => {
@@ -263,14 +279,9 @@
             document.getElementById('div_0').style.display = '';
             init_version();
             update_current_datetime();
-            init_all_operators();
-            init_table_box_basic();
-            update_current_operators();
-            init_table_box_deck();
             load_settings();
-            handle_box_mode(current_box_mode);
-            update_current_deck();
             load_contents();
+            update_current_operators();
         })
         .catch(exception => {
             error_message = `加载 ${exception[0]} 时遇到错误 ${exception[1]}，请重试`;
