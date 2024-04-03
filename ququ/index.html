@@ -1,0 +1,219 @@
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>IM-2 斗蛐蛐计算器</title>
+    <!-- <link rel="icon" href="./favicon.ico"> -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MZCWWQJQQT"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-MZCWWQJQQT');
+    </script>
+    <script src="https://cdn.bootcss.com/blueimp-md5/2.12.0/js/md5.min.js"></script>
+    <style>
+        /* CSSFX, Copyright (c) 2019 Jonathan Olaleye, Licensed under MIT License */
+        /* https://github.com/jolaleye/cssfx/blob/master/LICENSE */
+        .balls {
+            width: 3.5em;
+            display: flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .balls div {
+            width: 0.8em;
+            height: 0.8em;
+            border-radius: 50%;
+            background-color: #fc2f70;
+            transform: translateY(-100%);
+            animation: wave 0.8s ease-in-out alternate infinite;
+        }
+
+        .balls div:nth-of-type(1) {
+            animation-delay: -0.4s;
+        }
+
+        .balls div:nth-of-type(2) {
+            animation-delay: -0.2s;
+        }
+
+        @keyframes wave {
+            from {
+                transform: translateY(-100%);
+            }
+            to {
+                transform: translateY(100%);
+            }
+        }
+    </style>
+    <style>
+        div[id="div_inputs"] .div_button {
+            display: inline-block;
+        }
+        tr[id^="tr_player_"] {
+            font-size: 0.5em;
+            td, th {
+                border-color: #000;
+                border-style: solid;
+                border-width: 1px;
+                input[type="text"] {
+                    width: 90%;
+                }
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="div_0" style="display: none;">
+        <table class="table_text" id="table_main_navbar">
+            <tr>
+                <td>
+                    <div class="div_button" id="div_navbar_button_settings" onclick="handle_sub_content('settings');">⚙</div>
+                </td>
+                <td>
+                    <div class="div_red_spot" id="div_red_spot_update_log" style="display: none;"></div>
+                    <div class="div_button" id="div_navbar_button_update_log" onclick="handle_sub_content('update_log');">⚠</div>
+                </td>
+                <!-- <td>
+                    <div class="div_red_spot" id="div_red_spot_mail" style="display: none;"></div>
+                    <div class="div_button" id="div_navbar_button_mail" onclick="handle_sub_content('mail');">✉</div>
+                </td> -->
+                <td>
+                    <div class="div_button" id="div_navbar_button_document" onclick="handle_sub_content('document');">📖</div>
+                </td>
+                <td style="width: auto;">&nbsp;</td>
+                <td style="width: 10em; text-align: right; padding-right: 1em;">
+                    <div id="div_current_datetime"></div>
+                </td>
+                <td>
+                    <div class="div_button" onclick="location.reload();">⟳</div>
+                </td>
+            </tr>
+        </table>
+        <table class="table_text" id="table_sub_content_header" style="display: none;">
+            <tr>
+                <td id="td_overlay_header_back">
+                    <div id="div_overlay_header_back" onclick="handle_sub_content();">＜</div>
+                </td>
+                <th id="th_overlay_header_title"><span id="span_overlay_header_icon">⚙</span><span id="span_overlay_header_title">设置</span></th>
+                <td>&nbsp;</td>
+            </tr>
+        </table>
+        <div id="div_contents">
+            <div id="div_main">
+                <table class="table_text" id="table_main">
+                    <tr>
+                        <th colspan="12">
+                            <div class="elm_outline elm_white" id="div_title">
+                                IM-2 斗蛐蛐计算器
+                                <div id="div_version">
+                                    <div class="div_red_spot" id="div_red_spot_version" style="display: none;"></div>
+                                    <span id="span_version"></span>
+                                </div>
+        
+                            </div>
+                        </th>
+                    </tr>
+                    <tr id="tr_header" style="font-size: 0.8em">
+                        <th colspan="1">ID</th>
+                        <th colspan="10">
+                            <div id="div_inputs" style="display: none;">
+                                <div class="div_button" onclick="calc_money(10)">赢10%</div>
+                                <div class="div_button" onclick="calc_money(30)">赢30%</div>
+                                <div class="div_button" onclick="calc_money(60)">赢60%</div>
+                                <div class="div_button" id="div_button_all_1" onclick="calc_money(100)">赢ALL</div>
+                                <hr>
+                                <div class="div_button" onclick="calc_money(-10)">输10%</div>
+                                <div class="div_button" onclick="calc_money(-30)">输30%</div>
+                                <div class="div_button" onclick="calc_money(-60)">输60%</div>
+                                <div class="div_button" id="div_button_all_2" onclick="calc_money(-100)">输ALL</div>
+                            </div>
+                        </th>
+                        <th colspan="1">源石锭</th>
+                    </tr>
+                </table>
+                <table class="table_text" id="table_main_2">
+                    <tr id="tr_player_0">
+                        <td colspan="12" onclick="add_player()">
+                            点击添加玩家
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div id="div_settings" class="div_sub_contents" style="display: none;">
+                暂时没有设置喵
+            </div>
+            <div id="div_update_log" class="div_sub_contents" style="display: none;"></div>
+            <div id="div_mail" class="div_sub_contents" style="display: none;"></div>
+            <div id="div_document" class="div_sub_contents" style="display: none;"></div>
+        </div>
+        <div id="div_link">
+            <a href="https://yubo.run/ququ" style="color: #2222;">
+                yubo.run/ququ
+            </a>
+        </div>
+        <textarea id="textarea_copy">作者：羽波</textarea>
+    </div>
+    <div id="div_loading" style="text-align: left;">
+        <p id="p_loading">加载中，请稍候</p>
+        <div id="div_balls" class="balls">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <script>
+        let current_timestamp = new Date().getTime();
+        let head = document.head || document.getElementsByTagName("head")[0];
+        fetch(`../js/ququ.js?t=${current_timestamp}`)
+        .then(response => {
+            if (response.status == 200) {
+                return response.text();
+            }
+            else {
+                throw ['kaiju.js', response.status];
+            }
+        })
+        .then(data => {
+            let node = document.createElement('script');
+            node.innerHTML = data;
+            head.appendChild(node);
+            return fetch(`../css/common.css?t=${current_timestamp}`);
+        })
+        .then(response => {
+            if (response.status == 200) {
+                return response.text();
+            }
+            else {
+                throw ['common.css', response.status];
+            }
+        })
+        .then(data => {
+            let node = document.createElement('style');
+            node.innerHTML = data;
+            head.appendChild(node);
+        })
+        .then(nothing => {
+            // 页面加载完成时执行
+            document.getElementById('div_loading').style.display = 'none';
+            document.getElementById('div_0').style.display = '';
+            init_version();
+            update_current_datetime();
+            load_settings();
+            load_contents();
+            add_player();
+        })
+        .catch(exception => {
+            error_message = `加载 ${exception[0]} 时遇到错误 ${exception[1]}，请重试`;
+            console.log(error_message);
+            console.log(exception);
+            document.getElementById('p_loading').innerHTML = error_message;
+            document.getElementById('div_balls').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
