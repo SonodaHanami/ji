@@ -32,6 +32,8 @@ let money = 8888;
 let next_player_id = 0;
 let current_player_id = 0;
 let current_round = 0;
+let current_round_inputs_cnt = 0;
+let alive_players = new Set();
 let player_names = [];
 let player_inputs = {};
 let round_results = [];
@@ -194,7 +196,7 @@ function set_plan(plan) {
         let p = player_inputs[current_player_id][round];
         plan_a.push(Math.abs(p));
         plan_b.push(parseInt((p / Math.abs(p)) * (round_results[round] || 1)));
-        console.log(`round ${round + 1}`);
+        console.log(`player ${current_player_id} round ${round + 1}`);
         let input = Math.ceil(money * plan_a[round] / 100)
         income = plan_b[round] > 0 ? Math.ceil(input * combos[current_combo] / 100) : -input;
         console.log(plan_a, plan_b);
@@ -229,10 +231,13 @@ function set_plan(plan) {
             rounds_alive = -rounds_alive;
         }
     }
+    current_round_inputs_cnt += 1;
     document.getElementById('div_inputs_1').style.display = 'none';
     document.getElementById('div_inputs_2').style.display = 'none';
     document.getElementById(`td_inputs_${current_player_id}_${current_round}`).innerHTML = `${plan > 0 ? '左' : '右'}${Math.abs(plan) == 100 ? 'ALL' : (Math.abs(plan) + '%')}`;
     document.getElementById(`td_inputs_${current_player_id}_${current_round}`).style.backgroundColor = '';
+    document.getElementById('div_player_status').style.display = '';
+    document.getElementById('div_player_status').innerHTML = `第${current_round + 1}轮 投注${current_round_inputs_cnt}/${alive_players.size}`;
 }
 
 function confirm_round(result) {
@@ -276,6 +281,7 @@ function confirm_round(result) {
         document.getElementById('div_inputs_2').style.display = 'none';
         if (plan === undefined) {
             document.getElementById(`td_inputs_${pid}_${current_round}`).innerHTML = '未投注';
+            alive_players.delete(pid);
         }
         else {
             document.getElementById(`td_inputs_${pid}_${current_round}`).innerHTML = `${money}<br>(${plan > 0 ? '左' : '右'}${Math.abs(plan) == 100 ? 'ALL' : (Math.abs(plan) + '%')} ${plan * result > 0 ? '赢' : '输'} ${plan * result > 0 ? '+' : income == 0 ? '-' : ''}${income})`;
@@ -291,6 +297,9 @@ function confirm_round(result) {
         document.getElementById(`td_inputs_${pid}_${current_round}`).style.backgroundColor = '';
     }
     current_round += 1;
+    current_round_inputs_cnt = 0;
+    document.getElementById('div_player_status').style.display = '';
+    document.getElementById('div_player_status').innerHTML = `第${current_round + 1}轮 投注${current_round_inputs_cnt}/${alive_players.size}`;
     document.getElementById(`td_temp_result`).innerHTML = '';
     if (current_round < 10) {
         document.getElementById(`th_confirm`).innerHTML = `结算第${current_round + 1}轮`;
@@ -298,9 +307,10 @@ function confirm_round(result) {
         document.getElementById(`div_button_confirm_2`).innerHTML = `右边赢`;
     } 
     else {
-        document.getElementById(`th_confirm`).innerHTML = `结课！`;
-        document.getElementById(`div_button_confirm_1`).style.display = 'none';
-        document.getElementById(`div_button_confirm_2`).style.display = 'none';
+        document.getElementById('div_player_status').innerHTML = '';
+        document.getElementById('th_confirm').innerHTML = '结课！';
+        document.getElementById('div_button_confirm_1').style.display = 'none';
+        document.getElementById('div_button_confirm_2').style.display = 'none';
     }
 }
 
@@ -326,6 +336,7 @@ function add_player() {
     for (let i = 0; i < next_player_id; i++) {
         document.getElementById(`input_player_id_${i}`).value = player_names[i];
     }
+    alive_players.add(next_player_id);
     next_player_id += 1;
     document.getElementById('div_button_start').innerHTML = `所有 ${next_player_id} 名玩家都已准备好，赚笔大的！`;
 }
@@ -338,11 +349,13 @@ function game_start() {
     for (let pid = 0; pid < next_player_id; pid++) {
         document.getElementById(`div_inputs_${pid}_0`).style.display = '';
     }
+    document.getElementById('div_player_status').innerHTML = `第${current_round + 1}轮 投注${current_round_inputs_cnt}/${alive_players.size}`;
 }
 
 function handle_inputs(player_id, round) {
     current_player_id = player_id;
     // current_round = round;
+    document.getElementById('div_player_status').style.display = 'none';
     document.getElementById(`td_inputs_${current_player_id}_${round}`).style.backgroundColor = '';
     document.getElementById('div_inputs_1').style.display = '';
     document.getElementById('div_inputs_2').style.display = '';
