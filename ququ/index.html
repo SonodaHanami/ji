@@ -117,21 +117,39 @@
                             </div>
                         </th>
                     </tr>
-                    <tr id="tr_header" style="font-size: 0.8em">
-                        <th colspan="1">ID</th>
-                        <th colspan="10">
+                    <tr id="tr_inputs" style="font-size: 0.8em">
+                        <th colspan="5">
                             <div id="div_inputs" style="display: none;">
-                                <div class="div_button" onclick="calc_money(10)">赢10%</div>
-                                <div class="div_button" onclick="calc_money(30)">赢30%</div>
-                                <div class="div_button" onclick="calc_money(60)">赢60%</div>
-                                <div class="div_button" id="div_button_all_1" onclick="calc_money(100)">赢ALL</div>
+                                <div class="div_button" onclick="set_plan(10)">赢10%</div>
+                                <div class="div_button" onclick="set_plan(30)">赢30%</div>
+                                <div class="div_button" onclick="set_plan(60)">赢60%</div>
+                                <div class="div_button" id="div_button_all_1" onclick="set_plan(100)">赢ALL</div>
                                 <hr>
-                                <div class="div_button" onclick="calc_money(-10)">输10%</div>
-                                <div class="div_button" onclick="calc_money(-30)">输30%</div>
-                                <div class="div_button" onclick="calc_money(-60)">输60%</div>
-                                <div class="div_button" id="div_button_all_2" onclick="calc_money(-100)">输ALL</div>
+                                <div class="div_button" onclick="set_plan(-10)">输10%</div>
+                                <div class="div_button" onclick="set_plan(-30)">输30%</div>
+                                <div class="div_button" onclick="set_plan(-60)">输60%</div>
+                                <div class="div_button" id="div_button_all_2" onclick="set_plan(-100)">输ALL</div>
                             </div>
                         </th>
+                        <td colspan="5" id="td_temp_result"></td>
+                        <th colspan="2">
+                            <div id="div_confirm" style="display: none;">
+                                <div class="div_button" onclick="confirm_input()">确定</div>
+                            </div>
+                        </th>
+                    </tr>
+                    <tr id="tr_header" style="font-size: 0.6em">
+                        <th colspan="1">ID</th>
+                        <th colspan="1">第1轮</th>
+                        <th colspan="1">第2轮</th>
+                        <th colspan="1">第3轮</th>
+                        <th colspan="1">第4轮</th>
+                        <th colspan="1">第5轮</th>
+                        <th colspan="1">第6轮</th>
+                        <th colspan="1">第7轮</th>
+                        <th colspan="1">第8轮</th>
+                        <th colspan="1">第9轮</th>
+                        <th colspan="1">第10轮</th>
                         <th colspan="1">源石锭</th>
                     </tr>
                 </table>
