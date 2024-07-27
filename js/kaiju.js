@@ -34,6 +34,7 @@ const IS = [
     '傀影与猩红孤钻',
     '水月与深蓝之树',
     '探索者的银凇止境',
+    '萨卡兹的无终奇语',
 ]
 
 const GROUPS_2 = [
@@ -52,6 +53,12 @@ const GROUPS_4 = [
     '突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队',
     '特训分队', '高规格分队',
     '永恒狩猎分队', '生活至上分队', '科学主义分队'
+]
+const GROUPS_5 = [
+    '博闻广记分队', '魂灵护送分队', '蓝图测绘分队',
+    '指挥分队', '集群分队', '后勤分队', '矛头分队',
+    '突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队',
+    '高规格分队', '因地制宜分队',
 ]
 const GROUPS_JOBS = ['突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队']
 
@@ -239,6 +246,9 @@ function save_settings() {
         if (document.getElementById('is_4').checked) {
             enabled_is.push(4)
         }
+        if (document.getElementById('is_5').checked) {
+            enabled_is.push(5)
+        }
         // 不在box中的干员
         operators_star_6_to_get = [];
         for (let idx = 0; idx < OPERATORS_STAR_6_LIST.length; idx++) {
@@ -285,6 +295,7 @@ function load_settings() {
             document.getElementById('is_2').checked = data['enabled_is'].includes(2);
             document.getElementById('is_3').checked = data['enabled_is'].includes(3);
             document.getElementById('is_4').checked = data['enabled_is'].includes(4);
+            document.getElementById('is_5').checked = data['enabled_is'].includes(5);
         }
         // 仅使用职业分队开局
         if ('job_group_only' in data) {
@@ -825,6 +836,9 @@ function get_drama_basic(drama_level=7) {
     if (document.getElementById('is_4').checked) {
         is_pool.push('探索者的银凇止境')
     }
+    if (document.getElementById('is_5').checked) {
+        is_pool.push('萨卡兹的无终奇语')
+    }
     let opening_is = is_pool[hash_int % is_pool.length];
     let opening_group;
     if (document.getElementById('job_group_only').checked) {
@@ -840,6 +854,9 @@ function get_drama_basic(drama_level=7) {
         }
         if (opening_is == '探索者的银凇止境') {
             opening_group = GROUPS_4[hash_int % GROUPS_4.length];
+        }
+        if (opening_is == '萨卡兹的无终奇语') {
+            opening_group = GROUPS_5[hash_int % GROUPS_5.length];
         }
     }
     let drama_box, drama_operators_star_6;
@@ -1038,6 +1055,9 @@ function get_drama_deck(drama_level) {
     if (document.getElementById('is_4').checked) {
         is_pool.push('探索者的银凇止境')
     }
+    if (document.getElementById('is_5').checked) {
+        is_pool.push('萨卡兹的无终奇语')
+    }
     let opening_is = is_pool[hash_int % is_pool.length];
     let opening_group, opening_job_group_only_text = '';
     if (document.getElementById('job_group_only').checked) {
@@ -1053,6 +1073,9 @@ function get_drama_deck(drama_level) {
         }
         if (opening_is == '探索者的银凇止境') {
             opening_group = GROUPS_4[hash_int % GROUPS_4.length];
+        }
+        if (opening_is == '萨卡兹的无终奇语') {
+            opening_group = GROUPS_5[hash_int % GROUPS_5.length];
         }
     }
     let drama_operators_star_6 = [], drama_box_by_job = {};
