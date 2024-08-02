@@ -63,9 +63,10 @@ const GROUPS_5 = [
 const GROUPS_JOBS = ['突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队']
 
 const OPERATORS_STAR_6_VANGUARD = ['推进之王', '风笛', '嵯峨', '琴柳', '焰尾', '伺夜', '伊内丝', '缪尔赛思']
-const OPERATORS_STAR_6_GUARD = ['银灰', '斯卡蒂', '陈', '赫拉格', '煌', '棘刺', '史尔特尔', '山', '帕拉斯', '耀骑士临光', '艾丽妮', '百炼嘉维尔', '玛恩纳', '重岳', '仇白', '圣约送葬人', '赫德雷', '止颂', '薇薇安娜', '锏', '左乐', '乌尔比安']
+const OPERATORS_STAR_6_GUARD = ['银灰', '斯卡蒂', '陈', '赫拉格', '煌', '棘刺', '史尔特尔', '山', '帕拉斯', '耀骑士临光', '艾丽妮', '百炼嘉维尔', '玛恩纳',
+    '重岳', '仇白', '圣约送葬人', '赫德雷', '止颂', '薇薇安娜', '锏', '左乐', '乌尔比安', '佩佩']
 const OPERATORS_STAR_6_DEFENDER = ['星熊', '塞雷娅', '年', '森蚺', '瑕光', '泥岩', '号角', '斥罪', '涤火杰西卡', '黍']
-const OPERATORS_STAR_6_SNIPER = ['能天使', '黑', 'W', '早露', '迷迭香', '空弦', '灰烬', '假日威龙陈', '远牙', '菲亚梅塔', '鸿雪', '提丰', '莱伊', '维什戴尔']
+const OPERATORS_STAR_6_SNIPER = ['能天使', '黑', 'W', '早露', '迷迭香', '空弦', '灰烬', '假日威龙陈', '远牙', '菲亚梅塔', '鸿雪', '提丰', '莱伊', '维什戴尔', '娜仁图亚']
 const OPERATORS_STAR_6_CASTER = ['伊芙利特', '艾雅法拉', '莫斯提马', '刻俄柏', '夕', '异客', '卡涅利安', '澄闪', '黑键', '林', '霍尔海雅', '逻各斯', '妮芙']
 const OPERATORS_STAR_6_MEDIC = ['闪灵', '夜莺', '凯尔希', '流明', '焰影苇草', '纯烬艾雅法拉']
 const OPERATORS_STAR_6_SUPPORTER = ['安洁莉娜', '麦哲伦', '铃兰', '浊心斯卡蒂', '灵知', '令', '白铁', '淬羽赫默', '塑心', '魔王']
@@ -77,8 +78,8 @@ const OPERATORS_STAR_5_GUARD = ['芙兰卡', '因陀罗', '拉普兰德', '幽�
 const OPERATORS_STAR_5_DEFENDER = ['临光', '雷蛇', '可颂', '火神', '拜松', '吽', '石棉', '闪击', '暴雨', '灰毫', '极光', '暮落', '车尔尼', '火哨', '洋灰', '深律', '深巡']
 const OPERATORS_STAR_5_SNIPER = ['蓝毒', '白金', '陨星', '普罗旺斯', '守林人', '送葬人', '灰喉', '慑砂', '安哲拉', '四月', '奥斯塔', '熔泉', '寒芒克洛丝', '埃拉托', '承曦格雷伊', '子月', '截云', '玫拉', '隐现', '冰酿']
 const OPERATORS_STAR_5_CASTER = ['阿米娅', '天火', '夜魔', '惊蛰', '苦艾', '莱恩哈特', '蜜蜡', '特米米', '薄绿', '爱丽丝', '炎狱炎熔', '蚀清', '耶拉', '洛洛', '星源', '至简', '雪绒', '和弦', '寒檀', '戴菲恩', '折光', '温米', '阿罗玛']
-const OPERATORS_STAR_5_MEDIC = ['白面鸮', '赫默', '华法琳', '锡兰', '微风', '亚叶', '絮雨', '图耶', '桑葚', '蜜莓', '濯尘芙蓉', '明椒', '刺玫', '哈洛德', '阿米娅(医疗)']
-const OPERATORS_STAR_5_SUPPORTER = ['梅尔', '初雪', '真理', '空', '格劳克斯', '巫恋', '月禾', '稀音', '九色鹿', '夏栎', '海蒂', '掠风', '但书', '凛视', '小满', '海霓']
+const OPERATORS_STAR_5_MEDIC = ['白面鸮', '赫默', '华法琳', '锡兰', '微风', '亚叶', '絮雨', '图耶', '桑葚', '蜜莓', '濯尘芙蓉', '明椒', '刺玫', '哈洛德', '阿米娅(医疗)', '莎草']
+const OPERATORS_STAR_5_SUPPORTER = ['梅尔', '初雪', '真理', '空', '格劳克斯', '巫恋', '月禾', '稀音', '九色鹿', '夏栎', '海蒂', '掠风', '但书', '凛视', '小满', '海霓', '衡沙']
 const OPERATORS_STAR_5_SPECIALIST = ['红', '崖心', '狮蝎', '食铁兽', '槐琥', '雪雉', '罗宾', '卡夫卡', '乌有', '霜华', '贝娜', '绮良', '见行者', '风丸', '空构', '杏仁', '双月', '锡人']
 
 const OPERATORS_STAR_4_VANGUARD = ['讯使', '清道夫', '红豆', '桃金娘', '豆苗']
@@ -237,16 +238,16 @@ function save_settings() {
         let storage = window.localStorage;
         // 选中的集成战略
         let enabled_is = [];
-        if (document.getElementById('is_2').checked) {
+        if (document.getElementById('rogue_2').checked) {
             enabled_is.push(2)
         }
-        if (document.getElementById('is_3').checked) {
+        if (document.getElementById('rogue_3').checked) {
             enabled_is.push(3)
         }
-        if (document.getElementById('is_4').checked) {
+        if (document.getElementById('rogue_4').checked) {
             enabled_is.push(4)
         }
-        if (document.getElementById('is_5').checked) {
+        if (document.getElementById('rogue_5').checked) {
             enabled_is.push(5)
         }
         // 不在box中的干员
@@ -292,10 +293,10 @@ function load_settings() {
         }
         // 选中的集成战略
         if ('enabled_is' in data) {
-            document.getElementById('is_2').checked = data['enabled_is'].includes(2);
-            document.getElementById('is_3').checked = data['enabled_is'].includes(3);
-            document.getElementById('is_4').checked = data['enabled_is'].includes(4);
-            document.getElementById('is_5').checked = data['enabled_is'].includes(5);
+            document.getElementById('rogue_2').checked = data['enabled_is'].includes(2);
+            document.getElementById('rogue_3').checked = data['enabled_is'].includes(3);
+            document.getElementById('rogue_4').checked = data['enabled_is'].includes(4);
+            document.getElementById('rogue_5').checked = data['enabled_is'].includes(5);
         }
         // 仅使用职业分队开局
         if ('job_group_only' in data) {
@@ -827,16 +828,16 @@ function get_drama_basic(drama_level=7) {
     let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16);
 
     let is_pool = [];
-    if (document.getElementById('is_2').checked) {
+    if (document.getElementById('rogue_2').checked) {
         is_pool.push('傀影与猩红孤钻')
     }
-    if (document.getElementById('is_3').checked) {
+    if (document.getElementById('rogue_3').checked) {
         is_pool.push('水月与深蓝之树')
     }
-    if (document.getElementById('is_4').checked) {
+    if (document.getElementById('rogue_4').checked) {
         is_pool.push('探索者的银凇止境')
     }
-    if (document.getElementById('is_5').checked) {
+    if (document.getElementById('rogue_5').checked) {
         is_pool.push('萨卡兹的无终奇语')
     }
     let opening_is = is_pool[hash_int % is_pool.length];
@@ -1046,16 +1047,16 @@ function get_drama_deck(drama_level) {
     let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16);
 
     let is_pool = [];
-    if (document.getElementById('is_2').checked) {
+    if (document.getElementById('rogue_2').checked) {
         is_pool.push('傀影与猩红孤钻')
     }
-    if (document.getElementById('is_3').checked) {
+    if (document.getElementById('rogue_3').checked) {
         is_pool.push('水月与深蓝之树')
     }
-    if (document.getElementById('is_4').checked) {
+    if (document.getElementById('rogue_4').checked) {
         is_pool.push('探索者的银凇止境')
     }
-    if (document.getElementById('is_5').checked) {
+    if (document.getElementById('rogue_5').checked) {
         is_pool.push('萨卡兹的无终奇语')
     }
     let opening_is = is_pool[hash_int % is_pool.length];
