@@ -537,22 +537,24 @@ textarea {
     justify-content: center;
 }
 
-#div_version {
+#div_title {
+    font-size: 2em;
+    display: inline-block;
     position: relative;
-    margin-left: 0.5em;
+    text-align: center;
+}
 
-    .div_red_spot {
-        font-size: 0.4em;
-        position: absolute;
-        top: -0.5em;
-        right: -1em;
-        width: 1em;
-        height: 1em;
-        text-shadow: none;
-        margin: 0.2em;
-        background-color: #ff3d3d;
-        border-radius: 1em;
-    }
+#div_title .div_red_spot {
+    font-size: 0.4em;
+    position: absolute;
+    top: -0.5em;
+    right: -1.2em;
+    width: 1em;
+    height: 1em;
+    text-shadow: none;
+    margin: 0.2em;
+    background-color: #ff3d3d;
+    border-radius: 1em;
 }
 
 .div_notice_button {

@@ -1,4 +1,5 @@
-const VERSION = '2.13e';
+const NAME = '肉鸽开局生成器';
+const VERSION = '2.13f';
 
 const question_mark = '？';
 const window_length = 10;
@@ -30,37 +31,37 @@ const CONTENTS = {
     },
 }
 
-const IS = [
+const ROGUE_NAME_LIST = [
     '傀影与猩红孤钻',
     '水月与深蓝之树',
     '探索者的银凇止境',
     '萨卡兹的无终奇语',
 ]
 
-const GROUPS_2 = [
+const TEAM_LIST_2 = [
     '指挥分队', '集群分队', '后勤分队', '矛头分队',
     '突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队',
     '研究分队', '高规格分队',
 ]
-const GROUPS_3 = [
+const TEAM_LIST_3 = [
     '心胜于物分队', '物尽其用分队', '以人为本分队',
     '指挥分队', '集群分队', '后勤分队', '矛头分队',
     '突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队',
     '研究分队', '高规格分队',
 ]
-const GROUPS_4 = [
+const TEAM_LIST_4 = [
     '指挥分队', '集群分队', '后勤分队', '矛头分队',
     '突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队',
     '特训分队', '高规格分队',
     '永恒狩猎分队', '生活至上分队', '科学主义分队'
 ]
-const GROUPS_5 = [
+const TEAM_LIST_5 = [
     '博闻广记分队', '魂灵护送分队', '蓝图测绘分队',
     '指挥分队', '集群分队', '后勤分队', '矛头分队',
     '突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队',
     '高规格分队', '因地制宜分队',
 ]
-const GROUPS_JOBS = ['突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队']
+const JOB_TEAM_LIST = ['突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队']
 
 const OPERATORS_STAR_6_VANGUARD = ['推进之王', '风笛', '嵯峨', '琴柳', '焰尾', '伺夜', '伊内丝', '缪尔赛思']
 const OPERATORS_STAR_6_GUARD = ['银灰', '斯卡蒂', '陈', '赫拉格', '煌', '棘刺', '史尔特尔', '山', '帕拉斯', '耀骑士临光', '艾丽妮', '百炼嘉维尔', '玛恩纳',
@@ -199,18 +200,18 @@ const OPERATORS_BY_STAR = {
 }
 
 const DEFAULT_DECK = [
-    '伊内丝', '琴柳', '缪尔赛思',
-    '锏', '锏', '玛恩纳', '玛恩纳', '玛恩纳', '史尔特尔', '仇白', '耀骑士临光', '百炼嘉维尔',
-    '星熊', '黍', '涤火杰西卡',
-    '莱伊', '提丰',
-    '艾雅法拉', '莫斯提马', '异客', '澄闪', '林',
-    '纯烬艾雅法拉', '焰影苇草', '夜莺',
-    '铃兰', '浊心斯卡蒂',
-    '缄默德克萨斯', '缄默德克萨斯', '麒麟R夜刀', '麒麟R夜刀', '艾拉',
-    '极境', '四月', '阿米娅', '雪绒', '白面鸮', '赫默', '华法琳', '巫恋',
-    '桃金娘', '蛇屠箱',
-    '芬', '玫兰莎', '泡普卡', '卡缇', '米格鲁', '斑点',
-    '克洛丝', '炎熔', '安赛尔', '梓兰'
+    '伊内丝',
+    '锏', '玛恩纳', '史尔特尔', '仇白', '耀骑士临光', '乌尔比安',
+    '黍',
+    '维什戴尔', '维什戴尔', '维什戴尔', '莱伊', '提丰',
+    '艾雅法拉', '莫斯提马', '异客', '澄闪', '逻各斯', '妮芙',
+    '纯烬艾雅法拉', '凯尔希', '夜莺',
+    '塑心', '浊心斯卡蒂', '魔王',
+    '缄默德克萨斯', '麒麟R夜刀', '艾拉',
+    '极境', '晓歌', '承曦格雷伊', '阿米娅', '白面鸮', '赫默', '华法琳', '巫恋', '锡人',
+    '桃金娘', '休谟斯', '宴', '古米', '蛇屠箱', '梅', '卡达', '苏苏洛', '砾', '暗索', '伊桑',
+    // '芬', '玫兰莎', '泡普卡', '卡缇', '米格鲁', '斑点',
+    // '克洛丝', '炎熔', '安赛尔', '梓兰'
 ];
 const MIN_DECK_SIZE = 40;
 const MAX_DECK_SIZE = 60;
@@ -228,6 +229,10 @@ let current_banned_operators = [];
 let current_mail_list = [];
 let current_sub_content = '';
 
+let current_login_user_id = '';
+let current_login_token = '';
+
+let current_result = {};
 
 function save_settings() {
     if (!window.localStorage) {
@@ -237,18 +242,18 @@ function save_settings() {
         console.log('保存设置');
         let storage = window.localStorage;
         // 选中的集成战略
-        let enabled_is = [];
+        let enabled_rogue_id_list = [];
         if (document.getElementById('rogue_2').checked) {
-            enabled_is.push(2)
+            enabled_rogue_id_list.push(2)
         }
         if (document.getElementById('rogue_3').checked) {
-            enabled_is.push(3)
+            enabled_rogue_id_list.push(3)
         }
         if (document.getElementById('rogue_4').checked) {
-            enabled_is.push(4)
+            enabled_rogue_id_list.push(4)
         }
         if (document.getElementById('rogue_5').checked) {
-            enabled_is.push(5)
+            enabled_rogue_id_list.push(5)
         }
         // 不在box中的干员
         operators_star_6_to_get = [];
@@ -262,9 +267,9 @@ function save_settings() {
             'last_checked_version': last_checked_version,
             'mail_received': mail_received,
             'box_mode': current_box_mode,
-            'enabled_is': enabled_is,
-            'job_group_only': document.getElementById('job_group_only').checked,
-            'support_unit_enabled': document.getElementById('support_unit_enabled').checked,
+            'enabled_rogue_id_list': enabled_rogue_id_list,
+            'is_job_team_only': document.getElementById('is_job_team_only').checked,
+            'is_support_unit_enabled': document.getElementById('is_support_unit_enabled').checked,
             'to_get': operators_star_6_to_get,
             'deck': current_deck,
         };
@@ -292,16 +297,16 @@ function load_settings() {
             mail_received = data['mail_received'];
         }
         // 选中的集成战略
-        if ('enabled_is' in data) {
-            document.getElementById('rogue_2').checked = data['enabled_is'].includes(2);
-            document.getElementById('rogue_3').checked = data['enabled_is'].includes(3);
-            document.getElementById('rogue_4').checked = data['enabled_is'].includes(4);
-            document.getElementById('rogue_5').checked = data['enabled_is'].includes(5);
+        if ('enabled_rogue_id_list' in data) {
+            document.getElementById('rogue_2').checked = data['enabled_rogue_id_list'].includes(2);
+            document.getElementById('rogue_3').checked = data['enabled_rogue_id_list'].includes(3);
+            document.getElementById('rogue_4').checked = data['enabled_rogue_id_list'].includes(4);
+            document.getElementById('rogue_5').checked = data['enabled_rogue_id_list'].includes(5);
         }
         // 仅使用职业分队开局
-        if ('job_group_only' in data) {
-            document.getElementById('job_group_only').checked = data['job_group_only'];
-            document.getElementById('support_unit_enabled').checked = data['support_unit_enabled'];
+        if ('is_job_team_only' in data) {
+            document.getElementById('is_job_team_only').checked = data['is_job_team_only'];
+            document.getElementById('is_support_unit_enabled').checked = data['is_support_unit_enabled'];
         }
         // box模式
         if ('box_mode' in data) {
@@ -312,9 +317,15 @@ function load_settings() {
             operators_star_6_to_get = data['to_get'];
             update_current_box();
         }
+        // 卡组
         if ('deck' in data) {
             current_deck = data['deck'];
         }
+
+        // 羽bot个人中心登录凭证
+        current_login_user_id = window.localStorage['login_user_id'] || '';
+        current_login_token = window.localStorage['login_token'] || '';
+
         return true;
     }
 }
@@ -367,7 +378,7 @@ function load_contents() {
 }
 
 function init_version() {
-    document.getElementById('span_version').innerHTML = VERSION;
+    document.getElementById('span_title').innerHTML = `${NAME} ${VERSION}`;
     console.log(`肉鸽开局生成器 ${VERSION} 启动！`);
 }
 
@@ -430,15 +441,15 @@ function handle_red_spot(name) {
         if (last_checked_version == VERSION) {
             document.getElementById('div_red_spot_version').style.display = 'none';
             document.getElementById('div_red_spot_update_log').style.display = 'none';
-            document.getElementById('div_version').onclick = null;
-            document.getElementById('div_version').style.cursor = 'auto';
+            document.getElementById('div_title').onclick = null;
+            document.getElementById('div_title').style.cursor = 'auto';
         }
         else {
             console.log('在更新日志中检测到未确认过的新版本');
             document.getElementById('div_red_spot_version').style.display = '';
             document.getElementById('div_red_spot_update_log').style.display = '';
-            document.getElementById('div_version').onclick = () => {handle_sub_content('update_log');}
-            document.getElementById('div_version').style.cursor = 'pointer';
+            document.getElementById('div_title').onclick = () => {handle_sub_content('update_log');}
+            document.getElementById('div_title').style.cursor = 'pointer';
         }
     }
     if (name == 'mail' || name == 'mail_list') {
@@ -791,6 +802,7 @@ function get_opening_today() {
     else if (current_box_mode == 2) {
         get_drama_deck(0);
     }
+    send_kaiju_log();
 }
 
 function get_drama_today(level) {
@@ -800,6 +812,7 @@ function get_drama_today(level) {
     else if (current_box_mode == 2) {
         get_drama_deck(level);
     }
+    send_kaiju_log();
 }
 
 function get_drama_basic(drama_level=7) {
@@ -819,58 +832,58 @@ function get_drama_basic(drama_level=7) {
     if (operators_to_get.length > 0) {
         reply_main.push(`<span class="elm_bg_orange" onclick="document.getElementById('span_to_get').style.display = '';" style="cursor: pointer;">${operators_to_get.length}位干员</span><span id="span_to_get" style="display: none;">（${operators_to_get.join('、')}）</span>不在box中`);
     }
-    if (document.getElementById('support_unit_enabled').checked) {
+    if (document.getElementById('is_support_unit_enabled').checked) {
         update_current_operators(true);
         reply_main.push('允许使用不在box中的干员开局（招募助战）');
     }
-    let user_id = document.getElementById('user_id').value;
+    let user_name = document.getElementById('user_name').value;
     let now = (new Date).toLocaleDateString("zh-CN");
-    let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16);
+    let hash_int = parseInt(md5(user_name.concat('_').concat(now)).slice(0, 8), 16);
 
-    let is_pool = [];
+    let rogue_name_list = [];
     if (document.getElementById('rogue_2').checked) {
-        is_pool.push('傀影与猩红孤钻')
+        rogue_name_list.push('傀影与猩红孤钻')
     }
     if (document.getElementById('rogue_3').checked) {
-        is_pool.push('水月与深蓝之树')
+        rogue_name_list.push('水月与深蓝之树')
     }
     if (document.getElementById('rogue_4').checked) {
-        is_pool.push('探索者的银凇止境')
+        rogue_name_list.push('探索者的银凇止境')
     }
     if (document.getElementById('rogue_5').checked) {
-        is_pool.push('萨卡兹的无终奇语')
+        rogue_name_list.push('萨卡兹的无终奇语')
     }
-    let opening_is = is_pool[hash_int % is_pool.length];
-    let opening_group;
-    if (document.getElementById('job_group_only').checked) {
-        opening_group = GROUPS_JOBS[hash_int % GROUPS_JOBS.length];
+    let opening_rogue_name = rogue_name_list[hash_int % rogue_name_list.length];
+    let opening_team;
+    if (document.getElementById('is_job_team_only').checked) {
+        opening_team = JOB_TEAM_LIST[hash_int % JOB_TEAM_LIST.length];
         reply_main.push('仅使用职业分队开局');
     }
     else {
-        if (opening_is == '傀影与猩红孤钻') {
-            opening_group = GROUPS_2[hash_int % GROUPS_2.length];
+        if (opening_rogue_name == '傀影与猩红孤钻') {
+            opening_team = TEAM_LIST_2[hash_int % TEAM_LIST_2.length];
         }
-        if (opening_is == '水月与深蓝之树') {
-            opening_group = GROUPS_3[hash_int % GROUPS_3.length];
+        if (opening_rogue_name == '水月与深蓝之树') {
+            opening_team = TEAM_LIST_3[hash_int % TEAM_LIST_3.length];
         }
-        if (opening_is == '探索者的银凇止境') {
-            opening_group = GROUPS_4[hash_int % GROUPS_4.length];
+        if (opening_rogue_name == '探索者的银凇止境') {
+            opening_team = TEAM_LIST_4[hash_int % TEAM_LIST_4.length];
         }
-        if (opening_is == '萨卡兹的无终奇语') {
-            opening_group = GROUPS_5[hash_int % GROUPS_5.length];
+        if (opening_rogue_name == '萨卡兹的无终奇语') {
+            opening_team = TEAM_LIST_5[hash_int % TEAM_LIST_5.length];
         }
     }
     let drama_box, drama_operators_star_6;
-    if (opening_group == '突击战术分队') {
+    if (opening_team == '突击战术分队') {
         drama_operators_star_6 = current_operators_6_by_job['先锋'].concat(current_operators_6_by_job['近卫']);
     }
-    else if (opening_group == '堡垒战术分队') {
+    else if (opening_team == '堡垒战术分队') {
         drama_operators_star_6 = current_operators_6_by_job['重装'].concat(current_operators_6_by_job['辅助']);
     }
-    else if (opening_group == '远程战术分队') {
+    else if (opening_team == '远程战术分队') {
         drama_operators_star_6 = current_operators_6_by_job['狙击'].concat(current_operators_6_by_job['医疗']);
     }
-    else if (opening_group == '破坏战术分队') {
+    else if (opening_team == '破坏战术分队') {
         drama_operators_star_6 = current_operators_6_by_job['术师'].concat(current_operators_6_by_job['特种']);
     }
     else {
@@ -880,7 +893,14 @@ function get_drama_basic(drama_level=7) {
     if (reply_main.length > 0) {
         reply_main = [`<p>${reply_main.join('，')}</p>`];
     }
-    let opening_result = `我掐指一算，今天 ${user_id} 适合在 ${opening_is} 用 ${opening_group} ${opening_operator} 开局`
+    let opening_result = `我掐指一算，今天 ${user_name} 适合在 ${opening_rogue_name} 用 ${opening_team} ${opening_operator} 开局`;
+    current_result = {
+        'level': drama_level,
+        'user_name': user_name,
+        'opening_rogue_name': opening_rogue_name,
+        'opening_team_name': opening_team,
+        'opening_operator_name': opening_operator,
+    }
     reply_main.push(`<p>${opening_result}</p>`);
 
     update_current_operators();
@@ -906,7 +926,7 @@ function get_drama_basic(drama_level=7) {
     }
     drama_box = JSON.parse(JSON.stringify(current_operators_6_by_job));
     drama_operators_star_6 = current_operators_6_list.slice();
-    if (document.getElementById('support_unit_enabled').checked) {
+    if (document.getElementById('is_support_unit_enabled').checked) {
         // 将助战招募干员临时加入box
         for (let job in OPERATORS_STAR_6_BY_JOB) {
             if (OPERATORS_STAR_6_BY_JOB[job].includes(opening_operator)) {
@@ -1042,41 +1062,41 @@ function get_drama_deck(drama_level) {
         return;
     }
 
-    let user_id = document.getElementById('user_id').value;
+    let user_name = document.getElementById('user_name').value;
     let now = (new Date).toLocaleDateString("zh-CN");
-    let hash_int = parseInt(md5(user_id.concat('_').concat(now)).slice(0, 8), 16);
+    let hash_int = parseInt(md5(user_name.concat('_').concat(now)).slice(0, 8), 16);
 
-    let is_pool = [];
+    let rogue_name_list = [];
     if (document.getElementById('rogue_2').checked) {
-        is_pool.push('傀影与猩红孤钻')
+        rogue_name_list.push('傀影与猩红孤钻')
     }
     if (document.getElementById('rogue_3').checked) {
-        is_pool.push('水月与深蓝之树')
+        rogue_name_list.push('水月与深蓝之树')
     }
     if (document.getElementById('rogue_4').checked) {
-        is_pool.push('探索者的银凇止境')
+        rogue_name_list.push('探索者的银凇止境')
     }
     if (document.getElementById('rogue_5').checked) {
-        is_pool.push('萨卡兹的无终奇语')
+        rogue_name_list.push('萨卡兹的无终奇语')
     }
-    let opening_is = is_pool[hash_int % is_pool.length];
-    let opening_group, opening_job_group_only_text = '';
-    if (document.getElementById('job_group_only').checked) {
-        opening_group = GROUPS_JOBS[hash_int % GROUPS_JOBS.length];
-        opening_job_group_only_text = '；仅使用职业分队开局';
+    let opening_rogue_name = rogue_name_list[hash_int % rogue_name_list.length];
+    let opening_team, opening_job_team_only_text = '';
+    if (document.getElementById('is_job_team_only').checked) {
+        opening_team = JOB_TEAM_LIST[hash_int % JOB_TEAM_LIST.length];
+        opening_job_team_only_text = '；仅使用职业分队开局';
     }
     else {
-        if (opening_is == '傀影与猩红孤钻') {
-            opening_group = GROUPS_2[hash_int % GROUPS_2.length];
+        if (opening_rogue_name == '傀影与猩红孤钻') {
+            opening_team = TEAM_LIST_2[hash_int % TEAM_LIST_2.length];
         }
-        if (opening_is == '水月与深蓝之树') {
-            opening_group = GROUPS_3[hash_int % GROUPS_3.length];
+        if (opening_rogue_name == '水月与深蓝之树') {
+            opening_team = TEAM_LIST_3[hash_int % TEAM_LIST_3.length];
         }
-        if (opening_is == '探索者的银凇止境') {
-            opening_group = GROUPS_4[hash_int % GROUPS_4.length];
+        if (opening_rogue_name == '探索者的银凇止境') {
+            opening_team = TEAM_LIST_4[hash_int % TEAM_LIST_4.length];
         }
-        if (opening_is == '萨卡兹的无终奇语') {
-            opening_group = GROUPS_5[hash_int % GROUPS_5.length];
+        if (opening_rogue_name == '萨卡兹的无终奇语') {
+            opening_team = TEAM_LIST_5[hash_int % TEAM_LIST_5.length];
         }
     }
     let drama_operators_star_6 = [], drama_box_by_job = {};
@@ -1084,18 +1104,18 @@ function get_drama_deck(drama_level) {
     for (let i = 0; i < drama_deck_list.length; i++) {
         let opr = get_operator_by_code_name(drama_deck_list[i]);
         if (opr.star == 6) {
-            if (GROUPS_JOBS.includes(opening_group)) {
+            if (JOB_TEAM_LIST.includes(opening_team)) {
                 // 职业分队开局，范围改为卡组中对应职业所有六星干员
-                if (opening_group == '突击战术分队' && (opr.job == '先锋' || opr.job == '近卫')) {
+                if (opening_team == '突击战术分队' && (opr.job == '先锋' || opr.job == '近卫')) {
                     drama_operators_star_6.push(drama_deck_list[i]);
                 }
-                if (opening_group == '堡垒战术分队' && (opr.job == '重装' || opr.job == '辅助')) {
+                if (opening_team == '堡垒战术分队' && (opr.job == '重装' || opr.job == '辅助')) {
                     drama_operators_star_6.push(drama_deck_list[i]);
                 }
-                if (opening_group == '远程战术分队' && (opr.job == '狙击' || opr.job == '医疗')) {
+                if (opening_team == '远程战术分队' && (opr.job == '狙击' || opr.job == '医疗')) {
                     drama_operators_star_6.push(drama_deck_list[i]);
                 }
-                if (opening_group == '破坏战术分队' && (opr.job == '术师' || opr.job == '特种')) {
+                if (opening_team == '破坏战术分队' && (opr.job == '术师' || opr.job == '特种')) {
                     drama_operators_star_6.push(drama_deck_list[i]);
                 }
             }
@@ -1106,7 +1126,14 @@ function get_drama_deck(drama_level) {
     }
     // 确定开局干员
     let opening_operator = drama_operators_star_6[hash_int % drama_operators_star_6.length];
-    let opening_result = `<p>我掐指一算，今天 ${user_id} 适合在 ${opening_is} 用 ${opening_group} ${opening_operator} 开局</p>`;
+    let opening_result = `<p>我掐指一算，今天 ${user_name} 适合在 ${opening_rogue_name} 用 ${opening_team} ${opening_operator} 开局</p>`;
+    current_result = {
+        'level': drama_level,
+        'user_name': user_name,
+        'opening_rogue_name': opening_rogue_name,
+        'opening_team_name': opening_team,
+        'opening_operator_name': opening_operator,
+    }
     let temp_deck = [];
     for (let i = 0; i < drama_deck_list.length; i++) {
         let opr = get_operator_by_code_name(drama_deck_list[i]);
@@ -1121,7 +1148,7 @@ function get_drama_deck(drama_level) {
         }
     }
     let drama_operators_star_6_set = new Set(drama_operators_star_6);
-    reply_deck.push(`<hr><p>当前卡组大小为${drama_deck_list.length}，包含${Array.from(drama_box_set).length}位不同的干员，其中有${Array.from(drama_operators_star_6_set).length}位不同的六星干员${opening_job_group_only_text}</p>`);
+    reply_deck.push(`<hr><p>当前卡组大小为${drama_deck_list.length}，包含${Array.from(drama_box_set).length}位不同的干员，其中有${Array.from(drama_operators_star_6_set).length}位不同的六星干员${opening_job_team_only_text}</p>`);
     reply_main.push(opening_result);
 
     let picks_by_job = {
@@ -1266,7 +1293,7 @@ function get_drama_deck(drama_level) {
         }
     }
     // 输出结果
-    reply_deck.push(`<p>将剧本中不在卡组中的必须优先选择的干员临时加入卡组后，卡组大小为${drama_deck_list.length}，包含${Array.from(new Set(drama_deck_list)).length}位不同的干员，其中有${Array.from(drama_operators_star_6_set).length}位不同的六星干员${opening_job_group_only_text}</p>`);
+    reply_deck.push(`<p>将剧本中不在卡组中的必须优先选择的干员临时加入卡组后，卡组大小为${drama_deck_list.length}，包含${Array.from(new Set(drama_deck_list)).length}位不同的干员，其中有${Array.from(drama_operators_star_6_set).length}位不同的六星干员${opening_job_team_only_text}</p>`);
     reply_deck.push(`<div style="font-size: 0;"><h2 style="font-size: 2rem;">当前卡组</h2>`);
     for (let i = 0; i < temp_deck.length; i++) {
         opr = get_operator_by_code_name(temp_deck[i]);
@@ -1447,14 +1474,14 @@ function handle_box_mode(box_mode) {
         document.getElementById('tr_mode_1').style.display = '';
         document.getElementById('tr_mode_2').style.display = 'none';
         document.getElementById('div_button_settings_deck').style.display = 'none';
-        document.getElementById('support_unit_enabled').disabled = false;
+        document.getElementById('is_support_unit_enabled').disabled = false;
         document.getElementById('support_unit_disabled_in_deck_mode').innerHTML= '';
     }
     else if (box_mode == 2) {
         document.getElementById('tr_mode_1').style.display = 'none';
         document.getElementById('tr_mode_2').style.display = '';
         document.getElementById('div_button_settings_deck').style.display = '';
-        document.getElementById('support_unit_enabled').disabled = true;
+        document.getElementById('is_support_unit_enabled').disabled = true;
         document.getElementById('support_unit_disabled_in_deck_mode').innerHTML= '※在卡组模式下不可用';
     }
     else {
@@ -1469,11 +1496,73 @@ function handle_box_mode(box_mode) {
 }
 
 function reset_opening_today_4() {
-    document.getElementById('user_id').value = ''
+    document.getElementById('user_name').value = '';
     document.getElementById('tr_today_button').style.display = '';
     document.getElementById('tr_today_result').style.display = 'none';
     document.getElementById('tr_drama_button_1').style.display = '';
     document.getElementById('tr_drama_button_2').style.display = '';
     document.getElementById('tr_drama_result').style.display = 'none';
+}
+
+function get_login_info() {
+    if (!current_login_user_id || !current_login_token) {
+        return;
+    }
+    let payload = {
+        'user_id': current_login_user_id,
+        'login_token': current_login_token,
+    }
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://yubo.run/api/kusa/login_info', true);
+    xhr.setRequestHeader('Content-type', 'application/json');
+    xhr.timeout = 20000;
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200 || xhr.status == 304) {
+            let data = JSON.parse(xhr.responseText);
+            if (data.status == 'success') {
+                console.log('login', current_login_user_id, current_login_token)
+                document.getElementById('user_name').value = data.nickname;
+            }
+        }
+    }
+    xhr.onerror = function() {
+        console.log('请求出错，请稍后重试')
+    }
+    xhr.send(JSON.stringify(payload));
+}
+
+function send_kaiju_log() {
+    let data = JSON.parse(window.localStorage['data_ji_kaiju']);
+    let current_settings_info = {
+        'enabled_rogue_id_list': data['enabled_rogue_id_list'],
+        'is_job_team_only': data['is_job_team_only'],
+        'is_support_unit_enabled': data['is_support_unit_enabled'],
+        'box_mode': data['box_mode'],
+    }
+    let box_info = {
+        'to_get': data['to_get'],
+        'deck': data['deck'],
+    }
+    let payload = {
+        'user_id': current_login_user_id,
+        'user_name': document.getElementById('user_name').value,
+        'settings_info': current_settings_info,
+        'box_info': box_info,
+        'result_info': current_result,
+    }
+    let xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://yubo.run/api/kaiju/add_log', true);
+    xhr.setRequestHeader('Content-type', 'application/json');
+    xhr.timeout = 20000;
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState == 4 && xhr.status == 200 || xhr.status == 304) {
+            let data = JSON.parse(xhr.responseText);
+            console.log(data.message);
+        }
+    }
+    xhr.onerror = function() {
+        console.log('请求出错，请稍后重试');
+    }
+    xhr.send(JSON.stringify(payload));
 }
 

@@ -90,18 +90,15 @@
             <div id="div_main">
                 <table class="table_text" id="table_main">
                     <tr>
-                        <th colspan="2">
-                            <div class="elm_outline elm_white" id="div_title">
-                                肉鸽开局生成器
-                                <div id="div_version">
-                                    <div class="div_red_spot" id="div_red_spot_version" style="display: none;"></div>
-                                    <span id="span_version"></span>
-                                </div>
+                        <th colspan="2" style="height: 6em; text-align: center;">
+                            <div id="div_title" class="elm_outline elm_white">
+                                <div class="div_red_spot" id="div_red_spot_version" style="display: none;"></div>
+                                <span id="span_title">肉鸽开局生成器</span>
                             </div>
                         </th>
                     </tr>
                     <tr style="user-select: none;">
-                        <th colspan="1">我是 <input type="text" id="user_id" onkeypress="handle_input_keypress(event);"></th>
+                        <th colspan="1">我是 <input type="text" id="user_name" onkeypress="handle_input_keypress(event);"></th>
                         <th colspan="1"><div class="div_button" onclick="reset_opening_today_4();">重置</div></th>
                     </tr>
                     <tr id="tr_today_button">
@@ -150,7 +147,7 @@
                             允许使用不在box中的干员开局（招募助战）<span id="support_unit_disabled_in_deck_mode"></span>
                         </td>
                         <td>
-                            <input id="support_unit_enabled" type="checkbox"><label for="support_unit_enabled">开启</label>
+                            <input id="is_support_unit_enabled" type="checkbox"><label for="is_support_unit_enabled">开启</label>
                         </td>
                     </tr>
                     <tr>
@@ -158,7 +155,7 @@
                             仅使用职业分队开局
                         </td>
                         <td>
-                            <input id="job_group_only" type="checkbox"><label for="job_group_only">开启</label>
+                            <input id="is_job_team_only" type="checkbox"><label for="is_job_team_only">开启</label>
                         </td>
                     </tr>
                     <tr>
@@ -276,6 +273,7 @@
             handle_box_mode(current_box_mode);
             update_current_deck();
             load_contents();
+            get_login_info();
         })
         .catch(exception => {
             error_message = `加载 ${exception[0]} 时遇到错误 ${exception[1]}，请重试`;
