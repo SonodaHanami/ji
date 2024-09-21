@@ -1054,11 +1054,17 @@ function get_drama_deck(drama_level) {
     let drama_deck_list = current_deck.slice();
     let drama_box_set = new Set(drama_deck_list);
     if (drama_deck_list.length < MIN_DECK_SIZE) {
-        output_drama(`当前卡组大小为${drama_deck_list.length}，小于下限${MIN_DECK_SIZE}，请检查设置后重试`);
+        output_drama(`当前卡组大小为${drama_deck_list.length}，小于下限${MIN_DECK_SIZE}，请检查设置后重试，
+            或直接使用默认卡组重新生成
+            <div class="div_button" onclick="handle_full_deck('default'); save_settings(); get_drama_deck(${drama_level}); send_kaiju_log();">点击使用默认卡组重新生成</div>
+        `);
         return;
     }
     if (drama_deck_list.length > MAX_DECK_SIZE) {
-        output_drama(`当前卡组大小为${drama_deck_list.length}，超过上限${MAX_DECK_SIZE}，请检查设置后重试`);
+        output_drama(`当前卡组大小为${drama_deck_list.length}，超过上限${MAX_DECK_SIZE}，请检查设置后重试，
+            或直接使用默认卡组重新生成
+            <div class="div_button" onclick="handle_full_deck('default'); save_settings(); get_drama_deck(${drama_level}); send_kaiju_log();">点击使用默认卡组重新生成</div>
+        `);
         return;
     }
 
