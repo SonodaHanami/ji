@@ -330,7 +330,7 @@ function load_settings() {
     }
 }
 
-function load_contents() {
+function load_document() {
     let current_timestamp = new Date().getTime();
     console.log('开始加载文档');
     console.time('加载文档');
@@ -343,7 +343,10 @@ function load_contents() {
     .catch(err => {
         console.error(err);
     });
+}
 
+function load_update_log() {
+    let current_timestamp = new Date().getTime();
     console.log('开始加载更新日志');
     console.time('加载更新日志');
     fetch(`${CONTENTS['update_log']['file_path']}?t=${current_timestamp}`)
@@ -1415,7 +1418,17 @@ function handle_sub_content(name) {
         document.getElementById('span_overlay_header_icon').innerHTML = CONTENTS[name]['icon'];
         document.getElementById('span_overlay_header_title').innerHTML = CONTENTS[name]['title'];
 
+        if (name == 'document') {
+            if (document.getElementById('div_document').innerHTML == '') {
+                load_document();
+            }
+        }
+
         if (name == 'update_log') {
+            if (document.getElementById('div_update_log').innerHTML == '') {
+                load_update_log();
+            }
+
             console.log('已确认最新版本');
             update_last_checked_version();
             save_settings();
