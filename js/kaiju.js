@@ -1,5 +1,5 @@
 const NAME = '肉鸽开局生成器';
-const VERSION = '2.13f';
+const VERSION = '2.13g';
 
 const question_mark = '？';
 const window_length = 10;
@@ -65,10 +65,10 @@ const JOB_TEAM_LIST = ['突击战术分队', '堡垒战术分队', '远程战术
 
 const OPERATORS_STAR_6_VANGUARD = ['推进之王', '风笛', '嵯峨', '琴柳', '焰尾', '伺夜', '伊内丝', '缪尔赛思', '忍冬']
 const OPERATORS_STAR_6_GUARD = ['银灰', '斯卡蒂', '陈', '赫拉格', '煌', '棘刺', '史尔特尔', '山', '帕拉斯', '耀骑士临光', '艾丽妮', '百炼嘉维尔', '玛恩纳',
-    '重岳', '仇白', '圣约送葬人', '赫德雷', '止颂', '薇薇安娜', '锏', '左乐', '乌尔比安', '佩佩', '维娜·维多利亚']
+    '重岳', '仇白', '圣约送葬人', '赫德雷', '止颂', '薇薇安娜', '锏', '左乐', '乌尔比安', '佩佩', '维娜·维多利亚', '隐德来希']
 const OPERATORS_STAR_6_DEFENDER = ['星熊', '塞雷娅', '年', '森蚺', '瑕光', '泥岩', '号角', '斥罪', '涤火杰西卡', '黍', '余']
 const OPERATORS_STAR_6_SNIPER = ['能天使', '黑', 'W', '早露', '迷迭香', '空弦', '灰烬', '假日威龙陈', '远牙', '菲亚梅塔', '鸿雪', '提丰', '莱伊', '维什戴尔', '娜仁图亚']
-const OPERATORS_STAR_6_CASTER = ['伊芙利特', '艾雅法拉', '莫斯提马', '刻俄柏', '夕', '异客', '卡涅利安', '澄闪', '黑键', '林', '霍尔海雅', '逻各斯', '妮芙', '玛露西尔', '荒芜拉普兰德', '烛煌']
+const OPERATORS_STAR_6_CASTER = ['伊芙利特', '艾雅法拉', '莫斯提马', '刻俄柏', '夕', '异客', '卡涅利安', '澄闪', '黑键', '林', '霍尔海雅', '逻各斯', '妮芙', '玛露西尔', '荒芜拉普兰德', '烛煌', '死芒']
 const OPERATORS_STAR_6_MEDIC = ['闪灵', '夜莺', '凯尔希', '流明', '焰影苇草', '纯烬艾雅法拉']
 const OPERATORS_STAR_6_SUPPORTER = ['安洁莉娜', '麦哲伦', '铃兰', '浊心斯卡蒂', '灵知', '令', '白铁', '淬羽赫默', '塑心', '魔王']
 const OPERATORS_STAR_6_SPECIALIST = ['阿', '傀影', '温蒂', '歌蕾蒂娅', '水月', '老鲤', '归溟幽灵鲨', '多萝西', '缄默德克萨斯', '麒麟R夜刀', '琳琅诗怀雅', '艾拉', '阿斯卡纶', '弑君者', '引星棘刺']
@@ -77,11 +77,11 @@ const OPERATORS_STAR_5_VANGUARD = ['凛冬', '德克萨斯', '格拉尼', '苇�
 const OPERATORS_STAR_5_GUARD = ['芙兰卡', '因陀罗', '拉普兰德', '幽灵鲨', '暴行', '诗怀雅', '星极', '炎客', '布洛卡', '柏喙', '铸铁', '断崖', '燧石', '鞭刃', '阿米娅(近卫)',
     '战车', '赤冬', '龙舌兰', '羽毛笔', '海沫', '达格达', '铎铃', '火龙S黑角', '摩根', '苍苔', '烈夏', '医生', '导火索', '奥达', '莱欧斯']
 const OPERATORS_STAR_5_DEFENDER = ['临光', '雷蛇', '可颂', '火神', '拜松', '吽', '石棉', '闪击', '暴雨', '灰毫', '极光', '暮落', '车尔尼', '火哨', '洋灰', '深律', '深巡', '森西', '菲莱']
-const OPERATORS_STAR_5_SNIPER = ['蓝毒', '白金', '陨星', '普罗旺斯', '守林人', '送葬人', '灰喉', '慑砂', '安哲拉', '四月', '奥斯塔', '熔泉', '寒芒克洛丝', '埃拉托', '承曦格雷伊', '子月', '截云', '玫拉', '隐现', '冰酿']
+const OPERATORS_STAR_5_SNIPER = ['蓝毒', '白金', '陨星', '普罗旺斯', '守林人', '送葬人', '灰喉', '慑砂', '安哲拉', '四月', '奥斯塔', '熔泉', '寒芒克洛丝', '埃拉托', '承曦格雷伊', '子月', '截云', '玫拉', '隐现', '冰酿', '水灯心']
 const OPERATORS_STAR_5_CASTER = ['阿米娅', '天火', '夜魔', '惊蛰', '苦艾', '莱恩哈特', '蜜蜡', '特米米', '薄绿', '爱丽丝', '炎狱炎熔', '蚀清', '耶拉', '洛洛', '星源', '至简', '雪绒', '和弦', '寒檀', '戴菲恩', '折光', '温米', '阿罗玛', '特克诺']
-const OPERATORS_STAR_5_MEDIC = ['白面鸮', '赫默', '华法琳', '锡兰', '微风', '亚叶', '絮雨', '图耶', '桑葚', '蜜莓', '濯尘芙蓉', '明椒', '刺玫', '哈洛德', '阿米娅(医疗)', '莎草', '瑰盐']
+const OPERATORS_STAR_5_MEDIC = ['白面鸮', '赫默', '华法琳', '锡兰', '微风', '亚叶', '絮雨', '图耶', '桑葚', '蜜莓', '濯尘芙蓉', '明椒', '刺玫', '哈洛德', '阿米娅(医疗)', '莎草', '瑰盐', '诺威尔']
 const OPERATORS_STAR_5_SUPPORTER = ['梅尔', '初雪', '真理', '空', '格劳克斯', '巫恋', '月禾', '稀音', '九色鹿', '夏栎', '海蒂', '掠风', '但书', '凛视', '小满', '海霓', '衡沙', '凯瑟琳', '波卜', '行箸']
-const OPERATORS_STAR_5_SPECIALIST = ['红', '崖心', '狮蝎', '食铁兽', '槐琥', '雪雉', '罗宾', '卡夫卡', '乌有', '霜华', '贝娜', '绮良', '见行者', '风丸', '空构', '杏仁', '双月', '锡人', '裁度']
+const OPERATORS_STAR_5_SPECIALIST = ['红', '崖心', '狮蝎', '食铁兽', '槐琥', '雪雉', '罗宾', '卡夫卡', '乌有', '霜华', '贝娜', '绮良', '见行者', '风丸', '空构', '杏仁', '双月', '锡人', '裁度', '钼铅']
 
 const OPERATORS_STAR_4_VANGUARD = ['讯使', '清道夫', '红豆', '桃金娘', '豆苗']
 const OPERATORS_STAR_4_GUARD = ['杜宾', '缠丸', '霜叶', '艾丝黛尔', '慕斯', '猎蜂', '宴', '断罪者', '刻刀', '芳汀', '杰克', '罗小黑', '石英', '休谟斯']
@@ -229,7 +229,7 @@ let current_banned_operators = [];
 let current_mail_list = [];
 let current_sub_content = '';
 
-let current_login_user_id = '';
+let current_login_identifier = '';
 let current_login_token = '';
 
 let current_result = {};
@@ -323,7 +323,7 @@ function load_settings() {
         }
 
         // 羽bot个人中心登录凭证
-        current_login_user_id = window.localStorage['login_user_id'] || '';
+        current_login_identifier = window.localStorage['login_identifier'] || '';
         current_login_token = window.localStorage['login_token'] || '';
 
         return true;
@@ -1524,11 +1524,11 @@ function reset_opening_today_4() {
 }
 
 function get_login_info() {
-    if (!current_login_user_id || !current_login_token) {
+    if (!current_login_identifier || !current_login_token) {
         return;
     }
     let payload = {
-        'user_id': current_login_user_id,
+        'identifier': current_login_identifier,
         'login_token': current_login_token,
     }
     let xhr = new XMLHttpRequest();
@@ -1539,8 +1539,16 @@ function get_login_info() {
         if (xhr.readyState == 4 && xhr.status == 200 || xhr.status == 304) {
             let data = JSON.parse(xhr.responseText);
             if (data.status == 'success') {
-                console.log('login', current_login_user_id, current_login_token)
-                document.getElementById('user_name').value = data.nickname;
+                console.log('login', current_login_identifier, current_login_token)
+                if (data.nickname == 'bilibili_nickname') {
+                    document.getElementById('user_name').value = data.bilibili.nickname;
+                }
+                else if (data.nickname == 'arknights_nickname') {
+                    document.getElementById('user_name').value = data.arknights.nickname;
+                }
+                else if (data.nickname == 'arknights_nickname_clear') {
+                    document.getElementById('user_name').value = data.arknights.nickname.split('#')[0];
+                }
             }
         }
     }
@@ -1563,7 +1571,7 @@ function send_kaiju_log() {
         'deck': data['deck'],
     }
     let payload = {
-        'user_id': current_login_user_id,
+        'identifier': current_login_identifier,
         'user_name': document.getElementById('user_name').value,
         'settings_info': current_settings_info,
         'box_info': box_info,
