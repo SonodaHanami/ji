@@ -36,6 +36,7 @@ const ROGUE_NAME_LIST = [
     '水月与深蓝之树',
     '探索者的银凇止境',
     '萨卡兹的无终奇语',
+    '岁的界园志异',
 ]
 
 const TEAM_LIST_2 = [
@@ -60,6 +61,13 @@ const TEAM_LIST_5 = [
     '指挥分队', '集群分队', '后勤分队', '矛头分队',
     '突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队',
     '高规格分队', '因地制宜分队',
+    '异想天开分队', '点刺成锭分队', '拟态学者分队', '专业人士分队'
+]
+const TEAM_LIST_6 = [
+    '指挥分队', '特勤分队', '后勤分队',
+    '突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队',
+    '高台突破分队', '地面突破分队', '高规格分队',
+    '游客分队', '司岁台分队', '天师府分队',
 ]
 const JOB_TEAM_LIST = ['突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队']
 
@@ -70,7 +78,7 @@ const OPERATORS_STAR_6_DEFENDER = ['星熊', '塞雷娅', '年', '森蚺', '瑕�
 const OPERATORS_STAR_6_SNIPER = ['能天使', '黑', 'W', '早露', '迷迭香', '空弦', '灰烬', '假日威龙陈', '远牙', '菲亚梅塔', '鸿雪', '提丰', '莱伊', '维什戴尔', '娜仁图亚', '蕾缪安']
 const OPERATORS_STAR_6_CASTER = ['伊芙利特', '艾雅法拉', '莫斯提马', '刻俄柏', '夕', '异客', '卡涅利安', '澄闪', '黑键', '林', '霍尔海雅', '逻各斯', '妮芙', '玛露西尔', '荒芜拉普兰德', '烛煌', '死芒']
 const OPERATORS_STAR_6_MEDIC = ['闪灵', '夜莺', '凯尔希', '流明', '焰影苇草', '纯烬艾雅法拉', 'Mon3tr']
-const OPERATORS_STAR_6_SUPPORTER = ['安洁莉娜', '麦哲伦', '铃兰', '浊心斯卡蒂', '灵知', '令', '白铁', '淬羽赫默', '塑心', '魔王', '酒神']
+const OPERATORS_STAR_6_SUPPORTER = ['安洁莉娜', '麦哲伦', '铃兰', '浊心斯卡蒂', '灵知', '令', '白铁', '淬羽赫默', '塑心', '魔王', '酒神', '电弧']
 const OPERATORS_STAR_6_SPECIALIST = ['阿', '傀影', '温蒂', '歌蕾蒂娅', '水月', '老鲤', '归溟幽灵鲨', '多萝西', '缄默德克萨斯', '麒麟R夜刀', '琳琅诗怀雅', '艾拉', '阿斯卡纶', '弑君者', '引星棘刺', '新约能天使']
 
 const OPERATORS_STAR_5_VANGUARD = ['凛冬', '德克萨斯', '格拉尼', '苇草', '极境', '贾维', '野鬃', '夜半', '晓歌', '谜图', '青枳', '万顷', '红隼', '历阵锐枪芬', '渡桥', '齐尔查克', '寻澜']
@@ -857,6 +865,9 @@ function get_drama_basic(drama_level=7) {
     if (document.getElementById('rogue_5').checked) {
         rogue_name_list.push('萨卡兹的无终奇语')
     }
+    if (document.getElementById('rogue_6').checked) {
+        rogue_name_list.push('岁的界园志异')
+    }
     let opening_rogue_name = rogue_name_list[hash_int % rogue_name_list.length];
     let opening_team;
     if (document.getElementById('is_job_team_only').checked) {
@@ -875,6 +886,9 @@ function get_drama_basic(drama_level=7) {
         }
         if (opening_rogue_name == '萨卡兹的无终奇语') {
             opening_team = TEAM_LIST_5[hash_int % TEAM_LIST_5.length];
+        }
+        if (opening_rogue_name == '岁的界园志异') {
+            opening_team = TEAM_LIST_6[hash_int % TEAM_LIST_6.length];
         }
     }
     let drama_box, drama_operators_star_6;
@@ -1089,6 +1103,9 @@ function get_drama_deck(drama_level) {
     if (document.getElementById('rogue_5').checked) {
         rogue_name_list.push('萨卡兹的无终奇语')
     }
+    if (document.getElementById('rogue_6').checked) {
+        rogue_name_list.push('岁的界园志异')
+    }
     let opening_rogue_name = rogue_name_list[hash_int % rogue_name_list.length];
     let opening_team, opening_job_team_only_text = '';
     if (document.getElementById('is_job_team_only').checked) {
@@ -1107,6 +1124,9 @@ function get_drama_deck(drama_level) {
         }
         if (opening_rogue_name == '萨卡兹的无终奇语') {
             opening_team = TEAM_LIST_5[hash_int % TEAM_LIST_5.length];
+        }
+        if (opening_rogue_name == '岁的界园志异') {
+            opening_team = TEAM_LIST_6[hash_int % TEAM_LIST_6.length];
         }
     }
     let drama_operators_star_6 = [], drama_box_by_job = {};
