@@ -545,13 +545,13 @@ const app = createApp({
             // 事件数据
             ElementPlus.ElMessage('正在请求事件数据');
             let start = new Date();
-            await axios.get('https://yubo.run/arknights/event_global.json').then(res => {
+            await axios.get('https://yubo.run/arknights/arknights_dictionary/event/global.json').then(res => {
                 let elapsed = +new Date() - start;
                 ElementPlus.ElMessage({
                     message: `请求事件数据完成，用时${elapsed}ms`,
                     type: 'success',
                 });
-                console.log(`fetchData: event.json ${elapsed} ms`)
+                console.log(`fetchData: arknights_dictionary/event/global.json ${elapsed} ms`)
                 that.EVENTS = res.data;
                 for (let e in that.EVENTS) {
                     that.event_list.push(
