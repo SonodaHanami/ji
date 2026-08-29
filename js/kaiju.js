@@ -1,5 +1,5 @@
 const NAME = '肉鸽开局生成器';
-const VERSION = '2.13g';
+const VERSION = '2.13h';
 
 const question_mark = '？';
 const window_length = 10;
@@ -71,142 +71,44 @@ const TEAM_LIST_6 = [
 ]
 const JOB_TEAM_LIST = ['突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队']
 
-const OPERATORS_STAR_6_VANGUARD = ['推进之王', '风笛', '嵯峨', '琴柳', '焰尾', '伺夜', '伊内丝', '缪尔赛思', '忍冬', '凛御银灰']
-const OPERATORS_STAR_6_GUARD = ['银灰', '斯卡蒂', '陈', '赫拉格', '煌', '棘刺', '史尔特尔', '山', '帕拉斯', '耀骑士临光', '艾丽妮', '百炼嘉维尔', '玛恩纳',
-    '重岳', '仇白', '圣约送葬人', '赫德雷', '止颂', '薇薇安娜', '锏', '左乐', '乌尔比安', '佩佩', '维娜·维多利亚', '隐德来希', '司霆惊蛰', '丰川祥子', '赤刃明霄陈']
-const OPERATORS_STAR_6_DEFENDER = ['星熊', '塞雷娅', '年', '森蚺', '瑕光', '泥岩', '号角', '斥罪', '涤火杰西卡', '黍', '余', '信仰搅拌机', '斩业星熊']
-const OPERATORS_STAR_6_SNIPER = ['能天使', '黑', 'W', '早露', '迷迭香', '空弦', '灰烬', '假日威龙陈', '远牙', '菲亚梅塔', '鸿雪', '提丰', '莱伊', '维什戴尔', '娜仁图亚', '蕾缪安']
-const OPERATORS_STAR_6_CASTER = ['伊芙利特', '艾雅法拉', '莫斯提马', '刻俄柏', '夕', '异客', '卡涅利安', '澄闪', '黑键', '林', '霍尔海雅', '逻各斯', '妮芙', '玛露西尔', '荒芜拉普兰德', '烛煌', '死芒', '真言', '圣聆初雪']
-const OPERATORS_STAR_6_MEDIC = ['闪灵', '夜莺', '凯尔希', '流明', '焰影苇草', '纯烬艾雅法拉', 'Mon3tr', '缇缇']
-const OPERATORS_STAR_6_SUPPORTER = ['安洁莉娜', '麦哲伦', '铃兰', '浊心斯卡蒂', '灵知', '令', '白铁', '淬羽赫默', '塑心', '魔王', '酒神', '电弧', '遥', '溯光星源', '娜斯提']
-const OPERATORS_STAR_6_SPECIALIST = ['阿', '傀影', '温蒂', '歌蕾蒂娅', '水月', '老鲤', '归溟幽灵鲨', '多萝西', '缄默德克萨斯', '麒麟R夜刀', '琳琅诗怀雅', '艾拉', '阿斯卡纶', '弑君者', '引星棘刺', '新约能天使', '望']
 
-const OPERATORS_STAR_5_VANGUARD = ['凛冬', '德克萨斯', '格拉尼', '苇草', '极境', '贾维', '野鬃', '夜半', '晓歌', '谜图', '青枳', '万顷', '红隼', '历阵锐枪芬', '渡桥', '齐尔查克', '寻澜', '松桐']
-const OPERATORS_STAR_5_GUARD = ['芙兰卡', '因陀罗', '拉普兰德', '幽灵鲨', '暴行', '诗怀雅', '星极', '炎客', '布洛卡', '柏喙', '铸铁', '断崖', '燧石', '鞭刃', '阿米娅(近卫)',
-    '战车', '赤冬', '龙舌兰', '羽毛笔', '海沫', '达格达', '铎铃', '火龙S黑角', '摩根', '苍苔', '烈夏', '医生', '导火索', '奥达', '莱欧斯', '聆音', '祐天寺若麦', '哈蒂娅', '摆渡人']
-const OPERATORS_STAR_5_DEFENDER = ['临光', '雷蛇', '可颂', '火神', '拜松', '吽', '石棉', '闪击', '暴雨', '灰毫', '极光', '暮落', '车尔尼', '火哨', '洋灰', '深律', '深巡', '森西', '菲莱', '折桠', '响石']
-const OPERATORS_STAR_5_SNIPER = ['蓝毒', '白金', '陨星', '普罗旺斯', '守林人', '送葬人', '灰喉', '慑砂', '安哲拉', '四月', '奥斯塔', '熔泉', '寒芒克洛丝', '埃拉托', '承曦格雷伊', '子月', '截云', '玫拉', '隐现', '冰酿', '水灯心', '吉星', '雪猎', '天空盒', '矩']
-const OPERATORS_STAR_5_CASTER = ['阿米娅', '天火', '夜魔', '惊蛰', '苦艾', '莱恩哈特', '蜜蜡', '特米米', '薄绿', '爱丽丝', '炎狱炎熔', '蚀清', '耶拉', '洛洛', '星源', '至简', '雪绒', '和弦', '寒檀',
-    '戴菲恩', '折光', '温米', '阿罗玛', '特克诺', 'Miss.Christine']
-const OPERATORS_STAR_5_MEDIC = ['白面鸮', '赫默', '华法琳', '锡兰', '微风', '亚叶', '絮雨', '图耶', '桑葚', '蜜莓', '濯尘芙蓉', '明椒', '刺玫', '哈洛德', '阿米娅(医疗)', '莎草', '瑰盐', '诺威尔', '录武官', '风絮']
-const OPERATORS_STAR_5_SUPPORTER = ['梅尔', '初雪', '真理', '空', '格劳克斯', '巫恋', '月禾', '稀音', '九色鹿', '夏栎', '海蒂', '掠风', '但书', '凛视', '小满', '海霓', '衡沙', '凯瑟琳', '波卜', '行箸', '阿兰娜', '三角初华', '撷英调香师']
-const OPERATORS_STAR_5_SPECIALIST = ['红', '崖心', '狮蝎', '食铁兽', '槐琥', '雪雉', '罗宾', '卡夫卡', '乌有', '霜华', '贝娜', '绮良', '见行者', '风丸', '空构', '杏仁', '双月', '锡人', '裁度', '钼铅', '蒂比', '若叶睦', '八幡海铃']
+const JOB_ALIAS_MAP = {
+    '先锋': 'VANGUARD',
+    '近卫': 'GUARD',
+    '重装': 'DEFENDER',
+    '狙击': 'SNIPER',
+    '术师': 'CASTER',
+    '医疗': 'MEDIC',
+    '辅助': 'SUPPORTER',
+    '特种': 'SPECIALIST',
+};
+const JOBS = Object.keys(JOB_ALIAS_MAP);
+const STAR_LEVELS = [6, 5, 4, 3, 2, 1];
 
-const OPERATORS_STAR_4_VANGUARD = ['讯使', '清道夫', '红豆', '桃金娘', '豆苗', '冬时']
-const OPERATORS_STAR_4_GUARD = ['杜宾', '缠丸', '霜叶', '艾丝黛尔', '慕斯', '猎蜂', '宴', '断罪者', '刻刀', '芳汀', '杰克', '罗小黑', '石英', '休谟斯', '骋风']
-const OPERATORS_STAR_4_DEFENDER = ['角峰', '蛇屠箱', '古米', '坚雷', '泡泡', '露托']
-const OPERATORS_STAR_4_SNIPER = ['杰西卡', '流星', '白雪', '红云', '梅', '安比尔', '酸糖', '松果', '铅踝', '跃跃']
-const OPERATORS_STAR_4_CASTER = ['夜烟', '远山', '格雷伊', '卡达', '深靛', '布丁', '协律']
-const OPERATORS_STAR_4_MEDIC = ['末药', '嘉维尔', '调香师', '苏苏洛', '清流', '褐果']
-const OPERATORS_STAR_4_SUPPORTER = ['深海色', '地灵', '波登可', '罗比菈塔']
-const OPERATORS_STAR_4_SPECIALIST = ['砾', '暗索', '阿消', '伊桑', '孑', '维荻', '云迹']
+const getOperatorsByJobAndRarity = (rarity, job) => Object.keys(OPERATORS)
+    .filter(name => OPERATORS[name].job === job && OPERATORS[name].rarity === rarity);
 
-const OPERATORS_STAR_3_VANGUARD = ['芬', '香草', '翎羽']
-const OPERATORS_STAR_3_GUARD = ['玫兰莎', '月见夜', '泡普卡']
-const OPERATORS_STAR_3_DEFENDER = ['卡缇', '米格鲁', '斑点']
-const OPERATORS_STAR_3_SNIPER = ['克洛丝', '安德切尔', '空爆']
-const OPERATORS_STAR_3_CASTER = ['炎熔', '史都华德']
-const OPERATORS_STAR_3_MEDIC = ['芙蓉', '安赛尔']
-const OPERATORS_STAR_3_SUPPORTER = ['梓兰']
-const OPERATORS_STAR_3_SPECIALIST = []
+const OPERATORS_BY_STAR = Object.fromEntries(
+    STAR_LEVELS.map(star => [String(star), Object.fromEntries(
+        JOBS.map(job => [job, getOperatorsByJobAndRarity(star, job)])
+    )])
+);
 
-const OPERATORS_STAR_2_VANGUARD = ['夜刀']
-const OPERATORS_STAR_2_GUARD = []
-const OPERATORS_STAR_2_DEFENDER = ['黑角']
-const OPERATORS_STAR_2_SNIPER = ['巡林者']
-const OPERATORS_STAR_2_CASTER = ['杜林', '12F']
-const OPERATORS_STAR_2_MEDIC = []
-const OPERATORS_STAR_2_SUPPORTER = []
-const OPERATORS_STAR_2_SPECIALIST = []
+for (const star of STAR_LEVELS) {
+    for (const [job, alias] of Object.entries(JOB_ALIAS_MAP)) {
+        globalThis[`OPERATORS_STAR_${star}_${alias}`] = OPERATORS_BY_STAR[String(star)][job];
+    }
+}
 
-const OPERATORS_STAR_1_VANGUARD = ['CONFESS-47']
-const OPERATORS_STAR_1_GUARD = ['Castle-3']
-const OPERATORS_STAR_1_DEFENDER = ['Friston-3']
-const OPERATORS_STAR_1_SNIPER = ['正义骑士号', '泰拉大陆调查团']
-const OPERATORS_STAR_1_CASTER = []
-const OPERATORS_STAR_1_MEDIC = ['Lancet-2']
-const OPERATORS_STAR_1_SUPPORTER = ['U-Official', 'PhonoR-0']
-const OPERATORS_STAR_1_SPECIALIST = ['THRM-EX']
-
-const OPERATORS_STAR_6_LIST = OPERATORS_STAR_6_VANGUARD.concat(OPERATORS_STAR_6_GUARD).concat(OPERATORS_STAR_6_DEFENDER).concat(OPERATORS_STAR_6_SNIPER).concat(OPERATORS_STAR_6_CASTER).concat(OPERATORS_STAR_6_MEDIC).concat(OPERATORS_STAR_6_SUPPORTER).concat(OPERATORS_STAR_6_SPECIALIST)
-const OPERATORS_STAR_5_LIST = OPERATORS_STAR_5_VANGUARD.concat(OPERATORS_STAR_5_GUARD).concat(OPERATORS_STAR_5_DEFENDER).concat(OPERATORS_STAR_5_SNIPER).concat(OPERATORS_STAR_5_CASTER).concat(OPERATORS_STAR_5_MEDIC).concat(OPERATORS_STAR_5_SUPPORTER).concat(OPERATORS_STAR_5_SPECIALIST)
-const OPERATORS_STAR_4_LIST = OPERATORS_STAR_4_VANGUARD.concat(OPERATORS_STAR_4_GUARD).concat(OPERATORS_STAR_4_DEFENDER).concat(OPERATORS_STAR_4_SNIPER).concat(OPERATORS_STAR_4_CASTER).concat(OPERATORS_STAR_4_MEDIC).concat(OPERATORS_STAR_4_SUPPORTER).concat(OPERATORS_STAR_4_SPECIALIST)
-const OPERATORS_STAR_3_LIST = OPERATORS_STAR_3_VANGUARD.concat(OPERATORS_STAR_3_GUARD).concat(OPERATORS_STAR_3_DEFENDER).concat(OPERATORS_STAR_3_SNIPER).concat(OPERATORS_STAR_3_CASTER).concat(OPERATORS_STAR_3_MEDIC).concat(OPERATORS_STAR_3_SUPPORTER).concat(OPERATORS_STAR_3_SPECIALIST)
-const OPERATORS_STAR_2_LIST = OPERATORS_STAR_2_VANGUARD.concat(OPERATORS_STAR_2_GUARD).concat(OPERATORS_STAR_2_DEFENDER).concat(OPERATORS_STAR_2_SNIPER).concat(OPERATORS_STAR_2_CASTER).concat(OPERATORS_STAR_2_MEDIC).concat(OPERATORS_STAR_2_SUPPORTER).concat(OPERATORS_STAR_2_SPECIALIST)
-const OPERATORS_STAR_1_LIST = OPERATORS_STAR_1_VANGUARD.concat(OPERATORS_STAR_1_GUARD).concat(OPERATORS_STAR_1_DEFENDER).concat(OPERATORS_STAR_1_SNIPER).concat(OPERATORS_STAR_1_CASTER).concat(OPERATORS_STAR_1_MEDIC).concat(OPERATORS_STAR_1_SUPPORTER).concat(OPERATORS_STAR_1_SPECIALIST)
-// 按星级-职业-实装顺序排序
-const ALL_OPERATORS_LIST = OPERATORS_STAR_6_LIST.concat(OPERATORS_STAR_5_LIST).concat(OPERATORS_STAR_4_LIST).concat(OPERATORS_STAR_3_LIST).concat(OPERATORS_STAR_2_LIST).concat(OPERATORS_STAR_1_LIST)
+const getStarList = star => JOBS.flatMap(job => OPERATORS_BY_STAR[String(star)][job]);
+const OPERATORS_STAR_6_LIST = getStarList(6);
+const OPERATORS_STAR_5_LIST = getStarList(5);
+const OPERATORS_STAR_4_LIST = getStarList(4);
+const OPERATORS_STAR_3_LIST = getStarList(3);
+const OPERATORS_STAR_2_LIST = getStarList(2);
+const OPERATORS_STAR_1_LIST = getStarList(1);
+const ALL_OPERATORS_LIST = STAR_LEVELS.flatMap(star => getStarList(star));
 const ALL_OPERATORS_DICTS_LIST = [];
-
-const JOBS = ['先锋', '近卫', '重装', '狙击', '术师', '医疗', '辅助', '特种'];
-const OPERATORS_STAR_6_BY_JOB = {
-    '先锋': OPERATORS_STAR_6_VANGUARD,
-    '近卫': OPERATORS_STAR_6_GUARD,
-    '重装': OPERATORS_STAR_6_DEFENDER,
-    '狙击': OPERATORS_STAR_6_SNIPER,
-    '术师': OPERATORS_STAR_6_CASTER,
-    '医疗': OPERATORS_STAR_6_MEDIC,
-    '辅助': OPERATORS_STAR_6_SUPPORTER,
-    '特种': OPERATORS_STAR_6_SPECIALIST
-}
-const OPERATORS_STAR_5_BY_JOB = {
-    '先锋': OPERATORS_STAR_5_VANGUARD,
-    '近卫': OPERATORS_STAR_5_GUARD,
-    '重装': OPERATORS_STAR_5_DEFENDER,
-    '狙击': OPERATORS_STAR_5_SNIPER,
-    '术师': OPERATORS_STAR_5_CASTER,
-    '医疗': OPERATORS_STAR_5_MEDIC,
-    '辅助': OPERATORS_STAR_5_SUPPORTER,
-    '特种': OPERATORS_STAR_5_SPECIALIST
-}
-const OPERATORS_STAR_4_BY_JOB = {
-    '先锋': OPERATORS_STAR_4_VANGUARD,
-    '近卫': OPERATORS_STAR_4_GUARD,
-    '重装': OPERATORS_STAR_4_DEFENDER,
-    '狙击': OPERATORS_STAR_4_SNIPER,
-    '术师': OPERATORS_STAR_4_CASTER,
-    '医疗': OPERATORS_STAR_4_MEDIC,
-    '辅助': OPERATORS_STAR_4_SUPPORTER,
-    '特种': OPERATORS_STAR_4_SPECIALIST
-}
-const OPERATORS_STAR_3_BY_JOB = {
-    '先锋': OPERATORS_STAR_3_VANGUARD,
-    '近卫': OPERATORS_STAR_3_GUARD,
-    '重装': OPERATORS_STAR_3_DEFENDER,
-    '狙击': OPERATORS_STAR_3_SNIPER,
-    '术师': OPERATORS_STAR_3_CASTER,
-    '医疗': OPERATORS_STAR_3_MEDIC,
-    '辅助': OPERATORS_STAR_3_SUPPORTER,
-    '特种': OPERATORS_STAR_3_SPECIALIST
-}
-const OPERATORS_STAR_2_BY_JOB = {
-    '先锋': OPERATORS_STAR_2_VANGUARD,
-    '近卫': OPERATORS_STAR_2_GUARD,
-    '重装': OPERATORS_STAR_2_DEFENDER,
-    '狙击': OPERATORS_STAR_2_SNIPER,
-    '术师': OPERATORS_STAR_2_CASTER,
-    '医疗': OPERATORS_STAR_2_MEDIC,
-    '辅助': OPERATORS_STAR_2_SUPPORTER,
-    '特种': OPERATORS_STAR_2_SPECIALIST
-}
-const OPERATORS_STAR_1_BY_JOB = {
-    '先锋': OPERATORS_STAR_1_VANGUARD,
-    '近卫': OPERATORS_STAR_1_GUARD,
-    '重装': OPERATORS_STAR_1_DEFENDER,
-    '狙击': OPERATORS_STAR_1_SNIPER,
-    '术师': OPERATORS_STAR_1_CASTER,
-    '医疗': OPERATORS_STAR_1_MEDIC,
-    '辅助': OPERATORS_STAR_1_SUPPORTER,
-    '特种': OPERATORS_STAR_1_SPECIALIST
-}
-const OPERATORS_BY_STAR = {
-    '6': OPERATORS_STAR_6_BY_JOB,
-    '5': OPERATORS_STAR_5_BY_JOB,
-    '4': OPERATORS_STAR_4_BY_JOB,
-    '3': OPERATORS_STAR_3_BY_JOB,
-    '2': OPERATORS_STAR_2_BY_JOB,
-    '1': OPERATORS_STAR_1_BY_JOB,
-}
 
 const DEFAULT_DECK = [
     '伊内丝',
@@ -339,6 +241,22 @@ function load_settings() {
     }
 }
 
+async function load_operator() {
+    let current_timestamp = new Date().getTime();
+    console.log('开始加载干员列表');
+    console.time('加载干员列表');
+    try {
+        const response = await fetch(`https://yubo.run/arknights/operator.json?t=${current_timestamp}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        OPERATORS = await response.json();
+        console.timeEnd('加载干员列表');
+    } catch (error) {
+        console.error(error);
+    };
+}
+
 function load_document() {
     let current_timestamp = new Date().getTime();
     console.log('开始加载文档');
@@ -414,10 +332,10 @@ function init_all_operators() {
 }
 
 function init_table_box_basic() {
-    for (let job in OPERATORS_STAR_6_BY_JOB) {
+    for (let job in OPERATORS_BY_STAR['6']) {
         document.getElementById(`td_box_operators_star_6_${job}`).innerHTML = '';
-        for (let idx = 0; idx < OPERATORS_STAR_6_BY_JOB[job].length; idx++) {
-            let code_name = OPERATORS_STAR_6_BY_JOB[job][idx];
+        for (let idx = 0; idx < OPERATORS_BY_STAR['6'][job].length; idx++) {
+            let code_name = OPERATORS_BY_STAR['6'][job][idx];
             document.getElementById(`td_box_operators_star_6_${job}`).innerHTML += `
                 <span><input type="checkbox" id="box_${code_name}" checked><label for="box_${code_name}">${code_name}</label></span>
             `
@@ -630,11 +548,11 @@ function update_current_datetime() {
 }
 
 function update_current_box() {
-    current_operators_6_by_job = JSON.parse(JSON.stringify(OPERATORS_STAR_6_BY_JOB));
+    current_operators_6_by_job = JSON.parse(JSON.stringify(OPERATORS_BY_STAR['6']));
     current_operators_6_list = OPERATORS_STAR_6_LIST.slice();
-    for (let job in OPERATORS_STAR_6_BY_JOB) {
-        for (let idx = 0; idx < OPERATORS_STAR_6_BY_JOB[job].length; idx++) {
-            let code_name = OPERATORS_STAR_6_BY_JOB[job][idx];
+    for (let job in OPERATORS_BY_STAR['6']) {
+        for (let idx = 0; idx < OPERATORS_BY_STAR['6'][job].length; idx++) {
+            let code_name = OPERATORS_BY_STAR['6'][job][idx];
             if (operators_star_6_to_get.includes(code_name)) {
                 document.getElementById(`box_${code_name}`).checked = false;
                 current_operators_6_list.splice(current_operators_6_list.indexOf(code_name), 1);
@@ -651,15 +569,15 @@ function update_current_box() {
 }
 
 function update_current_operators(full_box=false) {
-    current_operators_6_by_job = JSON.parse(JSON.stringify(OPERATORS_STAR_6_BY_JOB));
+    current_operators_6_by_job = JSON.parse(JSON.stringify(OPERATORS_BY_STAR['6']));
     current_operators_6_list = OPERATORS_STAR_6_LIST.slice();
     let operators_to_get = [];
     if (full_box) {
         return operators_to_get;
     }
-    for (let job in OPERATORS_STAR_6_BY_JOB) {
-        for (let idx = 0; idx < OPERATORS_STAR_6_BY_JOB[job].length; idx++) {
-            let code_name = OPERATORS_STAR_6_BY_JOB[job][idx];
+    for (let job in OPERATORS_BY_STAR['6']) {
+        for (let idx = 0; idx < OPERATORS_BY_STAR['6'][job].length; idx++) {
+            let code_name = OPERATORS_BY_STAR['6'][job][idx];
             if (document.getElementById(`box_${code_name}`).checked == false) {
                 operators_to_get.push(code_name);
                 current_operators_6_list.splice(current_operators_6_list.indexOf(code_name), 1);
@@ -946,8 +864,8 @@ function get_drama_basic(drama_level=7) {
     drama_operators_star_6 = current_operators_6_list.slice();
     if (document.getElementById('is_support_unit_enabled').checked) {
         // 将助战招募干员临时加入box
-        for (let job in OPERATORS_STAR_6_BY_JOB) {
-            if (OPERATORS_STAR_6_BY_JOB[job].includes(opening_operator)) {
+        for (let job in OPERATORS_BY_STAR['6']) {
+            if (OPERATORS_BY_STAR['6'][job].includes(opening_operator)) {
                 if (!(job in drama_box)) {
                     drama_box[job] = [];
                 }
@@ -964,8 +882,8 @@ function get_drama_basic(drama_level=7) {
     drama_operators_star_6.splice(drama_operators_star_6.indexOf(opening_operator), 1);
     // 处理box中某一职业没有六星干员的情况
     check_drama_box();
-    for (let job in OPERATORS_STAR_6_BY_JOB) {
-        if (OPERATORS_STAR_6_BY_JOB[job].includes(opening_operator)) {
+    for (let job in OPERATORS_BY_STAR['6']) {
+        if (OPERATORS_BY_STAR['6'][job].includes(opening_operator)) {
             picks[job].push(`${opening_operator}（开局）`)
             picks_count[job] += 1
             reply_picks.push(`<input type="checkbox" id="checkbox_${opening_operator}"><label for="checkbox_${opening_operator}">第 ${picks_count[job]} 位 六星${job}干员 选择 ${opening_operator}（开局）</label>`);

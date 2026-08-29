@@ -1,289 +1,304 @@
+<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
-    <title>肉鸽开局生成器</title>
-    <!-- <link rel="icon" href="./favicon.ico"> -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MZCWWQJQQT"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-MZCWWQJQQT');
-    </script>
-    <script src="https://cdn.bootcss.com/blueimp-md5/2.12.0/js/md5.min.js"></script>
-    <style>
-        /* CSSFX, Copyright (c) 2019 Jonathan Olaleye, Licensed under MIT License */
-        /* https://github.com/jolaleye/cssfx/blob/master/LICENSE */
-        .balls {
-            width: 3.5em;
-            display: flex;
-            flex-flow: row nowrap;
-            align-items: center;
-            justify-content: space-between;
-        }
+<meta charset="utf-8" />
+<title>肉鸽开局生成器</title>
+<!-- <link rel="icon" href="./favicon.ico"> -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MZCWWQJQQT"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-MZCWWQJQQT');
+</script>
+<script src="https://cdn.bootcss.com/blueimp-md5/2.12.0/js/md5.min.js"></script>
+<style>
+    /* CSSFX, Copyright (c) 2019 Jonathan Olaleye, Licensed under MIT License */
+    /* https://github.com/jolaleye/cssfx/blob/master/LICENSE */
+    .balls {
+        width: 3.5em;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: space-between;
+    }
 
-        .balls div {
-            width: 0.8em;
-            height: 0.8em;
-            border-radius: 50%;
-            background-color: #fc2f70;
+    .balls div {
+        width: 0.8em;
+        height: 0.8em;
+        border-radius: 50%;
+        background-color: #fc2f70;
+        transform: translateY(-100%);
+        animation: wave 0.8s ease-in-out alternate infinite;
+    }
+
+    .balls div:nth-of-type(1) {
+        animation-delay: -0.4s;
+    }
+
+    .balls div:nth-of-type(2) {
+        animation-delay: -0.2s;
+    }
+
+    @keyframes wave {
+        from {
             transform: translateY(-100%);
-            animation: wave 0.8s ease-in-out alternate infinite;
         }
-
-        .balls div:nth-of-type(1) {
-            animation-delay: -0.4s;
+        to {
+            transform: translateY(100%);
         }
-
-        .balls div:nth-of-type(2) {
-            animation-delay: -0.2s;
-        }
-
-        @keyframes wave {
-            from {
-                transform: translateY(-100%);
-            }
-            to {
-                transform: translateY(100%);
-            }
-        }
-    </style>
+    }
+</style>
 </head>
 
 <body>
-    <div id="div_0" style="display: none;">
-        <table class="table_text" id="table_main_navbar">
-            <tr>
-                <td>
-                    <div class="div_button" id="div_navbar_button_settings" onclick="handle_sub_content('settings');">⚙</div>
-                </td>
-                <td>
-                    <div class="div_red_spot" id="div_red_spot_update_log" style="display: none;"></div>
-                    <div class="div_button" id="div_navbar_button_update_log" onclick="handle_sub_content('update_log');">⚠</div>
-                </td>
-                <!-- <td>
-                    <div class="div_red_spot" id="div_red_spot_mail" style="display: none;"></div>
-                    <div class="div_button" id="div_navbar_button_mail" onclick="handle_sub_content('mail');">✉</div>
-                </td> -->
-                <td>
-                    <div class="div_button" id="div_navbar_button_document" onclick="handle_sub_content('document');">📖</div>
-                </td>
-                <td style="width: auto;">&nbsp;</td>
-                <td style="width: 10em; text-align: right; padding-right: 1em;">
-                    <div id="div_current_datetime"></div>
-                </td>
-                <td>
-                    <div class="div_button" onclick="location.reload();">⟳</div>
-                </td>
-            </tr>
-        </table>
-        <table class="table_text" id="table_sub_content_header" style="display: none;">
-            <tr>
-                <td id="td_overlay_header_back">
-                    <div id="div_overlay_header_back" onclick="handle_sub_content();">＜</div>
-                </td>
-                <th id="th_overlay_header_title"><span id="span_overlay_header_icon">⚙</span><span id="span_overlay_header_title">设置</span></th>
-                <td>&nbsp;</td>
-            </tr>
-        </table>
-        <div id="div_contents">
-            <div id="div_main">
-                <table class="table_text" id="table_main">
-                    <tr>
-                        <th colspan="2" style="height: 6em; text-align: center;">
-                            <div id="div_title" class="elm_outline elm_white">
-                                <div class="div_red_spot" id="div_red_spot_version" style="display: none;"></div>
-                                <span id="span_title">肉鸽开局生成器</span>
-                            </div>
-                        </th>
-                    </tr>
-                    <tr style="user-select: none;">
-                        <th colspan="1">我是 <input type="text" id="user_name" onkeypress="handle_input_keypress(event);"></th>
-                        <th colspan="1"><div class="div_button" onclick="reset_opening_today_4();">重置</div></th>
-                    </tr>
-                    <tr id="tr_today_button">
-                        <th colspan="2"><div class="div_button elm_outline elm_white" onclick="get_opening_today();">今日开局！</div></th>
-                    </tr>
-                    <tr id="tr_today_result" style="display: none;">
-                        <td colspan="2" id="td_today"></td>
-                    </tr>
-                    <tr id="tr_drama_button_1">
-                        <th colspan="2" style="color: #ffbf92;"><div class="div_button elm_outline elm_orange" onclick="get_drama_today(7);">今日剧本！</div></th>
-                    </tr>
-                    <tr id="tr_drama_button_2">
-                        <th colspan="1"><div class="div_button elm_outline elm_green" onclick="get_drama_today(3);">今日剧本青春版！</div></th>
-                        <th colspan="1"><div class="div_button elm_outline elm_red" onclick="get_drama_today(15);">今日剧本+！</div></th>
-                    </tr>
-                    <tr id="tr_drama_result" style="display: none;">
-                        <td colspan="2" id="td_drama"></td>
-                    </tr>
-                </table>
-            </div>
-            <div id="div_settings" class="div_sub_contents" style="display: none;">
-                <table class="table_text" id="table_settings" onclick="save_settings();">
-                    <tr id="tr_mode_1"><th colspan="4"><div class="div_button" onclick="handle_box_mode(2);">当前为基础模式，点击切换到卡组模式</div></th></tr>
-                    <tr id="tr_mode_2"><th colspan="4"><div class="div_button" onclick="handle_box_mode(1);">当前为卡组模式，点击切换到基础模式</div></th></tr>
-                    <tr>
-                        <td rowspan="2">
-                            集成战略：
-                        </td>
-                        <td>
-                            <input id="rogue_6" type="checkbox" checked><label for="rogue_6">岁的界园志异</label>
-                        </td>
-                        <td>
-                            <input id="rogue_5" type="checkbox" checked><label for="rogue_5">萨卡兹的无终奇语</label>
-                        </td>
-                        <td>
-                            <input id="rogue_4" type="checkbox" checked><label for="rogue_4">探索者的银凇止境</label>
-                        </td>
-                        <td>
-                            <input id="rogue_3" type="checkbox"><label for="rogue_3">水月与深蓝之树</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input id="rogue_2" type="checkbox"><label for="rogue_2">傀影与猩红孤钻</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            允许使用不在box中的干员开局（招募助战）<span id="support_unit_disabled_in_deck_mode"></span>
-                        </td>
-                        <td>
-                            <input id="is_support_unit_enabled" type="checkbox"><label for="is_support_unit_enabled">开启</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            仅使用职业分队开局
-                        </td>
-                        <td>
-                            <input id="is_job_team_only" type="checkbox"><label for="is_job_team_only">开启</label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            自定义box
-                        </td>
-                        <td>
-                            <div class="div_button_settings" id="div_button_settings_box" onclick="handle_box_settings(1);" style="width: 80%;">展开box</div>
-                        </td>
-                        <td>
-                            <div class="div_button_settings" id="div_button_settings_deck" onclick="handle_box_settings(2);" style="width: 80%;">展开卡组</div>
-                        </td>
-                    </tr>
-                </table>
-                <table class="table_text" id="table_box_basic" onclick="update_current_deck(); save_settings(); update_current_box();" style="display: none; table-layout: auto; border: 1px solid #CCCCCC; user-select: none;">
-                    <tr>
-                        <td colspan="2">
-                            共有<span id="td_box_count_total">80</span>位六星干员，<span id="td_box_count_in_box">80</span>位在box中，<span id="td_box_count_to_get">0</span>位不在box中
-                            <div class="div_button" style="display: inline-block;" onclick="handle_full_box('full');">全选</div>
-                            <div class="div_button" style="display: inline-block;" onclick="handle_full_box('empty');">全不选</div>
-                        </td>
-                    </tr>
-                    <tr><th style="width: 80px;">先锋</th><td style="width: auto;" id="td_box_operators_star_6_先锋"></td></tr>
-                    <tr><th style="width: 80px;">近卫</th><td style="width: auto;" id="td_box_operators_star_6_近卫"></td></tr>
-                    <tr><th style="width: 80px;">重装</th><td style="width: auto;" id="td_box_operators_star_6_重装"></td></tr>
-                    <tr><th style="width: 80px;">狙击</th><td style="width: auto;" id="td_box_operators_star_6_狙击"></td></tr>
-                    <tr><th style="width: 80px;">术师</th><td style="width: auto;" id="td_box_operators_star_6_术师"></td></tr>
-                    <tr><th style="width: 80px;">医疗</th><td style="width: auto;" id="td_box_operators_star_6_医疗"></td></tr>
-                    <tr><th style="width: 80px;">辅助</th><td style="width: auto;" id="td_box_operators_star_6_辅助"></td></tr>
-                    <tr><th style="width: 80px;">特种</th><td style="width: auto;" id="td_box_operators_star_6_特种"></td></tr>
-                    <tr></tr>
-                    <tr></tr>
-                </table>
-                <table class="table_text" id="table_box_deck" onclick="save_settings();" style="display: none; border: 1px solid #CCCCCC; user-select: none;">
-                    <tr>
-                        <td>当前 <span id="td_deck_count">0</span>，下限 40，上限 60</td>
-                        <th><div class="div_button" onclick="handle_full_deck('empty');">清空当前卡组</div></th>
-                        <th><div class="div_button" onclick="handle_full_deck('default');">使用默认卡组</div></th>
-                    </tr>
-                    <tr class="tr_border_bottom"><td colspan="4" id="td_current_deck_all" style="font-size: 0; padding: 1rem;">当前卡组为空</td></tr>
-                    <tr class="tr_border_bottom"><th>先锋</th><td colspan="3" id="td_deck_operators_先锋" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
-                    <tr class="tr_border_bottom"><th>近卫</th><td colspan="3" id="td_deck_operators_近卫" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
-                    <tr class="tr_border_bottom"><th>重装</th><td colspan="3" id="td_deck_operators_重装" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
-                    <tr class="tr_border_bottom"><th>狙击</th><td colspan="3" id="td_deck_operators_狙击" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
-                    <tr class="tr_border_bottom"><th>术师</th><td colspan="3" id="td_deck_operators_术师" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
-                    <tr class="tr_border_bottom"><th>医疗</th><td colspan="3" id="td_deck_operators_医疗" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
-                    <tr class="tr_border_bottom"><th>辅助</th><td colspan="3" id="td_deck_operators_辅助" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
-                    <tr class="tr_border_bottom"><th>特种</th><td colspan="3" id="td_deck_operators_特种" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
-                    <tr></tr>
-                    <tr></tr>
-                </table>
-            </div>
-            <div id="div_update_log" class="div_sub_contents" style="display: none;"></div>
-            <div id="div_mail" class="div_sub_contents" style="display: none;"></div>
-            <div id="div_document" class="div_sub_contents" style="display: none;"></div>
+<div id="div_0" style="display: none;">
+    <table class="table_text" id="table_main_navbar">
+        <tr>
+            <td>
+                <div class="div_button" id="div_navbar_button_settings" onclick="handle_sub_content('settings');">⚙</div>
+            </td>
+            <td>
+                <div class="div_red_spot" id="div_red_spot_update_log" style="display: none;"></div>
+                <div class="div_button" id="div_navbar_button_update_log" onclick="handle_sub_content('update_log');">⚠</div>
+            </td>
+            <!-- <td>
+                <div class="div_red_spot" id="div_red_spot_mail" style="display: none;"></div>
+                <div class="div_button" id="div_navbar_button_mail" onclick="handle_sub_content('mail');">✉</div>
+            </td> -->
+            <td>
+                <div class="div_button" id="div_navbar_button_document" onclick="handle_sub_content('document');">📖</div>
+            </td>
+            <td style="width: auto;">&nbsp;</td>
+            <td style="width: 10em; text-align: right; padding-right: 1em;">
+                <div id="div_current_datetime"></div>
+            </td>
+            <td>
+                <div class="div_button" onclick="location.reload();">⟳</div>
+            </td>
+        </tr>
+    </table>
+    <table class="table_text" id="table_sub_content_header" style="display: none;">
+        <tr>
+            <td id="td_overlay_header_back">
+                <div id="div_overlay_header_back" onclick="handle_sub_content();">＜</div>
+            </td>
+            <th id="th_overlay_header_title"><span id="span_overlay_header_icon">⚙</span><span id="span_overlay_header_title">设置</span></th>
+            <td>&nbsp;</td>
+        </tr>
+    </table>
+    <div id="div_contents">
+        <div id="div_main">
+            <table class="table_text" id="table_main">
+                <tr>
+                    <th colspan="2" style="height: 6em; text-align: center;">
+                        <div id="div_title" class="elm_outline elm_white">
+                            <div class="div_red_spot" id="div_red_spot_version" style="display: none;"></div>
+                            <span id="span_title">肉鸽开局生成器</span>
+                        </div>
+                    </th>
+                </tr>
+                <tr style="user-select: none;">
+                    <th colspan="1">我是 <input type="text" id="user_name" onkeypress="handle_input_keypress(event);"></th>
+                    <th colspan="1"><div class="div_button" onclick="reset_opening_today_4();">重置</div></th>
+                </tr>
+                <tr id="tr_today_button">
+                    <th colspan="2"><div class="div_button elm_outline elm_white" onclick="get_opening_today();">今日开局！</div></th>
+                </tr>
+                <tr id="tr_today_result" style="display: none;">
+                    <td colspan="2" id="td_today"></td>
+                </tr>
+                <tr id="tr_drama_button_1">
+                    <th colspan="2" style="color: #ffbf92;"><div class="div_button elm_outline elm_orange" onclick="get_drama_today(7);">今日剧本！</div></th>
+                </tr>
+                <tr id="tr_drama_button_2">
+                    <th colspan="1"><div class="div_button elm_outline elm_green" onclick="get_drama_today(3);">今日剧本青春版！</div></th>
+                    <th colspan="1"><div class="div_button elm_outline elm_red" onclick="get_drama_today(15);">今日剧本+！</div></th>
+                </tr>
+                <tr id="tr_drama_result" style="display: none;">
+                    <td colspan="2" id="td_drama"></td>
+                </tr>
+            </table>
         </div>
-        <div id="div_link">
-            <a href="https://yubo.run/kaiju" style="color: #2222;">
-                yubo.run/kaiju
-            </a>
+        <div id="div_settings" class="div_sub_contents" style="display: none;">
+            <table class="table_text" id="table_settings" onclick="save_settings();">
+                <tr id="tr_mode_1"><th colspan="4"><div class="div_button" onclick="handle_box_mode(2);">当前为基础模式，点击切换到卡组模式</div></th></tr>
+                <tr id="tr_mode_2"><th colspan="4"><div class="div_button" onclick="handle_box_mode(1);">当前为卡组模式，点击切换到基础模式</div></th></tr>
+                <tr>
+                    <td rowspan="2">
+                        集成战略：
+                    </td>
+                    <td>
+                        <input id="rogue_6" type="checkbox" checked><label for="rogue_6">岁的界园志异</label>
+                    </td>
+                    <td>
+                        <input id="rogue_5" type="checkbox" checked><label for="rogue_5">萨卡兹的无终奇语</label>
+                    </td>
+                    <td>
+                        <input id="rogue_4" type="checkbox" checked><label for="rogue_4">探索者的银凇止境</label>
+                    </td>
+                    <td>
+                        <input id="rogue_3" type="checkbox"><label for="rogue_3">水月与深蓝之树</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input id="rogue_2" type="checkbox"><label for="rogue_2">傀影与猩红孤钻</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        允许使用不在box中的干员开局（招募助战）<span id="support_unit_disabled_in_deck_mode"></span>
+                    </td>
+                    <td>
+                        <input id="is_support_unit_enabled" type="checkbox"><label for="is_support_unit_enabled">开启</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        仅使用职业分队开局
+                    </td>
+                    <td>
+                        <input id="is_job_team_only" type="checkbox"><label for="is_job_team_only">开启</label>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        自定义box
+                    </td>
+                    <td>
+                        <div class="div_button_settings" id="div_button_settings_box" onclick="handle_box_settings(1);" style="width: 80%;">展开box</div>
+                    </td>
+                    <td>
+                        <div class="div_button_settings" id="div_button_settings_deck" onclick="handle_box_settings(2);" style="width: 80%;">展开卡组</div>
+                    </td>
+                </tr>
+            </table>
+            <table class="table_text" id="table_box_basic" onclick="update_current_deck(); save_settings(); update_current_box();" style="display: none; table-layout: auto; border: 1px solid #CCCCCC; user-select: none;">
+                <tr>
+                    <td colspan="2">
+                        共有<span id="td_box_count_total">80</span>位六星干员，<span id="td_box_count_in_box">80</span>位在box中，<span id="td_box_count_to_get">0</span>位不在box中
+                        <div class="div_button" style="display: inline-block;" onclick="handle_full_box('full');">全选</div>
+                        <div class="div_button" style="display: inline-block;" onclick="handle_full_box('empty');">全不选</div>
+                    </td>
+                </tr>
+                <tr><th style="width: 80px;">先锋</th><td style="width: auto;" id="td_box_operators_star_6_先锋"></td></tr>
+                <tr><th style="width: 80px;">近卫</th><td style="width: auto;" id="td_box_operators_star_6_近卫"></td></tr>
+                <tr><th style="width: 80px;">重装</th><td style="width: auto;" id="td_box_operators_star_6_重装"></td></tr>
+                <tr><th style="width: 80px;">狙击</th><td style="width: auto;" id="td_box_operators_star_6_狙击"></td></tr>
+                <tr><th style="width: 80px;">术师</th><td style="width: auto;" id="td_box_operators_star_6_术师"></td></tr>
+                <tr><th style="width: 80px;">医疗</th><td style="width: auto;" id="td_box_operators_star_6_医疗"></td></tr>
+                <tr><th style="width: 80px;">辅助</th><td style="width: auto;" id="td_box_operators_star_6_辅助"></td></tr>
+                <tr><th style="width: 80px;">特种</th><td style="width: auto;" id="td_box_operators_star_6_特种"></td></tr>
+                <tr></tr>
+                <tr></tr>
+            </table>
+            <table class="table_text" id="table_box_deck" onclick="save_settings();" style="display: none; border: 1px solid #CCCCCC; user-select: none;">
+                <tr>
+                    <td>当前 <span id="td_deck_count">0</span>，下限 40，上限 60</td>
+                    <th><div class="div_button" onclick="handle_full_deck('empty');">清空当前卡组</div></th>
+                    <th><div class="div_button" onclick="handle_full_deck('default');">使用默认卡组</div></th>
+                </tr>
+                <tr class="tr_border_bottom"><td colspan="4" id="td_current_deck_all" style="font-size: 0; padding: 1rem;">当前卡组为空</td></tr>
+                <tr class="tr_border_bottom"><th>先锋</th><td colspan="3" id="td_deck_operators_先锋" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
+                <tr class="tr_border_bottom"><th>近卫</th><td colspan="3" id="td_deck_operators_近卫" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
+                <tr class="tr_border_bottom"><th>重装</th><td colspan="3" id="td_deck_operators_重装" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
+                <tr class="tr_border_bottom"><th>狙击</th><td colspan="3" id="td_deck_operators_狙击" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
+                <tr class="tr_border_bottom"><th>术师</th><td colspan="3" id="td_deck_operators_术师" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
+                <tr class="tr_border_bottom"><th>医疗</th><td colspan="3" id="td_deck_operators_医疗" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
+                <tr class="tr_border_bottom"><th>辅助</th><td colspan="3" id="td_deck_operators_辅助" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
+                <tr class="tr_border_bottom"><th>特种</th><td colspan="3" id="td_deck_operators_特种" style="width: auto; font-size: 0; padding: 1rem;"></td></tr>
+                <tr></tr>
+                <tr></tr>
+            </table>
         </div>
-        <textarea id="textarea_copy">作者：羽波</textarea>
+        <div id="div_update_log" class="div_sub_contents" style="display: none;"></div>
+        <div id="div_mail" class="div_sub_contents" style="display: none;"></div>
+        <div id="div_document" class="div_sub_contents" style="display: none;"></div>
     </div>
-    <div id="div_loading" style="text-align: left;">
-        <p id="p_loading">加载中，请稍候</p>
-        <div id="div_balls" class="balls">
-            <div></div>
-            <div></div>
-            <div></div>
-        </div>
+    <div id="div_link">
+        <a href="https://yubo.run/kaiju" style="color: #2222;">
+            yubo.run/kaiju
+        </a>
     </div>
+    <textarea id="textarea_copy">作者：羽波</textarea>
+</div>
+<div id="div_loading" style="text-align: left;">
+    <p id="p_loading">加载中，请稍候</p>
+    <div id="div_balls" class="balls">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+</div>
 
-    <script>
+<script>
+
+function load_script(src) {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+function load_css(href) {
+    return new Promise((resolve, reject) => {
+        let node = document.createElement('link');
+        node.rel = 'stylesheet';
+        node.href = href;
+        node.onload = resolve;
+        node.onerror = reject;
+        document.head.appendChild(node);
+    });
+}
+
+async function init() {
+    try {
         let current_timestamp = new Date().getTime();
-        let head = document.head || document.getElementsByTagName("head")[0];
-        fetch(`../js/kaiju.js?t=${current_timestamp}`)
-        .then(response => {
-            if (response.status == 200) {
-                return response.text();
-            }
-            else {
-                throw ['kaiju.js', response.status];
-            }
-        })
-        .then(data => {
-            let node = document.createElement('script');
-            node.innerHTML = data;
-            head.appendChild(node);
-            return fetch(`../css/common.css?t=${current_timestamp}`);
-        })
-        .then(response => {
-            if (response.status == 200) {
-                return response.text();
-            }
-            else {
-                throw ['common.css', response.status];
-            }
-        })
-        .then(data => {
-            let node = document.createElement('style');
-            node.innerHTML = data;
-            head.appendChild(node);
-        })
-        .then(nothing => {
-            // 页面加载完成时执行
-            document.getElementById('div_loading').style.display = 'none';
-            document.getElementById('div_0').style.display = '';
-            init_version();
-            update_current_datetime();
-            init_all_operators();
-            init_table_box_basic();
-            update_current_operators();
-            init_table_box_deck();
-            load_settings();
-            handle_box_mode(current_box_mode);
-            update_current_deck();
-            get_login_info();
-        })
-        .catch(exception => {
-            error_message = `加载 ${exception[0]} 时遇到错误 ${exception[1]}，请重试`;
-            console.log(error_message);
-            console.log(exception);
-            document.getElementById('p_loading').innerHTML = error_message;
-            document.getElementById('div_balls').style.display = 'none';
-        });
-    </script>
+
+        // 1. 先加载配置
+        const operatorResponse = await fetch(`/arknights/operator.json?t=${current_timestamp}`);
+        const OPERATORS = await operatorResponse.json();
+
+        // 2. 挂到全局，供 scriptA 使用
+        window.OPERATORS = OPERATORS;
+
+        // 3. 动态加载 kaiju.js
+        await load_script(`../js/kaiju.js?t=${current_timestamp}`);
+
+        await load_css(`../css/common.css?t=${current_timestamp}`);
+
+        // 页面加载完成时执行
+        document.getElementById('div_loading').style.display = 'none';
+        document.getElementById('div_0').style.display = '';
+        init_version();
+        update_current_datetime();
+        init_all_operators();
+        init_table_box_basic();
+        update_current_operators();
+        init_table_box_deck();
+        load_settings();
+        handle_box_mode(current_box_mode);
+        update_current_deck();
+        get_login_info();
+    }
+    catch (exception) {
+        let error_message =
+            `加载 ${exception[0]} 时遇到错误 ${exception[1]}，请重试`;
+
+        console.log(error_message);
+        console.log(exception);
+        document.getElementById('p_loading').innerHTML = error_message;
+        document.getElementById('div_balls').style.display = 'none';
+    }
+}
+
+init();
+
+
+</script>
 </body>
 </html>
