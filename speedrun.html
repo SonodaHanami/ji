@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+
+<head>
+    <title>集集统计总榜（暂定）</title>
+    <meta name='viewport' content='width=1485' charset="utf-8" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/bot/favicon_32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/bot/favicon_16.png">
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.7.2/dist/axios.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue@3"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/element-plus/dist/index.css"/>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MZCWWQJQQT"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-MZCWWQJQQT');
+    </script>
+    <style>
+        .el-row {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .el-table td, .el-table th {
+            text-align: center;
+        }
+        .el-popover {
+            white-space: pre-wrap;
+        }
+        .digit6{
+            color:blue;
+        }
+        .digit7{
+            color:green;
+        }
+        .digit8{
+            color:orange;
+        }
+        .digit9{
+            color:red;
+        }
+        .span_channel_1 {
+            user-select: none;
+            color: rgb(32, 201, 255);
+        }
+        .span_channel_2 {
+            user-select: none;
+            color: rgb(255, 108, 162);
+        }
+        .checkbox_is_header {
+            .el-checkbox {
+                transform-origin: 0 0;
+                scale: 2;
+                margin-bottom: 32px;
+            }
+            .el-checkbox__label {
+                font-weight: bold;
+            }
+        }
+        #div_ji_stats_custom_column {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #dddd;
+            border-radius: 20px;
+        }
+        #table_ji_stats .el-table__cell {
+            text-align: center;
+        }
+        #div_link {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2226;
+            position: fixed;
+            top: 0.2em;
+            right: 0.5em;
+            z-index: 6;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" style="margin: 10px">
+        <!-- <el-page-header @back="goto_user_home" content="集集统计总榜（暂定）"></el-page-header> -->
+        <div ref="table_ji_stats" class="el-table-wrapper" :class="{ 'auto-height': true }">
+            <p>
+                [[ group_info_str ]] 榜单数据最后更新于 [[ last_update_str ]]
+            </p>
+            <div id="div_ji_stats_custom_column" v-if="show_ji_stats_custom_column">
+                <div class="checkbox_is_header"><el-checkbox v-model="last_update_fixed">固定“最后更新”列</el-checkbox></div>
+                <template v-for="item in ji_stats_columns">
+                    <div v-if="item.header == 'self' || item.header != 'self' && ji_stats_columns[item.header].on" :class="{ 'checkbox_is_header': item.header == 'self' }">
+                        <hr v-if="item.header == 'self'">
+                        <el-checkbox v-model="item.on" label="item.label">[[ item.label ]]</el-checkbox>
+                    </div>
+                </template>
+            </div>
+            <el-table id="table_ji_stats" stripe border v-loading="isLoading"
+                style="width: 100%" table-layout="auto" :max-height="table_ji_stats_height" :row-style="{height: 0}" :cell-style="{padding: '0.2em 0'}"
+                :data="ji_stats_data" :default-sort="{prop: 'clear_grade_5', order: 'descending'}" @sort-change="ji_stats_sort_change"
+                highlight-current-row
+            >
+                <el-table-column prop="index" label="#" width="50" type="index" :index="ji_stats_get_index" fixed></el-table-column>
+                <el-table-column prop="nickname" label="ID" width="200" fixed>
+                    <template v-slot="scope">
+                        <span :class="{ span_channel_1: scope.row.channel == 1, span_channel_2: scope.row.channel == 2 }">■</span>[[ scope.row.nickname ]]
+                    </template>
+                </el-table-column>
+                <el-table-column label="萨卡兹的无终奇语" v-if="ji_stats_columns.ji_stats_5.on && (
+                    ji_stats_columns.ji_stats_clear_grade_5.on || ji_stats_columns.ji_stats_clear_count_5.on || ji_stats_columns.ji_stats_node_5.on || ji_stats_columns.ji_stats_invest_5.on
+                )">
+                    <el-table-column label="通关最高难度" v-if="ji_stats_columns.ji_stats_clear_grade_5.on">
+                        <el-table-column prop="clear_grade_5" label="难度" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="clear_endings_str_5" label="结局"></el-table-column>
+                    </el-table-column>
+                    <el-table-column label="通关次数" v-if="ji_stats_columns.ji_stats_clear_count_5.on">
+                        <el-table-column prop="clear_count_5_all" label="累计" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="clear_count_5_1" label="1" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="clear_count_5_2" label="2" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="clear_count_5_3" label="3" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="clear_count_5_4" label="4" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                    </el-table-column>
+                    <el-table-column prop="node_5" label="节点" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_node_5.on"></el-table-column>
+                    <el-table-column prop="invest_5" label="存款" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_invest_5.on"></el-table-column>
+                </el-table-column>
+                <el-table-column label="探索者的银凇止境" v-if="ji_stats_columns.ji_stats_4.on && (
+                    ji_stats_columns.ji_stats_clear_grade_4.on || ji_stats_columns.ji_stats_clear_count_4.on || ji_stats_columns.ji_stats_node_4.on || ji_stats_columns.ji_stats_invest_4.on ||
+                    ji_stats_columns.ji_stats_chaos_4.on || ji_stats_columns.ji_stats_totem_4.on || ji_stats_columns.ji_stats_predict_4.on || ji_stats_columns.ji_stats_game_4.on || ji_stats_columns.ji_stats_friend_4.on
+                )">
+                    <el-table-column label="通关最高难度" v-if="ji_stats_columns.ji_stats_clear_grade_4.on">
+                        <el-table-column prop="clear_grade_4" label="难度" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="clear_endings_str_4" label="结局"></el-table-column>
+                    </el-table-column>
+                    <el-table-column label="通关次数" v-if="ji_stats_columns.ji_stats_clear_count_4.on">
+                        <el-table-column prop="clear_count_4_all" label="累计" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="clear_count_4_1" label="1" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="clear_count_4_2" label="2" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="clear_count_4_3" label="3" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="clear_count_4_4" label="4" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                    </el-table-column>
+                    <el-table-column prop="node_4" label="节点" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_node_4.on"></el-table-column>
+                    <el-table-column prop="invest_4" label="存款" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_invest_4.on"></el-table-column>
+                    <el-table-column label="坍缩范式" v-if="ji_stats_columns.ji_stats_chaos_4.on">
+                        <el-table-column prop="chaos_gain_4" label="触发" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="chaos_lost_4" label="去除" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                    </el-table-column>
+                    <el-table-column label="密文板" v-if="ji_stats_columns.ji_stats_totem_4.on">
+                        <el-table-column prop="totem_4" label="获得" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="totem_use_4" label="宣告" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                    </el-table-column>
+                    <el-table-column label="远见" v-if="ji_stats_columns.ji_stats_predict_4.on">
+                        <el-table-column prop="predict_totem_4" label="密文板" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="predict_chaos_4" label="坍缩范式" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                    </el-table-column>
+                    <el-table-column prop="game_4" label="竞技" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_game_4.on"></el-table-column>
+                    <el-table-column prop="friend_4" label="喝酒" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_friend_4.on"></el-table-column>
+                </el-table-column>
+                <el-table-column label="水月与深蓝之树" v-if="ji_stats_columns.ji_stats_3.on && (
+                    ji_stats_columns.ji_stats_clear_grade_3.on || ji_stats_columns.ji_stats_clear_count_3.on || ji_stats_columns.ji_stats_node_3.on || ji_stats_columns.ji_stats_invest_3.on ||
+                    ji_stats_columns.ji_stats_mutation_3.on || ji_stats_columns.ji_stats_coin_3.on || ji_stats_columns.ji_stats_cost_3.on || ji_stats_columns.ji_stats_dice_3.on
+                )">
+                    <el-table-column label="通关最高难度" v-if="ji_stats_columns.ji_stats_clear_grade_3.on">
+                        <el-table-column prop="clear_grade_3" label="难度" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="clear_endings_str_3" label="结局"></el-table-column>
+                    </el-table-column>
+                    <el-table-column label="通关次数" v-if="ji_stats_columns.ji_stats_clear_count_3.on">
+                        <el-table-column prop="clear_count_3_all" label="累计" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="clear_count_3_1" label="1" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="clear_count_3_2" label="2" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="clear_count_3_3" label="3" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                        <el-table-column prop="clear_count_3_4" label="4" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                    </el-table-column>
+                    <el-table-column prop="node_3" label="节点" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_node_3.on"></el-table-column>
+                    <el-table-column prop="invest_3" label="存款" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_invest_3.on"></el-table-column>
+                    <el-table-column prop="mutation_3" label="排异" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_mutation_3.on"></el-table-column>
+                    <el-table-column prop="coin_3" label="投币" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_coin_3.on"></el-table-column>
+                    <el-table-column prop="cost_3" label="苦路" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_cost_3.on"></el-table-column>
+                    <el-table-column prop="dice_3" label="骰子" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_dice_3.on"></el-table-column>
+                </el-table-column>
+                <el-table-column label="傀影与猩红孤钻" v-if="ji_stats_columns.ji_stats_2.on && (
+                    ji_stats_columns.ji_stats_node_2.on || ji_stats_columns.ji_stats_invest_2.on ||
+                    ji_stats_columns.ji_stats_story_2.on || ji_stats_columns.ji_stats_wine_2.on || ji_stats_columns.ji_stats_trash_2.on || ji_stats_columns.ji_stats_coin_2.on
+                )">
+                    <el-table-column prop="node_2" label="节点" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_node_2.on"></el-table-column>
+                    <el-table-column prop="invest_2" label="存款" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_invest_2.on"></el-table-column>
+                    <el-table-column prop="story_2" label="听故事" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_story_2.on"></el-table-column>
+                    <el-table-column prop="wine_2" label="喝酒" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_wine_2.on"></el-table-column>
+                    <el-table-column prop="trash_2" label="翻垃圾" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_trash_2.on"></el-table-column>
+                    <el-table-column prop="coin_2" label="投币" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_coin_2.on"></el-table-column>
+                </el-table-column>
+                <el-table-column label="累计" v-if="ji_stats_columns.ji_stats_all.on && (
+                    ji_stats_columns.ji_stats_clear_count_all.on || ji_stats_columns.ji_stats_node_all.on || ji_stats_columns.ji_stats_invest_all.on
+                )">
+                    <el-table-column prop="clear_count_all" label="通关次数" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_clear_count_all.on"></el-table-column>
+                    <el-table-column prop="node_all" label="节点" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_node_all.on"></el-table-column>
+                    <el-table-column prop="invest_all" label="存款" sortable :sort-orders="['descending', 'ascending']" v-if="ji_stats_columns.ji_stats_invest_all.on"></el-table-column>
+                </el-table-column>
+                <el-table-column prop="last_update" label="最后更新" width="180" sortable :sort-orders="['descending', 'ascending']" :fixed="last_update_fixed ? 'right' : false"></el-table-column>
+            </el-table>
+        </div>
+    </div>
+
+</body>
+
+<!-- <script src="echarts.min.js"></script> -->
+<script src="js/speedrun.js"></script>
+
+</html>

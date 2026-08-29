@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+
+<head>
+    <title>集集统计总榜（暂定）</title>
+    <meta name='viewport' content='width=1485' charset="utf-8" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/bot/favicon_32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/bot/favicon_16.png">
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.7.2/dist/axios.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue@3"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/element-plus/dist/index.css"/>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MZCWWQJQQT"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-MZCWWQJQQT');
+    </script>
+    <style>
+        .el-row {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .el-table td, .el-table th {
+            text-align: center;
+        }
+        .el-popover {
+            white-space: pre-wrap;
+        }
+        .digit6{
+            color:blue;
+        }
+        .digit7{
+            color:green;
+        }
+        .digit8{
+            color:orange;
+        }
+        .digit9{
+            color:red;
+        }
+        .span_channel_1 {
+            user-select: none;
+            color: rgb(32, 201, 255);
+        }
+        .span_channel_2 {
+            user-select: none;
+            color: rgb(255, 108, 162);
+        }
+        .checkbox_is_header {
+            .el-checkbox {
+                transform-origin: 0 0;
+                scale: 2;
+                margin-bottom: 32px;
+            }
+            .el-checkbox__label {
+                font-weight: bold;
+            }
+        }
+        #div_ji_stats_custom_column {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 1px solid #dddd;
+            border-radius: 20px;
+        }
+        #table_ji_stats .el-table__cell {
+            text-align: center;
+        }
+        #div_link {
+            font-size: 2em;
+            font-weight: bold;
+            color: #2226;
+            position: fixed;
+            top: 0.2em;
+            right: 0.5em;
+            z-index: 6;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" style="margin: 10px">
+        <!-- <el-page-header @back="goto_user_home" content="集集统计总榜（暂定）"></el-page-header> -->
+        <el-table id="table_ji_logs" v-loading="isLoading"
+            style="width: 100%" border table-layout="auto"
+            :data="ji_logs_data" :default-sort="{prop: 'last_update', order: 'descending'}"
+        >
+            <el-table-column prop="last_update" label="最后更新"></el-table-column>
+            <el-table-column label="通关记录" ref="column_ji_logs">
+                <template v-slot="scope">
+                    <el-row justify="center" style="text-align: left;">
+                        <el-col><span :class="{ span_channel_1: scope.row.channel == 1, span_channel_2: scope.row.channel == 2 }">■</span>[[ scope.row.log ]]</el-col>
+                    </el-row>
+                </template>
+            </el-table-column>
+        </el-table>
+    </div>
+</body>
+
+<!-- <script src="echarts.min.js"></script> -->
+<script src="js/clear_log.js"></script>
+<script>
+
+</script>
+
+</html>

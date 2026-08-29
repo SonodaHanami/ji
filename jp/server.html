@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>全服集集统计(JP) | 羽bot</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/bot/favicon_32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/bot/favicon_16.png">
+<script src="https://cdn.jsdelivr.net/npm/axios@1.7.2/dist/axios.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/vue@3"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/element-plus"></script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/element-plus/dist/index.css"/>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-MZCWWQJQQT"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-MZCWWQJQQT');
+</script>
+<!-- <script src="echarts.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/diff@8.0.2/dist/diff.min.js"></script>
+<style>
+#app {
+    margin: 0 20px;
+}
+
+table {
+    width: 100%;
+    table-layout: fixed;
+    text-align: center;
+}
+
+.span_channel_1 {
+    user-select: none;
+    color: rgb(32, 201, 255);
+}
+.span_channel_2 {
+    user-select: none;
+    color: rgb(255, 108, 162);
+}
+
+.div_chart {
+    margin: 10px;
+    padding: 20px;
+    border: 1px solid #EBEEF5;
+    height: 400px;
+}
+
+#div_refresh {
+    color: #2226;
+    position: fixed;
+    top: 0.2em;
+    right: 0.5em;
+    z-index: 325;
+    text-align: right;
+
+    .button {
+        font-size: 2em;
+        font-weight: bold;
+        cursor: pointer;
+    }
+}
+
+.diff-container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.input-area {
+    margin-top: 30px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.diff-content {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.diff-part {
+    padding: 2px 1px;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.diff-added {
+    background-color: #d4f8d4;
+    color: #2c662d;
+    text-decoration: none;
+}
+
+.diff-removed {
+    background-color: #f8d4d4;
+    color: #662d2c;
+    text-decoration: line-through;
+}
+
+.diff-unchanged {
+    background-color: transparent;
+    color: inherit;
+}
+
+:deep(.diff-row:hover) {
+    background-color: #f5f7fa;
+}
+</style>
+</head>
+<body>
+    <div id="app">
+        <h1 style="text-align: center">全服集集统计(JP)</h1>
+        <div id="div_refresh">
+            <div class="button" v-if="isLoading">fetching</div>
+            <div class="button" v-if="!isLoading" @click="fetchData()">🔄 refresh</div>
+            <div v-if="!isLoading">
+                <el-text>
+                    最新データ：{{ (new Date(1000 * latest_data['rogue_6']['last_update_timestamp']).toLocaleString()) }}
+                </el-text>
+            </div>
+        </div>
+        <p>
+            <el-space>
+                <el-link type="primary" href="https://yubo.run/arknights/ji/server.html" target="_blank">全服集集统计(CN)</el-link>
+                <el-link type="primary" href="https://yubo.run/arknights/ji/global/server.html" target="_blank">全服集集统计(global)</el-link>
+            </el-space>
+        </p>
+        <p>
+            <el-space v-if="isFirstInited" v-loading="isLoading">
+                <el-dropdown placement="bottom-start">
+                    <el-button>Mode：{{ display_mode_names[display_mode] }}</el-button>
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <el-dropdown-item @click="set_display_mode('default')" :disabled="display_mode == 'default'">default</el-dropdown-item>
+                            <el-dropdown-item @click="set_display_mode('all')" :disabled="display_mode == 'all'">each</el-dropdown-item>
+                            <el-dropdown-item @click="set_display_mode('daily')" :disabled="display_mode == 'daily'">daily</el-dropdown-item>
+                            <el-dropdown-item @click="set_display_mode('weekly')" :disabled="display_mode == 'weekly'">weekly</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown>
+                <el-text v-if="display_mode == 'default'">show data of the last</el-text>
+                <el-dropdown placement="bottom" v-if="display_mode == 'default'">
+                    <el-button>{{ day_offset }}</el-button>
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <el-dropdown-item @click="set_day_offset(1)" :disabled="day_offset == 1">1</el-dropdown-item>
+                            <el-dropdown-item @click="set_day_offset(2)" :disabled="day_offset == 2">2</el-dropdown-item>
+                            <el-dropdown-item @click="set_day_offset(3)" :disabled="day_offset == 3">3</el-dropdown-item>
+                            <el-dropdown-item @click="set_day_offset(4)" :disabled="day_offset == 4">4</el-dropdown-item>
+                            <el-dropdown-item @click="set_day_offset(5)" :disabled="day_offset == 5">5</el-dropdown-item>
+                            <el-dropdown-item @click="set_day_offset(6)" :disabled="day_offset == 6">6</el-dropdown-item>
+                            <el-dropdown-item @click="set_day_offset(7)" :disabled="day_offset == 7">7</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown>
+                <el-text v-if="display_mode == 'default'">day(s) per</el-text>
+                <el-dropdown placement="bottom" v-if="display_mode == 'default'">
+                    <el-button>{{ interval }}</el-button>
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <!-- 
+                            <el-dropdown-item @click="set_interval(1)" :disabled="interval == 1">1</el-dropdown-item>
+                            <el-dropdown-item @click="set_interval(5)" :disabled="interval == 5">5</el-dropdown-item>
+                            <el-dropdown-item @click="set_interval(10)" :disabled="interval == 10">10</el-dropdown-item>
+                            -->
+                            <el-dropdown-item @click="set_interval(20)" :disabled="interval == 20">20</el-dropdown-item>
+                            <el-dropdown-item @click="set_interval(60)" :disabled="interval == 60">60</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown>
+                <el-text v-if="display_mode == 'default'">minutes. Outside this range, the last update of the day will be displayed.</el-text>
+                <el-text v-if="display_mode == 'weekly'">A week starts from</el-text>
+                <el-dropdown placement="bottom" v-if="display_mode == 'weekly'">
+                    <el-button>周{{ '一二三四五六日'[end_of_week] }}</el-button>
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <el-dropdown-item @click="set_end_of_week(0)" :disabled="end_of_week == 0">月</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(1)" :disabled="end_of_week == 1">火</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(2)" :disabled="end_of_week == 2">水</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(3)" :disabled="end_of_week == 3">木</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(4)" :disabled="end_of_week == 4">金</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(5)" :disabled="end_of_week == 5">土</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(6)" :disabled="end_of_week == 6">日</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown>
+                <el-text v-if="display_mode == 'weekly'">曜日 to next</el-text>
+                <el-dropdown placement="bottom" v-if="display_mode == 'weekly'">
+                    <el-button>周{{ '日一二三四五六'[end_of_week] }}</el-button>
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <el-dropdown-item @click="set_end_of_week(1)" :disabled="end_of_week == 1">月</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(2)" :disabled="end_of_week == 2">火</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(3)" :disabled="end_of_week == 3">水</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(4)" :disabled="end_of_week == 4">木</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(5)" :disabled="end_of_week == 5">金</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(6)" :disabled="end_of_week == 6">土</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(0)" :disabled="end_of_week == 0">日</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown>
+                <el-text v-if="display_mode == 'weekly'">曜日</el-text>
+            </el-space>
+        </p>
+        <el-tabs type="card" tab-position="top" v-model="selectingTab" v-loading="isLoading">
+            <el-tab-pane label="说明" name="info">
+                <template v-if="!isLoading">
+                    <div>
+                        <p><el-text>玩家每一局的数据在游戏内整局结算后计入统计数据</el-text></p>
+                        <p><el-text>图表内显示的时间点越多，渲染图表所需时间越长</el-text></p>
+                        <p><el-text>一天的定义是从北京时间04:00:00开始，到第二天的03:59:59(27:59:59)结束</el-text></p>
+                        <p><el-text>柱状图中红色表示比上一个节点的数值高，绿色表示比上一个节点的数值低，蓝色则是相等</el-text></p>
+                        <p style="display: none;"><el-text>事件节点上的数值是自动计算生成的，作用是为了上下错开节点减少文本重叠，没有实际意义</el-text></p>
+                    </div>
+                </template>
+            </el-tab-pane>
+            <el-tab-pane label="変更履歴" name="change_log">
+                <template v-if="!isLoading">
+                    <div>
+                        <el-table stripe border v-loading="isLoading"
+                            :data="data_change_log" :default-sort="{prop: 'time', order: 'descending'}"
+                            style="width: 100%" table-layout="auto" :max-height="table_ji_stats_height" :row-style="{height: 0}" :cell-style="{padding: '0.2em 0.1em'}"
+                        >
+                            <el-table-column prop="time" label="时间" width="180" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                            <el-table-column prop="rogue_name" label="集成战略主题" width="180" sortable :sort-orders="['descending', 'ascending']"></el-table-column>
+                            <el-table-column prop="item" width="325" label="项目"></el-table-column>
+                            <el-table-column prop="change" label="变动">
+                                <template #default="{ row }">
+                                    <div class="diff-content">
+                                        <span
+                                            v-for="(part, index) in row.change"
+                                            :key="index"
+                                            :class="[
+                                                'diff-part',
+                                                `diff-${part.type}`
+                                            ]"
+                                        >
+                                        {{ part.text }}
+                                        </span>
+                                    </div>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </div>
+                </template>
+            </el-tab-pane>
+            <el-tab-pane label="歳の界園志異" name="rogue_6">
+                <template v-if="isFirstInited">
+                    <el-collapse v-model="active_collapse_name_list">
+                        <el-collapse-item title="最新数据" name="rogue_6">
+                            <div>
+                                <template v-if="isFirstInited">
+                                    <div class="flex justify-center">
+                                        <el-date-picker-panel v-model="ji_stats_date" />
+                                    </div>
+                                </template>
+                            </div>
+                            <p>数据版本：{{ (new Date(1000 * latest_data['rogue_6']['last_update_timestamp']).toLocaleString()) }}</p>
+                            <p>
+                                本次集成战略中，通关结局的比例为：<br>
+                                通关一个结局 {{ latest_data['rogue_6']['endings']['1'] }}%，
+                                通关两个结局 {{ latest_data['rogue_6']['endings']['2'] }}%，
+                                通关三个结局 {{ latest_data['rogue_6']['endings']['3'] }}%，
+                                通关四个结局 {{ latest_data['rogue_6']['endings']['4'] || '-'}}%
+                            </p>
+                            <p>
+                                在故事探险中，使用最多的三个战术道具：<br>
+                                {{ latest_data['rogue_6']['activeTool']['0']['name'] }}、{{ latest_data['rogue_6']['activeTool']['1']['name'] }}、{{ latest_data['rogue_6']['activeTool']['2']['name'] }}
+                            </p>
+                            <p>
+                                完成探险时，携带最多的五个收藏品：<br>
+                                {{ latest_data['rogue_6']['relic']['0']['name'] }}、{{ latest_data['rogue_6']['relic']['1']['name'] }}、{{ latest_data['rogue_6']['relic']['2']['name'] }}、{{ latest_data['rogue_6']['relic']['3']['name'] }}、{{ latest_data['rogue_6']['relic']['4']['name'] }}
+                            </p>
+                            <p>
+                                在完成结局时，出场率最高的干员分别是：<br>
+                                【先锋】{{ latest_data['rogue_6']['character']['PIONEER']['0']['name'] }}、{{ latest_data['rogue_6']['character']['PIONEER']['1']['name'] }}、{{ latest_data['rogue_6']['character']['PIONEER']['2']['name'] }}<br>
+                                【近卫】{{ latest_data['rogue_6']['character']['WARRIOR']['0']['name'] }}、{{ latest_data['rogue_6']['character']['WARRIOR']['1']['name'] }}、{{ latest_data['rogue_6']['character']['WARRIOR']['2']['name'] }}<br>
+                                【重装】{{ latest_data['rogue_6']['character']['TANK']['0']['name'] }}、{{ latest_data['rogue_6']['character']['TANK']['1']['name'] }}、{{ latest_data['rogue_6']['character']['TANK']['2']['name'] }}<br>
+                                【狙击】{{ latest_data['rogue_6']['character']['SNIPER']['0']['name'] }}、{{ latest_data['rogue_6']['character']['SNIPER']['1']['name'] }}、{{ latest_data['rogue_6']['character']['SNIPER']['2']['name'] }}<br>
+                                【术师】{{ latest_data['rogue_6']['character']['CASTER']['0']['name'] }}、{{ latest_data['rogue_6']['character']['CASTER']['1']['name'] }}、{{ latest_data['rogue_6']['character']['CASTER']['2']['name'] }}<br>
+                                【医疗】{{ latest_data['rogue_6']['character']['MEDIC']['0']['name'] }}、{{ latest_data['rogue_6']['character']['MEDIC']['1']['name'] }}、{{ latest_data['rogue_6']['character']['MEDIC']['2']['name'] }}<br>
+                                【辅助】{{ latest_data['rogue_6']['character']['SUPPORT']['0']['name'] }}、{{ latest_data['rogue_6']['character']['SUPPORT']['1']['name'] }}、{{ latest_data['rogue_6']['character']['SUPPORT']['2']['name'] }}<br>
+                                【特种】{{ latest_data['rogue_6']['character']['SPECIAL']['0']['name'] }}、{{ latest_data['rogue_6']['character']['SPECIAL']['1']['name'] }}、{{ latest_data['rogue_6']['character']['SPECIAL']['2']['name'] }}<br>
+                            </p>
+                            <p>
+                                完成探险时，最常显露的三段岁时：<br>
+                                {{ latest_data['rogue_6']['wrath']['0']['name'] }}、{{ latest_data['rogue_6']['wrath']['1']['name'] }}、{{ latest_data['rogue_6']['wrath']['2']['name'] }}
+                            </p>
+                            <p>
+                                本次集成战略中，最常塞入钱盒的三枚通宝：<br>
+                                {{ latest_data['rogue_6']['copper']['0']['name'] }}、{{ latest_data['rogue_6']['copper']['1']['name'] }}、{{ latest_data['rogue_6']['copper']['2']['name'] }}
+                            </p>
+                            <p>
+                                累计留存的招募券：{{ latest_data['rogue_6']['ticket'] }}
+                            </p>
+                            <p>
+                                被授予伺烛客身份最多次的干员分别是：<br>
+                                {{ latest_data['rogue_6']['candle']['0']['name'] }}、{{ latest_data['rogue_6']['candle']['1']['name'] }}、{{ latest_data['rogue_6']['candle']['2']['name'] }}、{{ latest_data['rogue_6']['candle']['3']['name'] }}、{{ latest_data['rogue_6']['candle']['4']['name'] }}
+                            </p>
+                            <p style="display: none;">
+                                累计入卷最多次的干员分别是：<br>
+                                {{ latest_data['rogue_6']['expeditionGuide'] ? latest_data['rogue_6']['expeditionGuide']['0']['name'] : '-'}}、{{ latest_data['rogue_6']['expeditionGuide'] ? latest_data['rogue_6']['expeditionGuide']['1']['name'] : '-' }}、{{ latest_data['rogue_6']['expeditionGuide'] ? latest_data['rogue_6']['expeditionGuide']['2']['name'] : '-' }}、{{ latest_data['rogue_6']['expeditionGuide'] ? latest_data['rogue_6']['expeditionGuide']['3']['name'] : '-' }}、{{ latest_data['rogue_6']['expeditionGuide'] ? latest_data['rogue_6']['expeditionGuide']['4']['name'] : '-' }}
+                            </p>
+                            <p>
+                                本次集成战略中，累计在节点易与中的绩处购买物品所花费的生命值：{{ latest_data['rogue_6']['costHp'] }}
+                            </p>
+                            <p>
+                                累计在岁兽残识中消耗的烛火：{{ latest_data['rogue_6']['nodePass'] }}
+                            </p>
+                            <p>
+                                本次集成战略中，博士烛火尚未燃尽就被迫回到人间的次数：{{ latest_data['rogue_6']['fall'] }}
+                            </p>
+                            <p>
+                                本次集成战略中，界园的供游客盖章收藏的宝印被博士转动过的次数：{{ latest_data['rogue_6']['rotate'] }}
+                            </p>
+                            <p>
+                                本次集成战略中，累计通过坎诺特印记获得源石锭：{{ latest_data['rogue_6']['gold'] }}
+                            </p>
+                            <p>
+                                在岁兽残识中遭遇同心事件时，由电弧带领进入玉石同心球中的小镇的次数：{{ latest_data['rogue_6']['raidian'] }}
+                            </p>
+                        </el-collapse-item>
+                    </el-collapse>
+                </template>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_6_endings" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_6_node_pass" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_6_ticket" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_6_cost_hp" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_6_fall" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_6_rotate" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_6_gold" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_6_raidian" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <el-divider></el-divider>
+                <el-space>
+                    <el-text>在完成结局时，出场率最高的</el-text>
+                    <el-dropdown placement="bottom">
+                        <el-button>{{ top_character_job_name }}</el-button>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <el-dropdown-item @click="set_top_character_job('PIONEER')" :disabled="top_character_job == 'PIONEER'">先锋</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('WARRIOR')" :disabled="top_character_job == 'WARRIOR'">近卫</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('TANK')"    :disabled="top_character_job == 'TANK'"   >重装</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('SNIPER')"  :disabled="top_character_job == 'SNIPER'" >狙击</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('CASTER')"  :disabled="top_character_job == 'CASTER'" >术师</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('MEDIC')"   :disabled="top_character_job == 'MEDIC'"  >医疗</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('SUPPORT')" :disabled="top_character_job == 'SUPPORT'">辅助</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('SPECIAL')" :disabled="top_character_job == 'SPECIAL'">特种</el-dropdown-item>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown>
+                    <el-text>干员</el-text>
+                </el-space>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_6_top_character" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <el-divider></el-divider>
+                <el-space>
+                    <el-text>被授予伺烛客身份最多次的干员</el-text>
+                </el-space>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_6_top_candle" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <el-divider style="display: none;"></el-divider>
+                <el-space style="display: none;">
+                    <el-text>累计入卷最多次的干员</el-text>
+                </el-space>
+                <div style="display: none;">
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_6_top_expeditionGuide" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <el-divider></el-divider>
+                <el-space>
+                    <el-text>完成探险时，最常显露的三段岁时</el-text>
+                </el-space>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_6_top_wrath" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </el-tab-pane>
+            <el-tab-pane label="サルカズの炉辺奇談" name="rogue_5">
+                <template v-if="!isLoading">
+                    <el-collapse v-model="active_collapse_name_list">
+                        <el-collapse-item title="最新数据" name="rogue_5">
+                            <p>
+                                本次集成战略中，通关结局的比例为：<br>
+                                通关一个结局 {{ latest_data['rogue_5']['endings']['1'] }}%，
+                                通关两个结局 {{ latest_data['rogue_5']['endings']['2'] }}%，
+                                通关三个结局 {{ latest_data['rogue_5']['endings']['3'] }}%，
+                                通关四个结局 {{ latest_data['rogue_5']['endings']['4'] }}%，
+                                通关五个结局 {{ latest_data['rogue_5']['endings']['5'] }}%
+                            </p>
+                            <p>
+                                在故事探险中，使用最多的三个战术道具：<br>
+                                {{ latest_data['rogue_5']['activeTool']['0']['name'] }}、{{ latest_data['rogue_5']['activeTool']['1']['name'] }}、{{ latest_data['rogue_5']['activeTool']['2']['name'] }}
+                            </p>
+                            <p>
+                                完成探险时，携带最多的五个收藏品：<br>
+                                {{ latest_data['rogue_5']['relic']['0']['name'] }}、{{ latest_data['rogue_5']['relic']['1']['name'] }}、{{ latest_data['rogue_5']['relic']['2']['name'] }}、{{ latest_data['rogue_5']['relic']['3']['name'] }}、{{ latest_data['rogue_5']['relic']['4']['name'] }}
+                            </p>
+                            <p>
+                                在完成结局时，出场率最高的干员分别是：<br>
+                                【先锋】{{ latest_data['rogue_5']['character']['PIONEER']['0']['name'] }}、{{ latest_data['rogue_5']['character']['PIONEER']['1']['name'] }}、{{ latest_data['rogue_5']['character']['PIONEER']['2']['name'] }}<br>
+                                【近卫】{{ latest_data['rogue_5']['character']['WARRIOR']['0']['name'] }}、{{ latest_data['rogue_5']['character']['WARRIOR']['1']['name'] }}、{{ latest_data['rogue_5']['character']['WARRIOR']['2']['name'] }}<br>
+                                【重装】{{ latest_data['rogue_5']['character']['TANK']['0']['name'] }}、{{ latest_data['rogue_5']['character']['TANK']['1']['name'] }}、{{ latest_data['rogue_5']['character']['TANK']['2']['name'] }}<br>
+                                【狙击】{{ latest_data['rogue_5']['character']['SNIPER']['0']['name'] }}、{{ latest_data['rogue_5']['character']['SNIPER']['1']['name'] }}、{{ latest_data['rogue_5']['character']['SNIPER']['2']['name'] }}<br>
+                                【术师】{{ latest_data['rogue_5']['character']['CASTER']['0']['name'] }}、{{ latest_data['rogue_5']['character']['CASTER']['1']['name'] }}、{{ latest_data['rogue_5']['character']['CASTER']['2']['name'] }}<br>
+                                【医疗】{{ latest_data['rogue_5']['character']['MEDIC']['0']['name'] }}、{{ latest_data['rogue_5']['character']['MEDIC']['1']['name'] }}、{{ latest_data['rogue_5']['character']['MEDIC']['2']['name'] }}<br>
+                                【辅助】{{ latest_data['rogue_5']['character']['SUPPORT']['0']['name'] }}、{{ latest_data['rogue_5']['character']['SUPPORT']['1']['name'] }}、{{ latest_data['rogue_5']['character']['SUPPORT']['2']['name'] }}<br>
+                                【特种】{{ latest_data['rogue_5']['character']['SPECIAL']['0']['name'] }}、{{ latest_data['rogue_5']['character']['SPECIAL']['1']['name'] }}、{{ latest_data['rogue_5']['character']['SPECIAL']['2']['name'] }}<br>
+                            </p>
+                            <p>
+                                完成探险时，触发最多的三个年代：<br>
+                                {{ latest_data['rogue_5']['disaster']['0']['name'] }}、{{ latest_data['rogue_5']['disaster']['1']['name'] }}、{{ latest_data['rogue_5']['disaster']['2']['name'] }}
+                            </p>
+                            <p>
+                                本次集成战略中，全服累计触发圣卫铳骑的劝导的次数：{{ latest_data['rogue_5']['persuade'] }}
+                            </p>
+                            <p>
+                                在离去者的庭院中，看到了阿米娅的纪念碑的博士比例：{{ latest_data['rogue_5']['amiya'] }}%
+                            </p>
+                            <p>
+                                本次集成战略中，累计解读的次数：{{ latest_data['rogue_5']['alchemy'] }}
+                            </p>
+                            <p>
+                                在故事探险中，累计请坎诺特“降价”的源石锭数量：{{ latest_data['rogue_5']['goldSave'] }}
+                            </p>
+                            <p>
+                                在故事探险中，累计完成印象加深的次数：{{ latest_data['rogue_5']['tempUpgrade'] }}
+                            </p>
+                        </el-collapse-item>
+                    </el-collapse>
+                </template>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_5_endings" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_5_alchemy" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_5_amiya" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_5_persuade" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_5_gold_save" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_5_temp_upgrade" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <el-divider></el-divider>
+                <el-space>
+                    <el-text>在完成结局时，出场率最高的</el-text>
+                    <el-dropdown placement="bottom">
+                        <el-button>{{ top_character_job_name }}</el-button>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <el-dropdown-item @click="set_top_character_job('PIONEER')" :disabled="top_character_job == 'PIONEER'">先锋</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('WARRIOR')" :disabled="top_character_job == 'WARRIOR'">近卫</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('TANK')"    :disabled="top_character_job == 'TANK'"   >重装</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('SNIPER')"  :disabled="top_character_job == 'SNIPER'" >狙击</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('CASTER')"  :disabled="top_character_job == 'CASTER'" >术师</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('MEDIC')"   :disabled="top_character_job == 'MEDIC'"  >医疗</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('SUPPORT')" :disabled="top_character_job == 'SUPPORT'">辅助</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('SPECIAL')" :disabled="top_character_job == 'SPECIAL'">特种</el-dropdown-item>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown>
+                    <el-text>干员</el-text>
+                </el-space>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_5_top_character" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </el-tab-pane>
+            <el-tab-pane label="探索者と銀氷の果て" name="rogue_4">
+                <template v-if="!isLoading">
+                    <el-collapse v-model="active_collapse_name_list">
+                        <el-collapse-item title="最新数据" name="rogue_4">
+                            <p>
+                                本次集成战略中，通关结局的比例为：<br>
+                                通关一个结局 {{ (latest_data['rogue_4']['endings']['1'] * 100).toFixed(2) }}%，
+                                通关两个结局 {{ (latest_data['rogue_4']['endings']['2'] * 100).toFixed(2) }}%，
+                                通关三个结局 {{ (latest_data['rogue_4']['endings']['3'] * 100).toFixed(2) }}%，
+                                通关四个结局 {{ (latest_data['rogue_4']['endings']['4'] * 100).toFixed(2) }}%
+                            </p>
+                            <p>
+                                在冰原探险的旅途中，使用最多的战术道具：<br>
+                                {{ tool_names_4[latest_data['rogue_4']['activeTool'][0]] }}、{{ tool_names_4[latest_data['rogue_4']['activeTool'][1]] }}、{{ tool_names_4[latest_data['rogue_4']['activeTool'][2]] }}
+                            </p>
+                            <p>
+                                完成冰原探险时，携带最多的五个收藏品：<br>
+                                {{ relic_names_4[latest_data['rogue_4']['relic'][0]] }}、{{ relic_names_4[latest_data['rogue_4']['relic'][1]] }}、{{ relic_names_4[latest_data['rogue_4']['relic'][2]] }}、{{ relic_names_4[latest_data['rogue_4']['relic'][3]] }}、{{ relic_names_4[latest_data['rogue_4']['relic'][4]] }}
+                            </p>
+                            <p>
+                                在击败最终冰原的阴影时，出场率最高的干员分别是：<br>
+                                【先锋】{{ operator_names[latest_data['rogue_4']['character']['PIONEER']['0']['id']] }}、{{ operator_names[latest_data['rogue_4']['character']['PIONEER']['1']['id']] }}、{{ operator_names[latest_data['rogue_4']['character']['PIONEER']['2']['id']] }}<br>
+                                【近卫】{{ operator_names[latest_data['rogue_4']['character']['WARRIOR']['0']['id']] }}、{{ operator_names[latest_data['rogue_4']['character']['WARRIOR']['1']['id']] }}、{{ operator_names[latest_data['rogue_4']['character']['WARRIOR']['2']['id']] }}<br>
+                                【重装】{{ operator_names[latest_data['rogue_4']['character']['TANK']['0']['id']] }}、{{ operator_names[latest_data['rogue_4']['character']['TANK']['1']['id']] }}、{{ operator_names[latest_data['rogue_4']['character']['TANK']['2']['id']] }}<br>
+                                【狙击】{{ operator_names[latest_data['rogue_4']['character']['SNIPER']['0']['id']] }}、{{ operator_names[latest_data['rogue_4']['character']['SNIPER']['1']['id']] }}、{{ operator_names[latest_data['rogue_4']['character']['SNIPER']['2']['id']] }}<br>
+                                【术师】{{ operator_names[latest_data['rogue_4']['character']['CASTER']['0']['id']] }}、{{ operator_names[latest_data['rogue_4']['character']['CASTER']['1']['id']] }}、{{ operator_names[latest_data['rogue_4']['character']['CASTER']['2']['id']] }}<br>
+                                【医疗】{{ operator_names[latest_data['rogue_4']['character']['MEDIC']['0']['id']] }}、{{ operator_names[latest_data['rogue_4']['character']['MEDIC']['1']['id']] }}、{{ operator_names[latest_data['rogue_4']['character']['MEDIC']['2']['id']] }}<br>
+                                【辅助】{{ operator_names[latest_data['rogue_4']['character']['SUPPORT']['0']['id']] }}、{{ operator_names[latest_data['rogue_4']['character']['SUPPORT']['1']['id']] }}、{{ operator_names[latest_data['rogue_4']['character']['SUPPORT']['2']['id']] }}<br>
+                                【特种】{{ operator_names[latest_data['rogue_4']['character']['SPECIAL']['0']['id']] }}、{{ operator_names[latest_data['rogue_4']['character']['SPECIAL']['1']['id']] }}、{{ operator_names[latest_data['rogue_4']['character']['SPECIAL']['2']['id']] }}<br>
+                            </p>
+                            <p>
+                                完成冰原探险时，触发最多的三个坍缩范式：<br>
+                                {{ chaos_names[latest_data['rogue_4']['chaos'][0]] }}、{{ chaos_names[latest_data['rogue_4']['chaos'][1]] }}、{{ chaos_names[latest_data['rogue_4']['chaos'][2]] }}
+                            </p>
+                            <p>
+                                在【北地巫师竞技】中“连输五次”的博士：{{ latest_data['rogue_4']['game'] }}
+                            </p>
+                            <p>
+                                在【度假胜地】中入住度假村的博士：{{ latest_data['rogue_4']['spring'] }}%
+                            </p>
+                            <p>
+                                遇到了【负伤的主树】的博士：{{ latest_data['rogue_4']['height'] }}
+                            </p>
+                            <p>
+                                本次集成战略中，共消耗抗干扰指数：{{ latest_data['rogue_4']['vision'] }}
+                            </p>
+                            <p>
+                                本次集成战略中，使用最多的密文板：{{ totem_names[latest_data['rogue_4']['totem']['location']] }} {{ totem_names[latest_data['rogue_4']['totem']['effect']] }}
+                            </p>
+                        </el-collapse-item>
+                    </el-collapse>
+                </template>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_4_endings" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_4_vision" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_4_game" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_4_spring" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_4_height" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <el-divider></el-divider>
+                <el-space>
+                    <el-text>在完成结局时，出场率最高的</el-text>
+                    <el-dropdown placement="bottom">
+                        <el-button>{{ top_character_job_name }}</el-button>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <el-dropdown-item @click="set_top_character_job('PIONEER')" :disabled="top_character_job == 'PIONEER'">先锋</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('WARRIOR')" :disabled="top_character_job == 'WARRIOR'">近卫</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('TANK')"    :disabled="top_character_job == 'TANK'"   >重装</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('SNIPER')"  :disabled="top_character_job == 'SNIPER'" >狙击</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('CASTER')"  :disabled="top_character_job == 'CASTER'" >术师</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('MEDIC')"   :disabled="top_character_job == 'MEDIC'"  >医疗</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('SUPPORT')" :disabled="top_character_job == 'SUPPORT'">辅助</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('SPECIAL')" :disabled="top_character_job == 'SPECIAL'">特种</el-dropdown-item>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown>
+                    <el-text>干员</el-text>
+                </el-space>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_4_top_character" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </el-tab-pane>
+            <el-tab-pane label="ミヅキと紺碧の樹" name="rogue_3">
+                <template v-if="!isLoading">
+                    <el-collapse v-model="active_collapse_name_list">
+                        <el-collapse-item title="最新数据" name="rogue_3">
+                            <p>
+                                本次集成战略中，通关结局的比例为：<br>
+                                通关一个结局 {{ (latest_data['rogue_3']['endings']['1'] * 100).toFixed(2) }}%，
+                                通关两个结局 {{ (latest_data['rogue_3']['endings']['2'] * 100).toFixed(2) }}%，
+                                通关三个结局 {{ (latest_data['rogue_3']['endings']['3'] * 100).toFixed(2) }}%，
+                                通关四个结局 {{ (latest_data['rogue_3']['endings']['4'] * 100).toFixed(2) }}%
+                            </p>
+                            <p>
+                                在深海探险的旅途中，使用最多的三个战术道具：<br>
+                                {{ tool_names_3[latest_data['rogue_3']['activeTool'][0]] }}、{{ tool_names_3[latest_data['rogue_3']['activeTool'][1]] }}、{{ tool_names_3[latest_data['rogue_3']['activeTool'][2]] }}
+                            </p>
+                            <p>
+                                完成深海探险时，携带最多的五个收藏品：<br>
+                                {{ relic_names_3[latest_data['rogue_3']['relic'][0]] }}、{{ relic_names_3[latest_data['rogue_3']['relic'][1]] }}、{{ relic_names_3[latest_data['rogue_3']['relic'][2]] }}、{{ relic_names_3[latest_data['rogue_3']['relic'][3]] }}、{{ relic_names_3[latest_data['rogue_3']['relic'][4]] }}
+                            </p>
+                            <p>
+                                在完成结局时，出场率最高的干员分别是：<br>
+                                【先锋】{{ operator_names[latest_data['rogue_3']['character']['PIONEER']['0']['id']] }}、{{ operator_names[latest_data['rogue_3']['character']['PIONEER']['1']['id']] }}、{{ operator_names[latest_data['rogue_3']['character']['PIONEER']['2']['id']] }}<br>
+                                【近卫】{{ operator_names[latest_data['rogue_3']['character']['WARRIOR']['0']['id']] }}、{{ operator_names[latest_data['rogue_3']['character']['WARRIOR']['1']['id']] }}、{{ operator_names[latest_data['rogue_3']['character']['WARRIOR']['2']['id']] }}<br>
+                                【重装】{{ operator_names[latest_data['rogue_3']['character']['TANK']['0']['id']] }}、{{ operator_names[latest_data['rogue_3']['character']['TANK']['1']['id']] }}、{{ operator_names[latest_data['rogue_3']['character']['TANK']['2']['id']] }}<br>
+                                【狙击】{{ operator_names[latest_data['rogue_3']['character']['SNIPER']['0']['id']] }}、{{ operator_names[latest_data['rogue_3']['character']['SNIPER']['1']['id']] }}、{{ operator_names[latest_data['rogue_3']['character']['SNIPER']['2']['id']] }}<br>
+                                【术师】{{ operator_names[latest_data['rogue_3']['character']['CASTER']['0']['id']] }}、{{ operator_names[latest_data['rogue_3']['character']['CASTER']['1']['id']] }}、{{ operator_names[latest_data['rogue_3']['character']['CASTER']['2']['id']] }}<br>
+                                【医疗】{{ operator_names[latest_data['rogue_3']['character']['MEDIC']['0']['id']] }}、{{ operator_names[latest_data['rogue_3']['character']['MEDIC']['1']['id']] }}、{{ operator_names[latest_data['rogue_3']['character']['MEDIC']['2']['id']] }}<br>
+                                【辅助】{{ operator_names[latest_data['rogue_3']['character']['SUPPORT']['0']['id']] }}、{{ operator_names[latest_data['rogue_3']['character']['SUPPORT']['1']['id']] }}、{{ operator_names[latest_data['rogue_3']['character']['SUPPORT']['2']['id']] }}<br>
+                                【特种】{{ operator_names[latest_data['rogue_3']['character']['SPECIAL']['0']['id']] }}、{{ operator_names[latest_data['rogue_3']['character']['SPECIAL']['1']['id']] }}、{{ operator_names[latest_data['rogue_3']['character']['SPECIAL']['2']['id']] }}<br>
+                            </p>
+                            <p>
+                                在探索过程中，灯火照耀范围比：<br>
+                                100-76 {{ (latest_data['rogue_3']['san']['1'] * 100).toFixed(2) }}%，
+                                75-51 {{ (latest_data['rogue_3']['san']['1'] * 100).toFixed(2) }}%，
+                                50-26 {{ (latest_data['rogue_3']['san']['1'] * 100).toFixed(2) }}%，
+                                25-0 {{ (latest_data['rogue_3']['san']['1'] * 100).toFixed(2) }}%
+                            </p>
+                            <p>
+                                在探索中累计投掷骰子次数：{{ latest_data['rogue_3']['dice'] }}
+                            </p>
+                            <p>
+                                累计在阿戈尔打印机中的投币次数：{{ latest_data['rogue_3']['coin'] }}
+                            </p>
+                            <p>
+                                最具商业头脑的博士累计在前瞻性投资系统中投入源石锭：{{ latest_data['rogue_3']['invest'] }}
+                            </p>
+                            <p>
+                                最富有的博士累计消耗源石锭：{{ latest_data['rogue_3']['gold'] }}
+                            </p>
+                            <p>
+                                最卖力的博士在“苦路”节点消耗生命：{{ latest_data['rogue_3']['cost'] }}
+                            </p>
+                        </el-collapse-item>
+                    </el-collapse>
+                </template>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_3_endings" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_3_dice" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_3_coin" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <el-divider></el-divider>
+                <el-space>
+                    <el-text>在完成结局时，出场率最高的</el-text>
+                    <el-dropdown placement="bottom">
+                        <el-button>{{ top_character_job_name }}</el-button>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <el-dropdown-item @click="set_top_character_job('PIONEER')" :disabled="top_character_job == 'PIONEER'">先锋</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('WARRIOR')" :disabled="top_character_job == 'WARRIOR'">近卫</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('TANK')"    :disabled="top_character_job == 'TANK'"   >重装</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('SNIPER')"  :disabled="top_character_job == 'SNIPER'" >狙击</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('CASTER')"  :disabled="top_character_job == 'CASTER'" >术师</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('MEDIC')"   :disabled="top_character_job == 'MEDIC'"  >医疗</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('SUPPORT')" :disabled="top_character_job == 'SUPPORT'">辅助</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('SPECIAL')" :disabled="top_character_job == 'SPECIAL'">特种</el-dropdown-item>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown>
+                    <el-text>干员</el-text>
+                </el-space>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_3_top_character" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </el-tab-pane>
+            <el-tab-pane label="ファントムと緋き貴石" name="rogue_2">
+                <template v-if="!isLoading">
+                    <el-collapse v-model="active_collapse_name_list">
+                        <el-collapse-item title="最新数据" name="rogue_2">
+                            <p>
+                                本次集成战略中，通关结局的比例为：<br>
+                                通关一个结局 {{ (latest_data['rogue_2']['endings']['1'] * 100).toFixed(2) }}%，
+                                通关两个结局 {{ (latest_data['rogue_2']['endings']['2'] * 100).toFixed(2) }}%，
+                                通关三个结局 {{ (latest_data['rogue_2']['endings']['3'] * 100).toFixed(2) }}%，
+                                通关四个结局 {{ (latest_data['rogue_2']['endings']['4'] * 100).toFixed(2) }}%
+                            </p>
+                            <p>
+                                在古堡探险的旅途中，使用最多的三个战术道具：<br>
+                                {{ latest_data['rogue_2']['activeTool'][0] }}、{{ latest_data['rogue_2']['activeTool'][1] }}、{{ latest_data['rogue_2']['activeTool'][2] }}
+                            </p>
+                            <p>
+                                完成古堡探险时，携带最多的五个收藏品：<br>
+                                {{ latest_data['rogue_2']['relic'][0] }}、{{ latest_data['rogue_2']['relic'][1] }}、{{ latest_data['rogue_2']['relic'][2] }}、{{ latest_data['rogue_2']['relic'][3] }}、{{ latest_data['rogue_2']['relic'][4] }}
+                            </p>
+                            <p>
+                                在击败古堡的黑幕时，出场率最高的干员分别是：<br>
+                                【先锋】{{ latest_data['rogue_2']['character']['PIONEER']['0']['name'] }}、{{ latest_data['rogue_2']['character']['PIONEER']['1']['name'] }}、{{ latest_data['rogue_2']['character']['PIONEER']['2']['name'] }}<br>
+                                【近卫】{{ latest_data['rogue_2']['character']['WARRIOR']['0']['name'] }}、{{ latest_data['rogue_2']['character']['WARRIOR']['1']['name'] }}、{{ latest_data['rogue_2']['character']['WARRIOR']['2']['name'] }}<br>
+                                【重装】{{ latest_data['rogue_2']['character']['TANK']['0']['name'] }}、{{ latest_data['rogue_2']['character']['TANK']['1']['name'] }}、{{ latest_data['rogue_2']['character']['TANK']['2']['name'] }}<br>
+                                【狙击】{{ latest_data['rogue_2']['character']['SNIPER']['0']['name'] }}、{{ latest_data['rogue_2']['character']['SNIPER']['1']['name'] }}、{{ latest_data['rogue_2']['character']['SNIPER']['2']['name'] }}<br>
+                                【术师】{{ latest_data['rogue_2']['character']['CASTER']['0']['name'] }}、{{ latest_data['rogue_2']['character']['CASTER']['1']['name'] }}、{{ latest_data['rogue_2']['character']['CASTER']['2']['name'] }}<br>
+                                【医疗】{{ latest_data['rogue_2']['character']['MEDIC']['0']['name'] }}、{{ latest_data['rogue_2']['character']['MEDIC']['1']['name'] }}、{{ latest_data['rogue_2']['character']['MEDIC']['2']['name'] }}<br>
+                                【辅助】{{ latest_data['rogue_2']['character']['SUPPORT']['0']['name'] }}、{{ latest_data['rogue_2']['character']['SUPPORT']['1']['name'] }}、{{ latest_data['rogue_2']['character']['SUPPORT']['2']['name'] }}<br>
+                                【特种】{{ latest_data['rogue_2']['character']['SPECIAL']['0']['name'] }}、{{ latest_data['rogue_2']['character']['SPECIAL']['1']['name'] }}、{{ latest_data['rogue_2']['character']['SPECIAL']['2']['name'] }}<br>
+                            </p>
+                            <p>在一次探险中，对剧目最有兴趣的博士在微型舞台的投币口进行了 {{ latest_data['rogue_2']['coin'] }} 次投币</p>
+                            <p>在本期集成战略中，最具商业头脑的博士累计在前瞻性投资系统中投入了 {{ latest_data['rogue_2']['invest'] }} 枚源石锭</p>
+                            <p>在本期集成战略中，最富有的博士已经消耗了 {{ latest_data['rogue_2']['gold'] }} 枚源石锭</p>
+                            <p>在古堡探险的旅途中，最好奇的博士已经听老妇人讲了 {{ latest_data['rogue_2']['story'] }} 个故事</p>
+                            <p>在古堡探险的旅途中，最好酒的博士已经在地窖喝下了 {{ latest_data['rogue_2']['wine'].toFixed(2) }} 桶酒</p>
+                            <p>在古堡探险的旅途中，最好运的博士已经从地下室的垃圾堆里翻出了 {{ latest_data['rogue_2']['trash'] }} 份“好东西”</p>
+                            <p>在古堡探险的旅途中，最具探索精神的博士 {{ latest_data['rogue_2']['writer'] }} 次试图看清年轻人的书写内容</p>
+                            <p>
+                                在所有【荣耀之证】收藏品中，携带通关的比例：<br>
+                                乌萨斯弯刀   {{ (latest_data['rogue_2']['spRelic'][0]['percent'] * 100).toFixed(2) }}%<br>
+                                维多利亚王冠 {{ (latest_data['rogue_2']['spRelic'][1]['percent'] * 100).toFixed(2) }}%<br>
+                                莱塔尼亚权杖 {{ (latest_data['rogue_2']['spRelic'][2]['percent'] * 100).toFixed(2) }}%<br>
+                                高卢长袍     {{ (latest_data['rogue_2']['spRelic'][3]['percent'] * 100).toFixed(2) }}%<br>
+                                半洗孤钻     {{ (latest_data['rogue_2']['spRelic'][4]['percent'] * 100).toFixed(2) }}%<br>
+                                酒神的印记   {{ (latest_data['rogue_2']['spRelic'][5]['percent'] * 100).toFixed(2) }}%<br>
+                            </p>
+                        </el-collapse-item>
+                    </el-collapse>
+                </template>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_2_endings" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+                <el-divider></el-divider>
+                <el-space>
+                    <el-text>在完成结局时，出场率最高的</el-text>
+                    <el-dropdown placement="bottom">
+                        <el-button>{{ top_character_job_name }}</el-button>
+                        <template #dropdown>
+                            <el-dropdown-menu>
+                                <el-dropdown-item @click="set_top_character_job('PIONEER')" :disabled="top_character_job == 'PIONEER'">先锋</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('WARRIOR')" :disabled="top_character_job == 'WARRIOR'">近卫</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('TANK')"    :disabled="top_character_job == 'TANK'"   >重装</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('SNIPER')"  :disabled="top_character_job == 'SNIPER'" >狙击</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('CASTER')"  :disabled="top_character_job == 'CASTER'" >术师</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('MEDIC')"   :disabled="top_character_job == 'MEDIC'"  >医疗</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('SUPPORT')" :disabled="top_character_job == 'SUPPORT'">辅助</el-dropdown-item>
+                                <el-dropdown-item @click="set_top_character_job('SPECIAL')" :disabled="top_character_job == 'SPECIAL'">特种</el-dropdown-item>
+                            </el-dropdown-menu>
+                        </template>
+                    </el-dropdown>
+                    <el-text>干员</el-text>
+                </el-space>
+                <div>
+                    <div style="display: flex; height: 450px;">
+                        <div style="width: 100%;">
+                            <div id="div_chart_2_top_character" class="div_chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </el-tab-pane>
+        </el-tabs>
+    </div>
+
+<script src="server.js"></script>
+
+</body>
+</html>

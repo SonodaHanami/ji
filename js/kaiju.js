@@ -246,7 +246,7 @@ async function load_operator() {
     console.log('开始加载干员列表');
     console.time('加载干员列表');
     try {
-        const response = await fetch(`https://yubo.run/arknights/operator.json?t=${current_timestamp}`);
+        const response = await fetch(`https://yubo.run/arknights/arknights_words/operator.json?t=${current_timestamp}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

@@ -260,7 +260,7 @@ async function init() {
         let current_timestamp = new Date().getTime();
 
         // 1. 先加载配置
-        const operatorResponse = await fetch(`/arknights/operator.json?t=${current_timestamp}`);
+        const operatorResponse = await fetch(`/arknights/arknights_words/operator.json?t=${current_timestamp}`);
         const OPERATORS = await operatorResponse.json();
 
         // 2. 挂到全局，供 scriptA 使用
