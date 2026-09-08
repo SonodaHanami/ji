@@ -1471,7 +1471,7 @@ function get_login_info() {
         'login_token': current_login_token,
     }
     let xhr = new XMLHttpRequest();
-    xhr.open('POST', 'https://yubo.run/api/kusa/login_info', true);
+    xhr.open('POST', 'https://yubo.run/api/kusa/get-login-info', true);
     xhr.setRequestHeader('Content-type', 'application/json');
     xhr.timeout = 20000;
     xhr.onreadystatechange = function() {
@@ -1517,7 +1517,7 @@ function send_kaiju_log() {
         'result_info': current_result,
     }
     let xhr = new XMLHttpRequest();
-    xhr.open('POST', 'https://yubo.run/api/kaiju/add_log', true);
+    xhr.open('POST', 'https://yubo.run/api/kaiju/add-log', true);
     xhr.setRequestHeader('Content-type', 'application/json');
     xhr.timeout = 20000;
     xhr.onreadystatechange = function() {

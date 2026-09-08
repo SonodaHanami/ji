@@ -589,7 +589,7 @@ const app = createApp({
                 'user_id': this.login_user_id || '',
                 'login_token': this.login_token || '',
             }
-            await axios.post('https://yubo.run/api/arknights/get_ji_stats_jp', payload).then(res => {
+            await axios.post('https://yubo.run/api/arknights/get-ji-stats-jp', payload).then(res => {
                 if (res.data.code != 0) {
                     that.$alert(res.data.message, '获取记录失败');
                     // that.isLoading = false;

@@ -302,7 +302,7 @@ const app = createApp({
                 'user_id': this.login_user_id || '',
                 'login_token': this.login_token || '',
             }
-            axios.post('https://yubo.run/api/arknights/get_ji_stats', payload).then(res => {
+            axios.post('https://yubo.run/api/arknights/get-ji-stats', payload).then(res => {
                 // if (res.data.code != 0) {
                 if (!res.data.ji_stats && !res.data.ji_logs) {
                     that.$alert(res.data.message, '获取记录失败');
