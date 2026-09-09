@@ -113,13 +113,13 @@ table {
 </head>
 <body>
     <div id="app">
-        <h1 style="text-align: center">全服集集统计</h1>
+        <h1 style="text-align: center">全服集集统计({{ serverConfig.label }})</h1>
         <div id="div_refresh">
-            <div class="button" v-if="isLoading">正在请求数据</div>
-            <div class="button" v-if="!isLoading" @click="fetchData()">🔄 刷新数据</div>
-            <div v-if="!isLoading">
+            <div class="button" v-if="isLoading">{{ t('正在请求数据') }}</div>
+            <div class="button" v-if="!isLoading" @click="fetchData()">{{ t('🔄 刷新数据') }}</div>
+            <div v-if="!isLoading && last_update_timestamp">
                 <el-text>
-                    当前已加载最新数据：{{ (new Date(1000 * latest_data['rogue_6']['last_update_timestamp']).toLocaleString()) }}
+                    {{ t('当前已加载最新数据：') }}{{ (new Date(1000 * last_update_timestamp).toLocaleString()) }}
                 </el-text>
             </div>
         </div>
@@ -127,24 +127,24 @@ table {
             <el-space>
                 <el-link type="primary" href="https://yubo.run/arknights/ji/" target="_blank">集集统计总榜（暂定）</el-link>
                 <el-link type="primary" href="https://yubo.run/arknights/ji/user.html" target="_blank">个人集集统计</el-link>
-                <el-link type="primary" href="https://yubo.run/arknights/ji/jp/server.html" target="_blank">全服集集统计(JP)</el-link>
-                <el-link type="primary" href="https://yubo.run/arknights/ji/global/server.html" target="_blank">全服集集统计(global)</el-link>
+                <el-link v-for="(config, key) in serverConfigs" :key="key" type="primary"
+                    :href="serverPageUrl(key)" :disabled="server === key">全服集集统计({{ config.label }})</el-link>
             </el-space>
         </p>
         <p>
             <el-space v-if="isFirstInited" v-loading="isLoading">
                 <el-dropdown placement="bottom-start">
-                    <el-button>当前显示模式：{{ display_mode_names[display_mode] }}</el-button>
+                    <el-button>{{ t('当前显示模式：') }}{{ display_mode_names[display_mode] }}</el-button>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item @click="set_display_mode('default')" :disabled="display_mode == 'default'">默认</el-dropdown-item>
-                            <el-dropdown-item @click="set_display_mode('all')" :disabled="display_mode == 'all'">每一次更新</el-dropdown-item>
-                            <el-dropdown-item @click="set_display_mode('daily')" :disabled="display_mode == 'daily'">每天最后一次更新</el-dropdown-item>
-                            <el-dropdown-item @click="set_display_mode('weekly')" :disabled="display_mode == 'weekly'">每周最后一次更新</el-dropdown-item>
+                            <el-dropdown-item @click="set_display_mode('default')" :disabled="display_mode == 'default'">{{ t('默认') }}</el-dropdown-item>
+                            <el-dropdown-item @click="set_display_mode('all')" :disabled="display_mode == 'all'">{{ t('每一次更新') }}</el-dropdown-item>
+                            <el-dropdown-item @click="set_display_mode('daily')" :disabled="display_mode == 'daily'">{{ t('每天最后一次更新') }}</el-dropdown-item>
+                            <el-dropdown-item @click="set_display_mode('weekly')" :disabled="display_mode == 'weekly'">{{ t('每周最后一次更新') }}</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
-                <el-text v-if="display_mode == 'default'">显示最近</el-text>
+                <el-text v-if="display_mode == 'default'">{{ t('显示最近') }}</el-text>
                 <el-dropdown placement="bottom" v-if="display_mode == 'default'">
                     <el-button>{{ day_offset }}</el-button>
                     <template #dropdown>
@@ -159,7 +159,7 @@ table {
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
-                <el-text v-if="display_mode == 'default'">天内间隔</el-text>
+                <el-text v-if="display_mode == 'default'">{{ t('天内间隔') }}</el-text>
                 <el-dropdown placement="bottom" v-if="display_mode == 'default'">
                     <el-button>{{ interval }}</el-button>
                     <template #dropdown>
@@ -174,38 +174,38 @@ table {
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
-                <el-text v-if="display_mode == 'default'">分钟的每一次更新，在此范围外则显示每天最后一次更新</el-text>
-                <el-text v-if="display_mode == 'weekly'">一周的定义是从</el-text>
+                <el-text v-if="display_mode == 'default'">{{ t('分钟的每一次更新，在此范围外则显示每天最后一次更新') }}</el-text>
+                <el-text v-if="display_mode == 'weekly'">{{ t('一周的定义是从') }}</el-text>
                 <el-dropdown placement="bottom" v-if="display_mode == 'weekly'">
                     <el-button>周{{ '一二三四五六日'[end_of_week] }}</el-button>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item @click="set_end_of_week(0)" :disabled="end_of_week == 0">周一</el-dropdown-item>
-                            <el-dropdown-item @click="set_end_of_week(1)" :disabled="end_of_week == 1">周二</el-dropdown-item>
-                            <el-dropdown-item @click="set_end_of_week(2)" :disabled="end_of_week == 2">周三</el-dropdown-item>
-                            <el-dropdown-item @click="set_end_of_week(3)" :disabled="end_of_week == 3">周四</el-dropdown-item>
-                            <el-dropdown-item @click="set_end_of_week(4)" :disabled="end_of_week == 4">周五</el-dropdown-item>
-                            <el-dropdown-item @click="set_end_of_week(5)" :disabled="end_of_week == 5">周六</el-dropdown-item>
-                            <el-dropdown-item @click="set_end_of_week(6)" :disabled="end_of_week == 6">周日</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(0)" :disabled="end_of_week == 0">{{ t('周一') }}</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(1)" :disabled="end_of_week == 1">{{ t('周二') }}</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(2)" :disabled="end_of_week == 2">{{ t('周三') }}</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(3)" :disabled="end_of_week == 3">{{ t('周四') }}</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(4)" :disabled="end_of_week == 4">{{ t('周五') }}</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(5)" :disabled="end_of_week == 5">{{ t('周六') }}</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(6)" :disabled="end_of_week == 6">{{ t('周日') }}</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
-                <el-text v-if="display_mode == 'weekly'">开始，到下一个</el-text>
+                <el-text v-if="display_mode == 'weekly'">{{ t('开始，到下一个') }}</el-text>
                 <el-dropdown placement="bottom" v-if="display_mode == 'weekly'">
                     <el-button>周{{ '日一二三四五六'[end_of_week] }}</el-button>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item @click="set_end_of_week(1)" :disabled="end_of_week == 1">周一</el-dropdown-item>
-                            <el-dropdown-item @click="set_end_of_week(2)" :disabled="end_of_week == 2">周二</el-dropdown-item>
-                            <el-dropdown-item @click="set_end_of_week(3)" :disabled="end_of_week == 3">周三</el-dropdown-item>
-                            <el-dropdown-item @click="set_end_of_week(4)" :disabled="end_of_week == 4">周四</el-dropdown-item>
-                            <el-dropdown-item @click="set_end_of_week(5)" :disabled="end_of_week == 5">周五</el-dropdown-item>
-                            <el-dropdown-item @click="set_end_of_week(6)" :disabled="end_of_week == 6">周六</el-dropdown-item>
-                            <el-dropdown-item @click="set_end_of_week(0)" :disabled="end_of_week == 0">周日</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(1)" :disabled="end_of_week == 1">{{ t('周一') }}</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(2)" :disabled="end_of_week == 2">{{ t('周二') }}</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(3)" :disabled="end_of_week == 3">{{ t('周三') }}</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(4)" :disabled="end_of_week == 4">{{ t('周四') }}</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(5)" :disabled="end_of_week == 5">{{ t('周五') }}</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(6)" :disabled="end_of_week == 6">{{ t('周六') }}</el-dropdown-item>
+                            <el-dropdown-item @click="set_end_of_week(0)" :disabled="end_of_week == 0">{{ t('周日') }}</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
-                <el-text v-if="display_mode == 'weekly'">结束</el-text>
+                <el-text v-if="display_mode == 'weekly'">{{ t('结束') }}</el-text>
             </el-space>
         </p>
         <el-tabs type="card" tab-position="top" v-model="selectingTab" v-loading="isLoading">
@@ -220,7 +220,7 @@ table {
                     </div>
                 </template>
             </el-tab-pane>
-            <el-tab-pane label="变动记录" name="change_log">
+            <el-tab-pane :label="t('变动记录')" name="change_log">
                 <template v-if="!isLoading">
                     <div>
                         <el-table stripe border v-loading="isLoading"
@@ -250,10 +250,10 @@ table {
                     </div>
                 </template>
             </el-tab-pane>
-            <el-tab-pane label="沉沦者的黑流树海" name="rogue_7">
+            <el-tab-pane :label="rogueNames.rogue_7" name="rogue_7" v-if="hasTopic('rogue_7')">
                 <template v-if="isFirstInited">
                     <el-collapse v-model="active_collapse_name_list">
-                        <el-collapse-item title="最新数据" name="rogue_7">
+                        <el-collapse-item title="最新数据" name="rogue_7" v-if="latest_data.rogue_7">
                             <div>
                                 <template v-if="isFirstInited">
                                     <div class="flex justify-center">
@@ -334,10 +334,10 @@ table {
                     </div>
                 </div>
             </el-tab-pane>
-            <el-tab-pane label="岁的界园志异" name="rogue_6">
+            <el-tab-pane :label="rogueNames.rogue_6" name="rogue_6" v-if="hasTopic('rogue_6')">
                 <template v-if="isFirstInited">
                     <el-collapse v-model="active_collapse_name_list">
-                        <el-collapse-item title="最新数据" name="rogue_6">
+                        <el-collapse-item title="最新数据" name="rogue_6" v-if="latest_data.rogue_6">
                             <div>
                                 <template v-if="isFirstInited">
                                     <div class="flex justify-center">
@@ -387,7 +387,7 @@ table {
                                 被授予伺烛客身份最多次的干员分别是：<br>
                                 {{ latest_data['rogue_6']['candle']['0']['name'] }}、{{ latest_data['rogue_6']['candle']['1']['name'] }}、{{ latest_data['rogue_6']['candle']['2']['name'] }}、{{ latest_data['rogue_6']['candle']['3']['name'] }}、{{ latest_data['rogue_6']['candle']['4']['name'] }}
                             </p>
-                            <p>
+                            <p v-show="serverConfig.expeditionGuide">
                                 累计入卷最多次的干员分别是：<br>
                                 {{ latest_data['rogue_6']['expeditionGuide'] ? latest_data['rogue_6']['expeditionGuide']['0']['name'] : '-'}}、{{ latest_data['rogue_6']['expeditionGuide'] ? latest_data['rogue_6']['expeditionGuide']['1']['name'] : '-' }}、{{ latest_data['rogue_6']['expeditionGuide'] ? latest_data['rogue_6']['expeditionGuide']['2']['name'] : '-' }}、{{ latest_data['rogue_6']['expeditionGuide'] ? latest_data['rogue_6']['expeditionGuide']['3']['name'] : '-' }}、{{ latest_data['rogue_6']['expeditionGuide'] ? latest_data['rogue_6']['expeditionGuide']['4']['name'] : '-' }}
                             </p>
@@ -506,11 +506,11 @@ table {
                         </div>
                     </div>
                 </div>
-                <el-divider></el-divider>
-                <el-space>
+                <el-divider v-show="serverConfig.expeditionGuide"></el-divider>
+                <el-space v-show="serverConfig.expeditionGuide">
                     <el-text>累计入卷最多次的干员</el-text>
                 </el-space>
-                <div>
+                <div v-show="serverConfig.expeditionGuide">
                     <div style="display: flex; height: 450px;">
                         <div style="width: 100%;">
                             <div id="div_chart_6_top_expeditionGuide" class="div_chart"></div>
@@ -529,10 +529,10 @@ table {
                     </div>
                 </div>
             </el-tab-pane>
-            <el-tab-pane label="萨卡兹的无终奇语" name="rogue_5">
+            <el-tab-pane :label="rogueNames.rogue_5" name="rogue_5" v-if="hasTopic('rogue_5')">
                 <template v-if="!isLoading">
                     <el-collapse v-model="active_collapse_name_list">
-                        <el-collapse-item title="最新数据" name="rogue_5">
+                        <el-collapse-item title="最新数据" name="rogue_5" v-if="latest_data.rogue_5">
                             <p>
                                 本次集成战略中，通关结局的比例为：<br>
                                 通关一个结局 {{ latest_data['rogue_5']['endings']['1'] }}%，
@@ -652,10 +652,10 @@ table {
                     </div>
                 </div>
             </el-tab-pane>
-            <el-tab-pane label="探索者的银凇止境" name="rogue_4">
+            <el-tab-pane :label="rogueNames.rogue_4" name="rogue_4" v-if="hasTopic('rogue_4')">
                 <template v-if="!isLoading">
                     <el-collapse v-model="active_collapse_name_list">
-                        <el-collapse-item title="最新数据" name="rogue_4">
+                        <el-collapse-item title="最新数据" name="rogue_4" v-if="latest_data.rogue_4">
                             <p>
                                 本次集成战略中，通关结局的比例为：<br>
                                 通关一个结局 {{ (latest_data['rogue_4']['endings']['1'] * 100).toFixed(2) }}%，
@@ -767,10 +767,10 @@ table {
                     </div>
                 </div>
             </el-tab-pane>
-            <el-tab-pane label="水月与深蓝之树" name="rogue_3">
+            <el-tab-pane :label="rogueNames.rogue_3" name="rogue_3" v-if="hasTopic('rogue_3')">
                 <template v-if="!isLoading">
                     <el-collapse v-model="active_collapse_name_list">
-                        <el-collapse-item title="最新数据" name="rogue_3">
+                        <el-collapse-item title="最新数据" name="rogue_3" v-if="latest_data.rogue_3">
                             <p>
                                 本次集成战略中，通关结局的比例为：<br>
                                 通关一个结局 {{ (latest_data['rogue_3']['endings']['1'] * 100).toFixed(2) }}%，
@@ -871,10 +871,10 @@ table {
                     </div>
                 </div>
             </el-tab-pane>
-            <el-tab-pane label="傀影与猩红孤钻" name="rogue_2">
+            <el-tab-pane :label="rogueNames.rogue_2" name="rogue_2" v-if="hasTopic('rogue_2')">
                 <template v-if="!isLoading">
                     <el-collapse v-model="active_collapse_name_list">
-                        <el-collapse-item title="最新数据" name="rogue_2">
+                        <el-collapse-item title="最新数据" name="rogue_2" v-if="latest_data.rogue_2">
                             <p>
                                 本次集成战略中，通关结局的比例为：<br>
                                 通关一个结局 {{ (latest_data['rogue_2']['endings']['1'] * 100).toFixed(2) }}%，
@@ -958,6 +958,7 @@ table {
         </el-tabs>
     </div>
 
+<script src="js/server-config.js"></script>
 <script src="js/server.js"></script>
 
 </body>

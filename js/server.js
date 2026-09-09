@@ -335,11 +335,26 @@ function get_event_y_axis(event_type) {
 
 
 
+if (SERVER === 'jp') {
+    Object.assign(ROGUE_NAMES, JP_NAMES.ROGUE_NAMES);
+    Object.assign(JOBS, JP_NAMES.JOBS);
+    Object.assign(CHART_NAMES, JP_NAMES.CHART_NAMES);
+}
+if (SERVER !== 'cn') {
+    ROGUE_STARTS.rogue_6 = '2025-12-18';
+    for (const key of Object.keys(ENDINGS_6)) ENDINGS_6[key] = key;
+}
+const formatServerDate = {cn: toLocalISOStringShanghai, jp: toLocalISOStringTokyo, global: toLocalISOStringPDT}[SERVER];
+
 // Vue 3
 const { createApp } = Vue;
 const app = createApp({
     el: '#app',
     data: () => ({
+        server: SERVER,
+        serverConfig: SERVER_CONFIG,
+        serverConfigs: SERVER_CONFIGS,
+        rogueNames: ROGUE_NAMES,
         group_id: '',
         player_info_str: '',
         display_mode: 'default',
@@ -358,7 +373,7 @@ const app = createApp({
         end_of_week: 0,
         ji_stats_date: undefined,
         top_character_job: 'PIONEER',
-        top_character_job_name: '先锋',
+        top_character_job_name: JOBS.PIONEER,
         last_update_timestamp: 0,
         last_update_fixed: true,
         table_ji_stats_height: 'auto',
@@ -370,13 +385,13 @@ const app = createApp({
         colorList: ['#c23531','#2f4554', '#61a0a8', '#d48265', '#91c7ae','#749f83',  '#ca8622', '#bda29a','#6e7074', '#546570', '#c4ccd3'],
         isLoading: true,
         isFirstInited: false,
-        selectingTab: 'rogue_7',
+        selectingTab: SERVER_CONFIG.defaultTopic,
         active_collapse_name_list: [],
     }),
     async mounted() {
         // this.get_datetime_str_28 = get_datetime_str_28;
 
-        this.selectingTab = 'rogue_7';
+        this.selectingTab = SERVER_CONFIG.defaultTopic;
 
         this.chart_2_endings = echarts.init(document.getElementById('div_chart_2_endings'));
         this.chart_2_top_character = echarts.init(document.getElementById('div_chart_2_top_character'));
@@ -414,8 +429,10 @@ const app = createApp({
         this.chart_6_top_candle = echarts.init(document.getElementById('div_chart_6_top_candle'));
         this.chart_6_top_expeditionGuide = echarts.init(document.getElementById('div_chart_6_top_expeditionGuide'));
 
-        this.chart_7_endings = echarts.init(document.getElementById('div_chart_7_endings'));
-        this.chart_7_node_pass = echarts.init(document.getElementById('div_chart_7_node_pass'));
+        if (SERVER_CONFIG.maxTopic >= 7) {
+            this.chart_7_endings = echarts.init(document.getElementById('div_chart_7_endings'));
+            this.chart_7_node_pass = echarts.init(document.getElementById('div_chart_7_node_pass'));
+        }
 
         this.charts = {
             'rogue_2': {
@@ -465,6 +482,9 @@ const app = createApp({
             },
         }
 
+        if (SERVER_CONFIG.maxTopic < 7) delete this.charts.rogue_7;
+        if (!SERVER_CONFIG.expeditionGuide) delete this.charts.rogue_6.top_expeditionGuide;
+
         this.load_login_data();
         await this.fetchData();
 
@@ -499,12 +519,20 @@ const app = createApp({
         top_character_job: function() {
             this.top_character_job_name = JOBS[this.top_character_job];
             // this.init_chart_top_heatmap(this.selectingTab, 'character');
-            this.init_chart_top_markarea(this.selectingTab, 'character');
+            if (this.hasData(this.selectingTab)) this.init_chart_top_markarea(this.selectingTab, 'character');
             setTimeout(this.resizeAll, 100);
         },
     },
 
     methods: {
+        t,
+        serverPageUrl,
+        hasTopic(rogueId) {
+            return Number(rogueId.split('_')[1]) <= SERVER_CONFIG.maxTopic;
+        },
+        hasData(rogueId) {
+            return Object.values(this.ji_stats_data[rogueId] || {}).some(day => Object.keys(day || {}).length > 0);
+        },
         // tools function
         sum: (iterable) => {
             let sum = 0;
@@ -534,16 +562,17 @@ const app = createApp({
             const queryString = window.location.search;
             const urlParams = new URLSearchParams(queryString);
             that.isLoading = true;
+            this.event_list = [];
             // 事件数据
             ElementPlus.ElMessage('正在请求事件数据');
             let start = new Date();
-            await axios.get('https://yubo.run/arknights/arknights-dictionary/event/cn.json').then(res => {
+            await axios.get(`https://yubo.run/arknights/arknights-dictionary/event/${SERVER}.json`).then(res => {
                 let elapsed = +new Date() - start;
                 ElementPlus.ElMessage({
                     message: `请求事件数据完成，用时${elapsed}ms`,
                     type: 'success',
                 });
-                console.log(`fetchData: arknights-dictionary/event/cn.json ${elapsed} ms`)
+                console.log(`fetchData: arknights-dictionary/event/${SERVER}.json ${elapsed} ms`)
                 that.EVENTS = res.data;
                 for (let e in that.EVENTS) {
                     that.event_list.push(
@@ -575,6 +604,7 @@ const app = createApp({
             start = new Date();
             let payload = {
                 'type_name': 'server',
+                'server': SERVER,
                 'group_id': this.group_id || '',
                 'user_id': this.login_user_id || '',
                 'login_token': this.login_token || '',
@@ -582,7 +612,7 @@ const app = createApp({
             await axios.post('https://yubo.run/api/arknights/get-ji-stats', payload).then(res => {
                 if (res.data.code != 0) {
                     that.$alert(res.data.message, '获取记录失败');
-                    // that.isLoading = false;
+                    that.isLoading = false;
                     if (res.data.go_to_home) {
                         setTimeout(this.goto_user_home, 3000);
                     }
@@ -595,6 +625,17 @@ const app = createApp({
                 });
                 console.log(`fetchData: ji_stats_data ${elapsed} ms`)
                 that.ji_stats_data = res.data;
+                that.last_update_timestamp = 0;
+                for (const rogueId of Object.keys(that.charts)) {
+                    for (const snapshots of Object.values(res.data[rogueId] || {})) {
+                        for (const item of Object.values(snapshots || {})) {
+                            that.last_update_timestamp = Math.max(that.last_update_timestamp, Number(item.last_update_timestamp) || 0);
+                        }
+                    }
+                }
+                if (!that.hasData(that.selectingTab)) {
+                    that.selectingTab = Object.keys(that.charts).reverse().find(id => that.hasData(id)) || 'change_log';
+                }
                 // console.log('ji_stats_data', that.ji_stats_data)
                 that.init();
             }).catch(function (error) {
@@ -616,6 +657,7 @@ const app = createApp({
         },
 
         init: function() {
+            if (!this.charts) return;
             console.time('init');
             this.isLoading = true;
             this.init_latest_data();
@@ -645,11 +687,12 @@ const app = createApp({
         },
 
         init_latest_data: function() {
-            for (let rogue_id in this.charts) {
-                // let latest_day_str = Object.keys(this.ji_stats_data[rogue_id]).slice(-1)[0];
-                let latest_day_str = this.ji_stats_date ? toLocalISOStringShanghai(this.ji_stats_date, true, 10) : Object.keys(this.ji_stats_data[rogue_id]).slice(-1)[0];
-                let latest_timestamp = Object.keys(this.ji_stats_data[rogue_id][latest_day_str]).slice(-1)[0];
-                this.latest_data[rogue_id] = this.ji_stats_data[rogue_id][latest_day_str][latest_timestamp];
+            for (const rogueId in this.charts) {
+                const days = this.ji_stats_data[rogueId] || {};
+                const date = this.ji_stats_date ? formatServerDate(this.ji_stats_date, true, 10) : Object.keys(days).sort().slice(-1)[0];
+                const snapshots = days[date] || {};
+                const timestamp = Object.keys(snapshots).sort((a, b) => Number(a) - Number(b)).slice(-1)[0];
+                this.latest_data[rogueId] = snapshots[timestamp] || null;
             }
         },
 
@@ -657,6 +700,7 @@ const app = createApp({
             const target_key_list = ['character', 'candle', 'expeditionGuide']
             this.data_change_log = [];
             for (let rogue_id in this.charts) {
+                if (!this.hasData(rogue_id)) continue;
                 let prev_data = {}, curr_data = {};
                 let is_prev_ready = false;
 
@@ -715,10 +759,10 @@ const app = createApp({
                         }
                         let prev_str = prev_data['character'][job].map(x => x['name']).join(', ');
                         let curr_str = curr_data['character'][job].map(x => x['name']).join(', ');
-                        // this.data_change_log.push(`${toLocalISOStringShanghai(new Date(timestamp * 1000))} ${ROGUE_NAMES[rogue_id]} 在完成结局时，出场率最高的${JOBS[job]}干员 [${prev_str}] -> [${curr_str}]`);
+                        // this.data_change_log.push(`${formatServerDate(new Date(timestamp * 1000))} ${ROGUE_NAMES[rogue_id]} 在完成结局时，出场率最高的${JOBS[job]}干员 [${prev_str}] -> [${curr_str}]`);
                         let isoStringLength = new Date() - new Date(timestamp * 1000) <= 7 * 86400000 ? 16 : 10;
                         this.data_change_log.push({
-                            'time': toLocalISOStringShanghai(new Date(timestamp * 1000), is_28_hours=true, length=isoStringLength),
+                            'time': formatServerDate(new Date(timestamp * 1000), is_28_hours=true, length=isoStringLength),
                             'rogue_name': ROGUE_NAMES[rogue_id],
                             'item': `在完成结局时，出场率最高的${JOBS[job]}干员`,
                             // 'previous': prev_data['character'][job].map(x => x['name']),
@@ -734,7 +778,7 @@ const app = createApp({
                 for (let i = 0; i < prev_data['candle'].length; i++) {
                     if (prev_data['candle'][i]['name'] != curr_data['candle'][i]['name']) {
                         is_changed = true;
-                        // this.data_change_log.push(`${toLocalISOStringShanghai(new Date(timestamp * 1000))} ${ROGUE_NAMES[rogue_id]} candle ${i + 1} ${prev_data['candle'][i]['name']} -> ${curr_data['candle'][i]['name']}`);
+                        // this.data_change_log.push(`${formatServerDate(new Date(timestamp * 1000))} ${ROGUE_NAMES[rogue_id]} candle ${i + 1} ${prev_data['candle'][i]['name']} -> ${curr_data['candle'][i]['name']}`);
                     }
                 }
                 if (is_changed) {
@@ -748,10 +792,10 @@ const app = createApp({
                     }
                     let prev_str = prev_data['candle'].map(x => x['name']).join(', ');
                     let curr_str = curr_data['candle'].map(x => x['name']).join(', ');
-                    // this.data_change_log.push(`${toLocalISOStringShanghai(new Date(timestamp * 1000))} ${ROGUE_NAMES[rogue_id]} 被授予伺烛客身份最多次的干员 [${prev_str}] -> [${curr_str}]`);
+                    // this.data_change_log.push(`${formatServerDate(new Date(timestamp * 1000))} ${ROGUE_NAMES[rogue_id]} 被授予伺烛客身份最多次的干员 [${prev_str}] -> [${curr_str}]`);
                     let isoStringLength = new Date() - new Date(timestamp * 1000) <= 7 * 86400000 ? 16 : 10;
                     this.data_change_log.push({
-                        'time': toLocalISOStringShanghai(new Date(timestamp * 1000), is_28_hours=true, length=isoStringLength),
+                        'time': formatServerDate(new Date(timestamp * 1000), is_28_hours=true, length=isoStringLength),
                         'rogue_name': ROGUE_NAMES[rogue_id],
                         'item': `被授予伺烛客身份最多次的干员`,
                         'old': `[${prev_str}]`,
@@ -777,10 +821,10 @@ const app = createApp({
                     }
                     let prev_str = prev_data['expeditionGuide'].map(x => x['name']).join(', ');
                     let curr_str = curr_data['expeditionGuide'].map(x => x['name']).join(', ');
-                    // this.data_change_log.push(`${toLocalISOStringShanghai(new Date(timestamp * 1000))} ${ROGUE_NAMES[rogue_id]} 累计入卷最多次的干员 [${prev_str}] -> [${curr_str}]`);
+                    // this.data_change_log.push(`${formatServerDate(new Date(timestamp * 1000))} ${ROGUE_NAMES[rogue_id]} 累计入卷最多次的干员 [${prev_str}] -> [${curr_str}]`);
                     let isoStringLength = new Date() - new Date(timestamp * 1000) <= 7 * 86400000 ? 16 : 10;
                     this.data_change_log.push({
-                        'time': toLocalISOStringShanghai(new Date(timestamp * 1000), is_28_hours=true, length=isoStringLength),
+                        'time': formatServerDate(new Date(timestamp * 1000), is_28_hours=true, length=isoStringLength),
                         'rogue_name': ROGUE_NAMES[rogue_id],
                         'item': `累计入卷最多次的干员`,
                         'old': `[${prev_str}]`,
@@ -807,11 +851,12 @@ const app = createApp({
         },
 
         is_date_disabled: function(date) {
-            const date_str = toLocalISOStringShanghai(new Date(date), true, 10);
-            return !Object.keys(this.ji_stats_data[this.selectingTab]).includes(date_str);
+            const date_str = formatServerDate(new Date(date), true, 10);
+            return !Object.keys(this.ji_stats_data[this.selectingTab] || {}).includes(date_str);
         },
 
         init_charts: function(rogue_id) {
+            if (!this.hasData(rogue_id)) return;
             for (let chart_name in this.charts[rogue_id]) {
                 if (chart_name == 'endings') {
                     this.init_chart_stacked_area_endings(rogue_id, 'endings');
@@ -830,7 +875,7 @@ const app = createApp({
             const that = this;
             let today = new Date();
             today.setTime(+today - 4 * 60 * 60 * 1000);
-            // let today_str = toLocalISOStringShanghai(today);
+            // let today_str = formatServerDate(today);
             let data_list = [];
             // let x_axis_list = [];
             let date_list = Object.keys(this.ji_stats_data[rogue_id]);
@@ -880,7 +925,7 @@ const app = createApp({
                     if (+new Date() - timestamp_list[j] * 1000 < timestamp_delta) {
                         // data_list.push(this.ji_stats_data[rogue_id][date_list[i]][timestamp_list[j]][chart_name]);
                         data_list.push([new Date(timestamp_list[j] * 1000), this.ji_stats_data[rogue_id][date_list[i]][timestamp_list[j]][chart_name]]);
-                        // x_axis_list.push(toLocalISOStringShanghai(new Date(this.ji_stats_data[rogue_id][date_list[i]][timestamp_list[j]]['last_update_timestamp'] * 1000)));
+                        // x_axis_list.push(formatServerDate(new Date(this.ji_stats_data[rogue_id][date_list[i]][timestamp_list[j]]['last_update_timestamp'] * 1000)));
                     }
                 }
             }
@@ -931,7 +976,7 @@ const app = createApp({
                                 if (params.axisDimension === 'x') {
                                     // x轴的值格式化
                                     const date = new Date(params.value);
-                                    return toLocalISOStringShanghai(date, true, 16);
+                                    return formatServerDate(date, true, 16);
                                 }
                                 else if (params.axisDimension === 'y') {
                                     // y轴的值格式化 - 添加千位分隔符
@@ -948,9 +993,9 @@ const app = createApp({
                         // 只使用第一个参数的日期（因为所有数据点都在同一时间）
                         const firstParam = params[0];
                         const date = new Date(firstParam.value[0]);
-                        const dateStr = toLocalISOStringShanghai(date, true, 16);
+                        const dateStr = formatServerDate(date, true, 16);
                         let result = `<span>本地时间</span><span style="float:right;margin-left:20px;font-size:14px;color:#6d6e73;font-weight:900">${dateStr}</span><br/>`;
-                        result += `<span>服务器时间</span><span style="float:right;margin-left:20px;font-size:14px;color:#6d6e73;font-weight:900">${toLocalISOStringShanghai(date, false, 16)}</span><br/>`
+                        result += `<span>服务器时间</span><span style="float:right;margin-left:20px;font-size:14px;color:#6d6e73;font-weight:900">${formatServerDate(date, false, 16)}</span><br/>`
                         params.forEach(param => {
                             result += `${param.marker}<span style="font-size:14px;color:#6d6e73;font-weight:400;margin-left:2px">${param.seriesName}</span><span style="float:right;margin-left:20px;font-size:14px;color:#6d6e73;font-weight:900">${Number(param.value[1]).toLocaleString('zh-CN')}</span><br/>`;
                         });
@@ -982,14 +1027,14 @@ const app = createApp({
                             // formatter: '{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}',
                             // formatter: '{yyyy}-{MM}-{dd}',
                             formatter: function(object) {
-                                return toLocalISOStringShanghai(new Date(object), true, 16);
+                                return formatServerDate(new Date(object), true, 16);
                             },
                         },
                         axisPointer: {
                             type: 'shadow',
                             // formatter: '{yyyy}-{MM}-{dd} {HH}:{mm}:{ss}',
                             formatter: function(object) {
-                                return toLocalISOStringShanghai(new Date(object), true, 16);
+                                return formatServerDate(new Date(object), true, 16);
                             },
                         },
                         splitArea: {
@@ -1012,7 +1057,7 @@ const app = createApp({
                     },
                     {
                         type: 'value',
-                        name: `比上一个时间点增加了`,
+                        name: t('比上一个时间点增加了'),
                         // min: 'dataMin',
                         // max: 'dataMax',
                         // interval: 50,
@@ -1070,7 +1115,7 @@ const app = createApp({
                         data: data_list,
                     },
                     {
-                        name: `比上一个时间点增加了`,
+                        name: t('比上一个时间点增加了'),
                         type: 'bar',
                         yAxisIndex: 1,
                         tooltip: {
@@ -1129,7 +1174,7 @@ const app = createApp({
                         //     position: 'top',
                         //     formatter: function (object) {
                         //         return object.value[2];
-                        //         // return EVENTS[toLocalISOStringShanghai(new Date(object.value[0]))];
+                        //         // return EVENTS[formatServerDate(new Date(object.value[0]))];
                         //     }
                         // },
                         tooltip: {
@@ -1174,7 +1219,7 @@ const app = createApp({
                                     show: true,
                                     position: 'inside',
                                     formatter: function (object) {
-                                        return `${object.data.name}\n(${toLocalISOStringShanghai(new Date(object.data.coord[0][0]))} ~ ${toLocalISOStringShanghai(new Date(object.data.coord[1][0]))})`;
+                                        return `${object.data.name}\n(${formatServerDate(new Date(object.data.coord[0][0]))} ~ ${formatServerDate(new Date(object.data.coord[1][0]))})`;
                                     },
                                     fontSize: 16,
                                     fontWeight: 'bold',
@@ -1195,7 +1240,7 @@ const app = createApp({
             let chart_name = 'endings';
             let today = new Date();
             today.setTime(+today - 4 * 60 * 60 * 1000);
-            // let today_str = toLocalISOStringShanghai(today);
+            // let today_str = formatServerDate(today);
             let ending_lists = {'1': [], '2': [], '3': [], '4': [], '5': []};
             // let x_axis_list = [];
             let date_list = Object.keys(this.ji_stats_data[rogue_id]);
@@ -1247,7 +1292,7 @@ const app = createApp({
                             ending_lists[ending_count].push([new Date(timestamp_list[j] * 1000), this.ji_stats_data[rogue_id][date_list[i]][timestamp_list[j]][chart_name] && this.ji_stats_data[rogue_id][date_list[i]][timestamp_list[j]][chart_name][ending_count] || '-']);
                             // ending_lists[ending_count].push([new Date(timestamp_list[j] * 1000), this.ji_stats_data[rogue_id][date_list[i]][timestamp_list[j]][chart_name][ending_count] || '-']);
                         }
-                        // x_axis_list.push(toLocalISOStringShanghai(new Date(this.ji_stats_data[rogue_id][date_list[i]][timestamp_list[j]]['last_update_timestamp'] * 1000)));
+                        // x_axis_list.push(formatServerDate(new Date(this.ji_stats_data[rogue_id][date_list[i]][timestamp_list[j]]['last_update_timestamp'] * 1000)));
                     }
                 }
             }
@@ -1287,7 +1332,7 @@ const app = createApp({
                                 if (params.axisDimension === 'x') {
                                     // x轴的值格式化
                                     const date = new Date(params.value);
-                                    return toLocalISOStringShanghai(date, true, 16);
+                                    return formatServerDate(date, true, 16);
                                 }
                                 else if (params.axisDimension === 'y') {
                                     // y轴的值格式化 - 添加千位分隔符
@@ -1304,9 +1349,9 @@ const app = createApp({
                         // 只使用第一个参数的日期（因为所有数据点都在同一时间）
                         const firstParam = params[0];
                         const date = new Date(firstParam.value[0]);
-                        const dateStr = toLocalISOStringShanghai(date, true, 16);
+                        const dateStr = formatServerDate(date, true, 16);
                         let result = `<span>本地时间</span><span style="float:right;margin-left:20px;font-size:14px;color:#6d6e73;font-weight:900">${dateStr}</span><br/>`;
-                        result += `<span>服务器时间</span><span style="float:right;margin-left:20px;font-size:14px;color:#6d6e73;font-weight:900">${toLocalISOStringShanghai(date, false, 16)}</span><br/>`
+                        result += `<span>服务器时间</span><span style="float:right;margin-left:20px;font-size:14px;color:#6d6e73;font-weight:900">${formatServerDate(date, false, 16)}</span><br/>`
                         params.forEach(param => {
                             result += `${param.marker}<span style="font-size:14px;color:#6d6e73;font-weight:400;margin-left:2px">${param.seriesName}</span><span style="float:right;margin-left:20px;font-size:14px;color:#6d6e73;font-weight:900">${param.value[1]}</span><br/>`;
                         });
@@ -1328,13 +1373,13 @@ const app = createApp({
                         axisLabel: {
                             interval: 'auto',  // 自动计算间隔
                             formatter: function(object) {
-                                return toLocalISOStringShanghai(new Date(object), true, 16);
+                                return formatServerDate(new Date(object), true, 16);
                             },
                         },
                         axisPointer: {
                             type: 'shadow',
                             formatter: function(object) {
-                                return toLocalISOStringShanghai(new Date(object), true, 16);
+                                return formatServerDate(new Date(object), true, 16);
                             },
                         },
                     }
@@ -1874,7 +1919,7 @@ const app = createApp({
                                 if (params.axisDimension === 'x') {
                                     // x轴的值格式化
                                     const date = new Date(params.value);
-                                    return toLocalISOStringShanghai(date, true, 10);
+                                    return formatServerDate(date, true, 10);
                                 }
                                 return params.value;
                             },
@@ -1918,13 +1963,13 @@ const app = createApp({
                     axisLabel: {
                         interval: 'auto',  // 自动计算间隔
                         formatter: function(object) {
-                            return toLocalISOStringShanghai(new Date(object), true, 10);
+                            return formatServerDate(new Date(object), true, 10);
                         },
                     },
                     axisPointer: {
                         type: 'shadow',
                         formatter: function(object) {
-                            return toLocalISOStringShanghai(new Date(object), true, 10);
+                            return formatServerDate(new Date(object), true, 10);
                         },
                     },
                     // 设置时间范围
@@ -2038,7 +2083,7 @@ const app = createApp({
                                         let start = new Date(object.data.coord[0][0]);
                                         let end = new Date(new Date(object.data.coord[1][0]) - 86400000);
                                         let day_count = Math.floor((end - start) / 86400000) + 1;
-                                        return `${object.data.name} 第${object.data.rank}名\n${day_count}天 (${toLocalISOStringShanghai(start, true, 10)} ~ ${toLocalISOStringShanghai(end, true, 10)})`;
+                                        return `${object.data.name} 第${object.data.rank}名\n${day_count}天 (${formatServerDate(start, true, 10)} ~ ${formatServerDate(end, true, 10)})`;
                                     },
                                     fontSize: 20,
                                     fontWeight: 'bold',
