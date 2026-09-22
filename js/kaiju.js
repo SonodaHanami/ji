@@ -37,6 +37,7 @@ const ROGUE_NAME_LIST = [
     '探索者的银凇止境',
     '萨卡兹的无终奇语',
     '岁的界园志异',
+    '沉沦者的黑流树海',
 ]
 
 const TEAM_LIST_2 = [
@@ -68,6 +69,14 @@ const TEAM_LIST_6 = [
     '突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队',
     '高台突破分队', '地面突破分队', '高规格分队',
     '游客分队', '司岁台分队', '天师府分队',
+    '花团锦簇分队', '棋行险着分队', '岁影回音分队',
+    '代理人分队', '知学分队', '商贾分队',
+]
+const TEAM_LIST_7 = [
+    '指挥分队', '特勤分队', '后勤分队',
+    '突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队',
+    '高台突破分队', '地面突破分队',
+    '本源研修分队', '文明开化分队', '开拓者分队', '多边贸易分队', '地质调查分队',
 ]
 const JOB_TEAM_LIST = ['突击战术分队', '堡垒战术分队', '远程战术分队', '破坏战术分队']
 
@@ -166,6 +175,12 @@ function save_settings() {
         if (document.getElementById('rogue_5').checked) {
             enabled_rogue_id_list.push(5)
         }
+        if (document.getElementById('rogue_6').checked) {
+            enabled_rogue_id_list.push(6)
+        }
+        if (document.getElementById('rogue_7').checked) {
+            enabled_rogue_id_list.push(7)
+        }
         // 不在box中的干员
         operators_star_6_to_get = [];
         for (let idx = 0; idx < OPERATORS_STAR_6_LIST.length; idx++) {
@@ -213,6 +228,8 @@ function load_settings() {
             document.getElementById('rogue_3').checked = data['enabled_rogue_id_list'].includes(3);
             document.getElementById('rogue_4').checked = data['enabled_rogue_id_list'].includes(4);
             document.getElementById('rogue_5').checked = data['enabled_rogue_id_list'].includes(5);
+            document.getElementById('rogue_6').checked = data['enabled_rogue_id_list'].includes(6);
+            document.getElementById('rogue_7').checked = data['enabled_rogue_id_list'].includes(7);
         }
         // 仅使用职业分队开局
         if ('is_job_team_only' in data) {
@@ -786,6 +803,9 @@ function get_drama_basic(drama_level=7) {
     if (document.getElementById('rogue_6').checked) {
         rogue_name_list.push('岁的界园志异')
     }
+    if (document.getElementById('rogue_7').checked) {
+        rogue_name_list.push('沉沦者的黑流树海')
+    }
     let opening_rogue_name = rogue_name_list[hash_int % rogue_name_list.length];
     let opening_team;
     if (document.getElementById('is_job_team_only').checked) {
@@ -1023,6 +1043,9 @@ function get_drama_deck(drama_level) {
     }
     if (document.getElementById('rogue_6').checked) {
         rogue_name_list.push('岁的界园志异')
+    }
+    if (document.getElementById('rogue_7').checked) {
+        rogue_name_list.push('沉沦者的黑流树海')
     }
     let opening_rogue_name = rogue_name_list[hash_int % rogue_name_list.length];
     let opening_team, opening_job_team_only_text = '';
